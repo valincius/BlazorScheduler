@@ -1,0 +1,44 @@
+﻿@namespace BlazorScheduler.Internal.Components
+@typeparam T
+
+<div class="week">
+    <div class="days">
+        @for (var dt = Start; dt <= End; dt = dt.AddDays(1))
+        {
+            <SchedulerDay Day="dt" T="T" />
+        }
+    </div>
+    <div class="appointments">
+        @foreach (var (appointment, order) in Orderings)
+        {
+            int maxOrderOfSpan = Orderings.Where(x => (x.Key.Start.Date, x.Key.End.Date).Overlaps((appointment.Start.Date, appointment.End.Date))).Max(x => (int?)x.Value) ?? 0;
+            if (order < MaxNumOfAppointmentsPerDay
+                || (order == MaxNumOfAppointmentsPerDay && maxOrderOfSpan <= MaxNumOfAppointmentsPerDay)
+                || ReferenceEquals(appointment, Scheduler.NewAppointment))
+            {
+                bool isTimedAppointment = appointment.Start.Date == appointment.End.Date && appointment.Start != appointment.End;
+                if (isTimedAppointment)
+                {
+                    <SchedulerAppointment T="T" Appointment="appointment" Order="order" />
+                }
+                else
+                {
+                    var (start, end) = GetStartAndEndDayForAppointment(appointment);
+                    <SchedulerAllDayAppointment T="T" Appointment="appointment" Order="order" Start="start" End="end" />
+                }
+            }
+        }
+        @for (var dt = Start; dt <= End; dt = dt.AddDays(1))
+        {
+            var todaysAppointments = Orderings.Where(x => dt.Between(x.Key.Start.Date, x.Key.End.Date));
+            int maxOrder = todaysAppointments.Max(x => (int?)x.Value) ?? 0;
+            if (maxOrder > MaxNumOfAppointmentsPerDay)
+            {
+                var overflowAppointments = todaysAppointments
+                    .Where(x => x.Value > MaxNumOfAppointmentsPerDay - 1)
+                    .Select(x => x.Key).ToList().AsReadOnly();
+                <SchedulerAppointmentOverflow T="T" Appointments="overflowAppointments" Start="(int)dt.DayOfWeek" Order="MaxNumOfAppointmentsPerDay" />
+            }
+        }
+    </div>
+</div>

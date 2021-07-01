@@ -1,0 +1,143 @@
+﻿.scheduler {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    outline: 0;
+
+    border: 1px solid #ccc;
+    border-radius: 3px;
+}
+
+.scheduler > .actions {
+    padding: 10px;
+    display: flex;
+    justify-content: space-between;
+}
+.scheduler > .actions > .navigation > .selected-month {
+    width: 160px;
+    display: inline-block;
+    text-align: center;
+    font-size: 1.25rem;
+    vertical-align: middle;
+}
+.scheduler > .actions .btn {
+    background-color: #ddd;
+    border: none;
+    color: black;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+}
+.scheduler > .actions .btn:focus {
+    outline: none;
+}
+
+.scheduler > .actions .icon-btn {
+    background: initial;
+    border-radius: 50%;
+}
+.scheduler > .actions .icon-btn:hover {
+    background-color: #ddd;
+}
+.scheduler > .actions .icon-btn > svg  {
+    width: 1em;
+    height: 1em;
+    fill: currentColor;
+    font-size: 1.5rem;
+    margin: -6px;
+}
+
+.scheduler > .month {
+    display: flex;
+    flex-direction: column;
+}
+.scheduler > .month > .week {
+    position: relative;
+}
+.scheduler > .month > div:not(:last-of-type) {
+    border-bottom: 1px solid #eee;
+}
+.scheduler > .month > .week > .days {
+    display: flex;
+    justify-content: space-around;
+    height: 8.2rem;
+}
+
+.scheduler > .month > .week.header {
+    display: flex;
+    justify-content: space-around;
+    border-bottom: 1px solid #eee;
+}
+
+.scheduler > .month > .week.header > .day-of-month {
+    background-color: white;
+    text-align: center;
+    font-weight: bold;
+    flex: 1;
+}
+.scheduler > .month > .week.header > div:not(:last-of-type) {
+    border-right: 1px solid #eee;
+}
+
+.scheduler > .month > .week > .days > .day {
+    background-color: white;
+    flex: 1;
+    text-align: center;
+}
+
+.scheduler > .month > .week > .days > div:not(:last-of-type) {
+    border-right: 1px solid #eee;
+}
+
+.scheduler > .month > .week > .days > .day > span {
+    margin-top: 5px;
+    font-size: .9rem;
+}
+
+.scheduler > .month > .week > .days > .day.today > span {
+    --size: 1.5rem;
+    font-size: .75rem;
+    display: inline-block;
+    text-align: center;
+    background-color: var(--theme-color);
+    color: var(--theme-alt-color);
+    border-radius: 50%;
+    width: var(--size);
+    height: var(--size);
+    line-height: var(--size);
+}
+
+.scheduler > .month > .week > .days > .day.diff-month {
+    background-color: #f7f7f7;
+    color: #ababab;
+}
+
+.scheduler > .month > .week > .appointments > .appointment {
+    position: absolute;
+    left: calc(var(--start) / 7 * 100%);
+    top: max(10px, calc(15px + (var(--order) * 1.2rem)));
+    border-radius: 2px;
+    margin-left: 2px;
+    width: calc((var(--end) - var(--start) + 1) / 7 * 100% - 4px);
+    padding-left: 4px;
+    font-size: .75rem;
+}
+.scheduler > .month > .week > .appointments > .appointment.new-appointment {
+    background-color: var(--theme-color) !important;
+    color: var(--theme-alt-color) !important;
+    top: 30px;
+    z-index: 1;
+    box-shadow: 3px 6px 6px rgb(0 0 0 / 50%);
+}
+.scheduler > .month > .week > .appointments > .appointment > .dot {
+    --size: 7px;
+    display: inline-block;
+    width: var(--size);
+    height: var(--size);
+    line-height: 1rem;
+    vertical-align: middle;
+    border-radius: 50%;
+    background-color: red;
+}

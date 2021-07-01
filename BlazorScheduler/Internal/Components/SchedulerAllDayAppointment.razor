@@ -1,0 +1,7 @@
+﻿@typeparam T
+
+<div class="appointment @Classes.AsString()"
+    style="--start: @Start; --end: @End; --order: @Order; background-color: @BackgroundColor; color: @TextColor;"
+    @onclick="() => Scheduler.OnAppointmentClick(Appointment)">
+    @Appointment.Title
+</div>

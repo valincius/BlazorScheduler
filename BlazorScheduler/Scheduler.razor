@@ -1,0 +1,44 @@
+﻿@namespace BlazorScheduler
+@typeparam T
+
+@using Microsoft.JSInterop
+@using BlazorScheduler.Internal
+
+@inject IJSRuntime jsRuntime
+
+<div class="scheduler" style="--theme-color: @ThemeColor.ToRgbString(); --theme-alt-color: @ThemeColor.GetAltColor().ToRgbString();">
+    <div class="actions">
+        <button class="btn today" @onclick="GotoCurrentDate">Today</button>
+        <div class="navigation">
+            <button class="btn icon-btn" @onclick="PrevMonth">
+                <svg viewBox="0 0 24 24">
+                    <path d="M24 0v24H0V0h24z" fill="none" opacity=".87"/>
+                    <path d="M14 7l-5 5 5 5V7z"/>
+                </svg>
+            </button>
+            <span class="selected-month">@CurrentDate.ToString("MMMM yyyy")</span>
+            <button class="btn icon-btn" @onclick="NextMonth">
+                <svg viewBox="0 0 24 24">
+                    <path d="M0 0h24v24H0V0z" fill="none"/>
+                    <path d="M10 17l5-5-5-5v10z"/>
+                </svg>
+            </button>
+        </div>
+        <span></span>
+    </div>
+    <div class="month">
+        <div class="week header">
+            @foreach (var day in Enum.GetNames(typeof(DayOfWeek)))
+            {
+                <div class="day-of-month">@day</div>
+            }
+        </div>
+        <CascadingValue Value="this">
+            @foreach (var week in GetDateRange().Chunk(7))
+            {
+                var (start, end) = (week.First(), week.Last());
+                <SchedulerWeek T="T" Start="start" End="end" Appointments="GetAppointments(start, end)" />
+            }
+        </CascadingValue>
+    </div>
+</div>

@@ -1,0 +1,46 @@
+﻿@page "/"
+@using BlazorScheduler
+@using System.Drawing
+
+<Scheduler T="DifferentAppointment" Appointments="Appointments" OnAddingNewAppointment="AddNewAppointment" ThemeColor="Color.Aqua" />
+
+@code {
+    List<DifferentAppointment> Appointments = new();
+
+    protected override void OnInitialized()
+    {
+        Appointments.ForEach(x =>
+        {
+            x.Color = RandomColor(new Random(x.GetHashCode()));
+        });
+        base.OnInitialized();
+    }
+
+    void AddAppointment() {
+        Appointments.Add(new DifferentAppointment { Start = DateTime.Today, End = DateTime.Today, Title = "Today" });
+    }
+
+    Task AddNewAppointment(DifferentAppointment appointment)
+    {
+        if ((appointment.End - appointment.Start).Days < 7)
+        {
+            appointment.Color = Color.Red;
+            Appointments.Add(appointment);
+        }
+
+        return Task.CompletedTask;
+    }
+
+    private static Color RandomColor(Random r)
+    {
+        return Color.FromArgb(r.Next(0, 255), r.Next(0, 255), r.Next(0, 255));
+    }
+
+    class DifferentAppointment : IAppointment
+    {
+        public string Title { get; set; }
+		public DateTime Start { get; set; }
+		public DateTime End { get; set; }
+		public Color Color { get; set; }
+    }
+}
