@@ -1,6 +1,6 @@
 ﻿@namespace BlazorScheduler.Internal.Components
 @typeparam T
 
-<div class="appointment" style="--start: @Start; --order: @Order;" @onclick="() => Scheduler.OnOverflowAppointmentClick(Appointments)">
+<div class="appointment" style="--start: @Start; --order: @Order;" @onclick="e => Scheduler.OnOverflowAppointmentClick?.Invoke(Appointments, e)">
     + @Appointments.Count() others
 </div>

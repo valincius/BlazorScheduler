@@ -2,10 +2,38 @@
 @using BlazorScheduler
 @using System.Drawing
 
-<Scheduler T="DifferentAppointment" Appointments="Appointments" OnAddingNewAppointment="AddNewAppointment" ThemeColor="Color.Aqua" />
+<Scheduler
+    T="DifferentAppointment"
+    Appointments="Appointments"
+    OnAddingNewAppointment="AddNewAppointment"
+    OnAppointmentClick="OnAppointmentClick"
+    OnOverflowAppointmentClick="OnOverflowAppointmentClick"
+    ThemeColor="Color.Aqua"
+/>
+
+@if (SelectedAppointment is not null)
+{
+    <div id="overlay" @onclick="() => SelectedAppointment = null">
+        <div class="appointment-popup" style="left: @(PopupX)px; top: @(PopupY)px;" @onclick:stopPropagation="true">
+            <label>Title: </label><input type="text" @bind-value="SelectedAppointment.Title" /><br />
+            <label>Start: </label><input type="date" @bind-value="SelectedAppointment.Start" /><br />
+            <label>End: </label><input type="date" @bind-value="SelectedAppointment.End" /><br />
+            <label>Color: </label><input type="text" @bind-value="AppointmentColor" /><br />
+
+            <button @onclick="() => SelectedAppointment = null">Close</button>
+        </div>
+    </div>
+}
 
 @code {
-    List<DifferentAppointment> Appointments = new();
+    private List<DifferentAppointment> Appointments = new();
+    private DifferentAppointment SelectedAppointment;
+    private double PopupX, PopupY;
+    private string AppointmentColor
+    {
+        get => SelectedAppointment.Color.Name;
+        set => SelectedAppointment.Color = Color.FromName(value);
+    }
 
     protected override void OnInitialized()
     {
@@ -16,11 +44,11 @@
         base.OnInitialized();
     }
 
-    void AddAppointment() {
+    private void AddAppointment() {
         Appointments.Add(new DifferentAppointment { Start = DateTime.Today, End = DateTime.Today, Title = "Today" });
     }
 
-    Task AddNewAppointment(DifferentAppointment appointment)
+    private Task AddNewAppointment(DifferentAppointment appointment)
     {
         if ((appointment.End - appointment.Start).Days < 7)
         {
@@ -31,12 +59,28 @@
         return Task.CompletedTask;
     }
 
-    private static Color RandomColor(Random r)
+    private void OnAppointmentClick(DifferentAppointment appointment, MouseEventArgs mouse)
+    {
+        SelectedAppointment = appointment;
+        (PopupX, PopupY) = (mouse.ClientX, mouse.ClientY);
+        StateHasChanged();
+    }
+    private void OnOverflowAppointmentClick(IEnumerable<DifferentAppointment> appointments, MouseEventArgs mouse)
+    {
+        
+    }
+
+    private Color RandomColor(Random r)
     {
         return Color.FromArgb(r.Next(0, 255), r.Next(0, 255), r.Next(0, 255));
     }
 
-    class DifferentAppointment : IAppointment
+    public string ToRgbString(Color color)
+    {
+        return $"rgb({color.R}, {color.G}, {color.B})";
+    }
+
+    private class DifferentAppointment : IAppointment
     {
         public string Title { get; set; }
 		public DateTime Start { get; set; }

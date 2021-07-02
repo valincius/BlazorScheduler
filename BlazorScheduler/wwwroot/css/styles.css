@@ -123,6 +123,9 @@
     width: calc((var(--end) - var(--start) + 1) / 7 * 100% - 4px);
     padding-left: 4px;
     font-size: .75rem;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
 }
 .scheduler > .month > .week > .appointments > .appointment.new-appointment {
     background-color: var(--theme-color) !important;

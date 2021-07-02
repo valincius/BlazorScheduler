@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using BlazorScheduler.Internal.Extensions;
 using BlazorScheduler.Internal.Components;
 using System.Drawing;
+using Microsoft.AspNetCore.Components.Web;
 
 namespace BlazorScheduler
 {
@@ -14,6 +15,8 @@ namespace BlazorScheduler
     {
         [Parameter] public List<T> Appointments { get; set; }
         [Parameter] public Func<T, Task> OnAddingNewAppointment { get; set; }
+        [Parameter] public Action<T, MouseEventArgs> OnAppointmentClick { get; set; }
+        [Parameter] public Action<IEnumerable<T>, MouseEventArgs> OnOverflowAppointmentClick { get; set; }
         [Parameter] public Color ThemeColor { get; set; } = Color.Aqua;
 
         private DotNetObjectReference<Scheduler<T>> ObjectReference;
@@ -48,15 +51,6 @@ namespace BlazorScheduler
 		{
             CurrentDate = months == 0 ? DateTime.Today : CurrentDate.AddMonths(months);
             await AttachMouseHandler();
-		}
-
-        public void OnAppointmentClick(T appointment)
-		{
-
-		}
-        public void OnOverflowAppointmentClick(IEnumerable<T> appointments)
-		{
-
 		}
 
         private IEnumerable<DateTime> GetDateRange()

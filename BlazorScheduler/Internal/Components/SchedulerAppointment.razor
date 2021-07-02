@@ -1,7 +1,7 @@
 ﻿@namespace BlazorScheduler.Internal.Components
 @typeparam T
 
-<div class="appointment" style="--start: @Start; --order: @Order;" @onclick="() => Scheduler.OnAppointmentClick(Appointment)">
+<div class="appointment" style="--start: @Start; --order: @Order;" @onclick="e => Scheduler.OnAppointmentClick?.Invoke(Appointment, e)">
     <span class="dot" style="background-color: @BackgroundColor;"></span>
     <b>@Appointment.Title</b> - @Appointment.Start.ToString("htt") to @Appointment.End.ToString("htt")
 </div>
