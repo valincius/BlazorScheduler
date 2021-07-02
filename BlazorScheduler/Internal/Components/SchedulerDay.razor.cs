@@ -12,7 +12,6 @@ namespace BlazorScheduler.Internal.Components {
 
         private bool IsDiffMonth => Day.Month != Scheduler.CurrentDate.Month;
         private string DateText => (IsDiffMonth && Day.Day == 1) ? Day.ToString("MMM d") : Day.Day.ToString();
-
 		private IEnumerable<string> Classes {
 			get {
 				if (Day == DateTime.Today)
@@ -25,7 +24,6 @@ namespace BlazorScheduler.Internal.Components {
 
 		private void OnMouseDown(MouseEventArgs e)
 		{
-			Console.WriteLine(e.Button);
 			if (e.Button == 0)
 			{
 				Scheduler.BeginDrag(this);

@@ -14,20 +14,17 @@ function throttle(fn, delay) {
 }
 
 window.attachSchedulerMouseEventsHandler = objRef => {
-    let elements = Array.from(document.querySelectorAll('.day'));
-
-    let linkCoords = elements.map(link => {
-        let rect = link.getBoundingClientRect();
-        return [rect.x + rect.width / 2, rect.y + rect.height / 2];
-    });
-
     document.addEventListener('mouseup', e => objRef.invokeMethodAsync('OnMouseUp', e.button));
 
     document.addEventListener('mousemove', throttle(e => {
         let distances = [];
 
-        linkCoords.forEach(linkCoord => {
-            let distance = Math.hypot(linkCoord[0] - parseInt(e.clientX), linkCoord[1] - parseInt(e.clientY));
+        let elements = Array.from(document.querySelectorAll('.day'));
+        elements.forEach(elem => {
+            let rect = elem.getBoundingClientRect();
+            let x = rect.x + rect.width / 2;
+            let y = rect.y + rect.height / 2;
+            let distance = Math.hypot(x - parseInt(e.clientX), y - parseInt(e.clientY));
             distances.push(parseInt(distance));
         });
 

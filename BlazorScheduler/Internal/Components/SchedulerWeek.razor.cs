@@ -14,10 +14,21 @@ namespace BlazorScheduler.Internal.Components
         [Parameter] public DateTime End { get; set; }
         [Parameter] public IEnumerable<T> Appointments { get; set; }
 
-		readonly Dictionary<T, int> Orderings = new();
-		readonly int MaxNumOfAppointmentsPerDay = 5;
+		private readonly Dictionary<T, int> Orderings = new();
+		private readonly int MaxNumOfAppointmentsPerDay = 5;
 
-        (int, int) GetStartAndEndDayForAppointment(T appointment)
+        protected override void OnParametersSet()
+        {
+            Orderings.Clear();
+            foreach (var app in Appointments)
+            {
+                Orderings[app] = GetBestOrderingForAppointment(app);
+            }
+
+            base.OnParametersSet();
+        }
+
+        private (int, int) GetStartAndEndDayForAppointment(T appointment)
         {
             DayOfWeek start = DayOfWeek.Sunday, end = DayOfWeek.Saturday;
 
@@ -35,28 +46,21 @@ namespace BlazorScheduler.Internal.Components
             return ((int)start, (int)end);
         }
 
-        int GetBestOrderingForAppointment(T appointment)
+        private int GetBestOrderingForAppointment(T appointment)
         {
             if (ReferenceEquals(appointment, Scheduler.NewAppointment))
-			{
-                return -1;
-			}
-
-            return Orderings
-                .Where(x => GetStartAndEndDayForAppointment(appointment).Overlaps(GetStartAndEndDayForAppointment(x.Key)))
-                .OrderBy(x => x.Value)
-                .TakeWhile((x, i) => x.Value == ++i).LastOrDefault().Value + 1;
-        }
-
-        protected override void OnParametersSet()
-        {
-            Orderings.Clear();
-            foreach (var app in Appointments)
             {
-                Orderings[app] = GetBestOrderingForAppointment(app);
+                return -1;
             }
 
-            base.OnParametersSet();
+            return Orderings
+                .Where(x => {
+                    return GetStartAndEndDayForAppointment(appointment).Overlaps(GetStartAndEndDayForAppointment(x.Key))
+                        && !ReferenceEquals(x.Key, Scheduler.NewAppointment);
+                })
+                .OrderBy(x => x.Value)
+                .TakeWhile((x, i) => x.Value == ++i)
+                .LastOrDefault().Value + 1;
         }
     }
 }

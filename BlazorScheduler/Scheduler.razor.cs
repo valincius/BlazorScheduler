@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using BlazorScheduler.Internal.Extensions;
 using BlazorScheduler.Internal.Components;
 using System.Drawing;
-using Microsoft.AspNetCore.Components.Web;
 
 namespace BlazorScheduler
 {
@@ -17,15 +16,16 @@ namespace BlazorScheduler
         [Parameter] public Func<T, Task> OnAddingNewAppointment { get; set; }
         [Parameter] public Color ThemeColor { get; set; } = Color.Aqua;
 
-        public DateTime CurrentDate { get; private set; } = DateTime.Today;
-        public T NewAppointment { get; private set; }
-
         private DotNetObjectReference<Scheduler<T>> ObjectReference;
         private DateTime NewAppointmentAnchor;
+
+        public DateTime CurrentDate { get; private set; }
+        public T NewAppointment { get; private set; }
 
         protected override void OnInitialized()
         {
             ObjectReference = DotNetObjectReference.Create(this);
+            CurrentDate = DateTime.Today;
 
             base.OnInitialized();
         }
@@ -34,14 +34,21 @@ namespace BlazorScheduler
         {
             if (firstRender)
             {
-                await jsRuntime.InvokeVoidAsync("attachSchedulerMouseEventsHandler", ObjectReference);
+                await AttachMouseHandler();
             }
             base.OnAfterRender(firstRender);
         }
 
-        private void GotoCurrentDate() => CurrentDate = DateTime.Today;
-        private void PrevMonth() => CurrentDate = CurrentDate.AddMonths(-1);
-        private void NextMonth() => CurrentDate = CurrentDate.AddMonths(+1);
+        private async Task AttachMouseHandler()
+		{
+            await jsRuntime.InvokeVoidAsync("attachSchedulerMouseEventsHandler", ObjectReference);
+        }
+
+        private async Task ChangeMonth(int months = 0)
+		{
+            CurrentDate = months == 0 ? DateTime.Today : CurrentDate.AddMonths(months);
+            await AttachMouseHandler();
+		}
 
         public void OnAppointmentClick(T appointment)
 		{

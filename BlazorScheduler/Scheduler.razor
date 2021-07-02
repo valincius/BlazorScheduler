@@ -8,16 +8,16 @@
 
 <div class="scheduler" style="--theme-color: @ThemeColor.ToRgbString(); --theme-alt-color: @ThemeColor.GetAltColor().ToRgbString();">
     <div class="actions">
-        <button class="btn today" @onclick="GotoCurrentDate">Today</button>
+        <button class="btn today" @onclick="() => ChangeMonth()">Today</button>
         <div class="navigation">
-            <button class="btn icon-btn" @onclick="PrevMonth">
+            <button class="btn icon-btn" @onclick="() => ChangeMonth(-1)">
                 <svg viewBox="0 0 24 24">
                     <path d="M24 0v24H0V0h24z" fill="none" opacity=".87"/>
                     <path d="M14 7l-5 5 5 5V7z"/>
                 </svg>
             </button>
             <span class="selected-month">@CurrentDate.ToString("MMMM yyyy")</span>
-            <button class="btn icon-btn" @onclick="NextMonth">
+            <button class="btn icon-btn" @onclick="() => ChangeMonth(+1)">
                 <svg viewBox="0 0 24 24">
                     <path d="M0 0h24v24H0V0z" fill="none"/>
                     <path d="M10 17l5-5-5-5v10z"/>
