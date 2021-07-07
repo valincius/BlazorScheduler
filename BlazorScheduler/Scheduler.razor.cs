@@ -15,8 +15,8 @@ namespace BlazorScheduler
     {
         [Parameter] public List<T> Appointments { get; set; }
         [Parameter] public Func<T, Task> OnAddingNewAppointment { get; set; }
-        [Parameter] public Action<T, MouseEventArgs> OnAppointmentClick { get; set; }
-        [Parameter] public Action<IEnumerable<T>, MouseEventArgs> OnOverflowAppointmentClick { get; set; }
+        [Parameter] public Func<T, MouseEventArgs, Task> OnAppointmentClick { get; set; }
+        [Parameter] public Func<IEnumerable<T>, MouseEventArgs, Task> OnOverflowAppointmentClick { get; set; }
         [Parameter] public Color ThemeColor { get; set; } = Color.Aqua;
 
         private DotNetObjectReference<Scheduler<T>> ObjectReference;
@@ -24,6 +24,7 @@ namespace BlazorScheduler
 
         public DateTime CurrentDate { get; private set; }
         public T NewAppointment { get; private set; }
+        private bool DoneDragging = false;
 
         protected override void OnInitialized()
         {
@@ -81,6 +82,7 @@ namespace BlazorScheduler
                 End = day.Day,
                 Title = "New Appointment"
             };
+            DoneDragging = false;
 
             NewAppointmentAnchor = NewAppointment.Start;
             StateHasChanged();
@@ -92,16 +94,17 @@ namespace BlazorScheduler
             {
                 if (NewAppointment is not null)
                 {
+                    DoneDragging = true;
                     await OnAddingNewAppointment?.Invoke(NewAppointment);
                     NewAppointment = default;
+                    StateHasChanged();
                 }
-                StateHasChanged();
-			}
+            }
         }
         [JSInvokable]
         public void OnMouseMove(string date)
         {
-            if (NewAppointment is not null)
+            if (NewAppointment is not null && !DoneDragging)
             {
                 var day = DateTime.ParseExact(date, "yyyyMMdd", null);
                 (NewAppointment.Start, NewAppointment.End) = day < NewAppointmentAnchor ? (day, NewAppointmentAnchor) : (NewAppointmentAnchor, day);
