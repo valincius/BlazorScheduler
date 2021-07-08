@@ -16,8 +16,8 @@
     <div id="overlay" @onclick="CloseAppointment">
         <div class="popup" style="left: @(PopupX); top: @(PopupY);" @onclick:stopPropagation="true">
             <label>Title: </label><input type="text" @bind-value="SelectedAppointmentCopy.Title" /><br />
-            <label>Start: </label><input type="date" @bind-value="SelectedAppointmentCopy.Start" /><br />
-            <label>End: </label><input type="date" @bind-value="SelectedAppointmentCopy.End" /><br />
+            <label>Start: </label><input type="text" @bind-value="SelectedAppointmentCopy.Start" /><br />
+            <label>End: </label><input type="text" @bind-value="SelectedAppointmentCopy.End" /><br />
             <label>Color: </label><input type="text" @bind-value="AppointmentColor" /><br />
 
             @if (EnableDelete)
@@ -120,6 +120,7 @@
         return Task.CompletedTask;
     }
 
+    // helper methods
     private Color RandomColor(Random r)
     {
         return Color.FromArgb(r.Next(0, 255), r.Next(0, 255), r.Next(0, 255));
