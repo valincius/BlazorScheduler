@@ -80,7 +80,8 @@ namespace BlazorScheduler
             NewAppointment = new T {
                 Start = day.Day,
                 End = day.Day,
-                Title = "New Appointment"
+                Title = "New Appointment",
+                Color = ThemeColor
             };
             DoneDragging = false;
 
@@ -92,7 +93,7 @@ namespace BlazorScheduler
         {
             if (button == 0)
             {
-                if (NewAppointment is not null)
+                if (NewAppointment is not null && !DoneDragging)
                 {
                     DoneDragging = true;
                     await OnAddingNewAppointment?.Invoke(NewAppointment);

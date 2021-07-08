@@ -14,28 +14,49 @@
 @if (SelectedAppointment is not null)
 {
     <div id="overlay" @onclick="CloseAppointment">
-        <div class="appointment-popup" style="left: @(PopupX)px; top: @(PopupY)px;" @onclick:stopPropagation="true">
+        <div class="popup" style="left: @(PopupX); top: @(PopupY);" @onclick:stopPropagation="true">
             <label>Title: </label><input type="text" @bind-value="SelectedAppointmentCopy.Title" /><br />
             <label>Start: </label><input type="date" @bind-value="SelectedAppointmentCopy.Start" /><br />
             <label>End: </label><input type="date" @bind-value="SelectedAppointmentCopy.End" /><br />
             <label>Color: </label><input type="text" @bind-value="AppointmentColor" /><br />
 
-            <button @onclick="CloseAppointment">Close</button>
+            @if (EnableDelete)
+            {
+                <button stlye="margin-right: 5px;" @onclick="DeleteAppointment">Delete</button>
+            }
             <button @onclick="SaveAppointment">Save</button>
+        </div>
+    </div>
+}
+
+@if (SelectedAppointments is not null)
+{
+    <div id="overlay" @onclick="() => SelectedAppointments = null">
+        <div class="popup" style="left: @(PopupX); top: @(PopupY);" @onclick:stopPropagation="true">
+            <ul>
+            @foreach (var appointment in SelectedAppointments)
+            {
+                <li style="--dot-color: @ToRgbString(appointment.Color)">@appointment.Title: @appointment.Start.ToShortDateString() to @appointment.End.ToShortDateString()</li>
+            }
+            </ul>
         </div>
     </div>
 }
 
 @code {
     private List<Appointment> Appointments = new();
+
     private Appointment SelectedAppointment;
     private Appointment SelectedAppointmentCopy;
-    private double PopupX, PopupY;
+    private bool EnableDelete;
+    private string PopupX, PopupY;
     private string AppointmentColor
     {
         get => SelectedAppointmentCopy.Color.Name;
         set => SelectedAppointmentCopy.Color = Color.FromName(value);
     }
+
+    private IEnumerable<Appointment> SelectedAppointments;
 
     protected override void OnInitialized()
     {
@@ -46,8 +67,9 @@
         base.OnInitialized();
     }
 
-    private async Task EditAppointment(Appointment appointment)
+    private async Task EditAppointment(Appointment appointment, bool enableDelete = true)
     {
+        EnableDelete = enableDelete;
         SelectedAppointment = appointment;
         SelectedAppointmentCopy = SelectedAppointment.Copy();
         StateHasChanged();
@@ -59,8 +81,13 @@
 
     private void CloseAppointment()
     {
-        SelectedAppointment = SelectedAppointmentCopy = null;
+        SelectedAppointment = null;
         StateHasChanged();
+    }
+    private void DeleteAppointment()
+    {
+        Appointments.Remove(SelectedAppointment);
+        CloseAppointment();
     }
     private void SaveAppointment()
     {
@@ -68,23 +95,29 @@
         SelectedAppointment.Start = SelectedAppointmentCopy.Start;
         SelectedAppointment.End = SelectedAppointmentCopy.End;
         SelectedAppointment.Color = SelectedAppointmentCopy.Color;
+        if (!Appointments.Contains(SelectedAppointment)) {
+            Appointments.Add(SelectedAppointment);
+        }
         CloseAppointment();
     }
 
     private async Task OnAddNewAppointment(Appointment appointment)
     {
-        // set the popup x&y here somehow - still not saving for some reason
-        await EditAppointment(appointment);
-        Appointments.Add(appointment);
+        (PopupX, PopupY) = ("50%", "50%");
+        await EditAppointment(appointment, false);
     }
     private async Task OnAppointmentClick(Appointment appointment, MouseEventArgs mouse)
     {
-        (PopupX, PopupY) = (mouse.ClientX, mouse.ClientY);
+        (PopupX, PopupY) = ($"{mouse.ClientX}px", $"{mouse.ClientY}px");
         await EditAppointment(appointment);
     }
-    private async Task OnOverflowAppointmentClick(IEnumerable<Appointment> appointments, MouseEventArgs mouse)
+    private Task OnOverflowAppointmentClick(IEnumerable<Appointment> appointments, MouseEventArgs mouse)
     {
-        
+        (PopupX, PopupY) = ($"{mouse.ClientX}px", $"{mouse.ClientY}px");
+        SelectedAppointments = appointments;
+        StateHasChanged();
+
+        return Task.CompletedTask;
     }
 
     private Color RandomColor(Random r)

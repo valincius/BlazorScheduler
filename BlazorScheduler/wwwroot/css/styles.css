@@ -128,8 +128,6 @@
     text-overflow: ellipsis;
 }
 .scheduler > .month > .week > .appointments > .appointment.new-appointment {
-    background-color: var(--theme-color) !important;
-    color: var(--theme-alt-color) !important;
     top: 30px;
     z-index: 1;
     box-shadow: 3px 6px 6px rgb(0 0 0 / 50%);

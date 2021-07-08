@@ -59,7 +59,7 @@ a, .btn-link {
     content: "An error has occurred."
 }
 
-.appointment-popup {
+.popup {
     position: absolute;
     background: #e6e6e6;
     border: 1px solid black;
@@ -77,4 +77,17 @@ a, .btn-link {
   bottom: 0;
   background: none;
   z-index: 2;
+}
+
+.popup ul {
+  list-style: none;
+}
+
+.popup ul li::before {
+  content: "\2022";
+  color: var(--dot-color, black);
+  font-weight: bold;
+  display: inline-block; 
+  width: 1em;
+  margin-left: -1em;
 }
