@@ -1,4 +1,6 @@
 # BlazorScheduler
+![Nuget](https://img.shields.io/nuget/v/BlazorScheduler)
+
 A scheduler/calendar built with Blazor with zero dependancies.
 
 [Demo here](https://github.valincius.dev/BlazorScheduler/)
