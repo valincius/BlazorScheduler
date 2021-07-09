@@ -63,5 +63,43 @@ namespace BlazorScheduler.Internal.Extensions
             double luminance = (0.299 * color.R + 0.587 * color.G + 0.114 * color.B) / 255;
             return luminance > 0.5 ? Color.Black : Color.White;
         }
+
+        private static IEnumerable<TSource[]> ChunkIterator<TSource>(IEnumerable<TSource> source, int size)
+        {
+            using IEnumerator<TSource> e = source.GetEnumerator();
+            while (e.MoveNext())
+            {
+                TSource[] chunk = new TSource[size];
+                chunk[0] = e.Current;
+
+                for (int i = 1; i < size; i++)
+                {
+                    if (!e.MoveNext())
+                    {
+                        Array.Resize(ref chunk, i);
+                        yield return chunk;
+                        yield break;
+                    }
+
+                    chunk[i] = e.Current;
+                }
+
+                yield return chunk;
+            }
+        }
+        public static IEnumerable<TSource[]> Chunk<TSource>(this IEnumerable<TSource> source, int size)
+        {
+            if (source == null)
+            {
+                throw new ArgumentNullException(nameof(source));
+            }
+
+            if (size < 1)
+            {
+                throw new ArgumentOutOfRangeException(nameof(size));
+            }
+
+            return ChunkIterator(source, size);
+        }
     }
 }

@@ -2,6 +2,8 @@
 @using BlazorScheduler
 @using System.Drawing
 
+@inject HttpClient HttpClient
+
 <Scheduler
     T="Appointment"
     Appointments="Appointments"
@@ -18,9 +20,9 @@
             <label>Title: </label><input type="text" @bind-value="SelectedAppointmentCopy.Title" /><br />
             <label>Start: </label><input type="text" @bind-value="SelectedAppointmentCopy.Start" /><br />
             <label>End: </label><input type="text" @bind-value="SelectedAppointmentCopy.End" /><br />
-            <label>Color: </label><input type="text" @bind-value="AppointmentColor" /><br />
+            <label>Color: </label><input type="text" @bind-value="SelectedAppointmentColor" /><br />
 
-            @if (EnableDelete)
+            @if (SelectedAppointmentEnableDelete)
             {
                 <button stlye="margin-right: 5px;" @onclick="DeleteAppointment">Delete</button>
             }
@@ -46,30 +48,54 @@
 @code {
     private List<Appointment> Appointments = new();
 
+    private string PopupX, PopupY;
+
+    // fields for editing the selected appointment
     private Appointment SelectedAppointment;
     private Appointment SelectedAppointmentCopy;
-    private bool EnableDelete;
-    private string PopupX, PopupY;
-    private string AppointmentColor
+    private bool SelectedAppointmentEnableDelete;
+    private string SelectedAppointmentColor
     {
         get => SelectedAppointmentCopy.Color.Name;
         set => SelectedAppointmentCopy.Color = Color.FromName(value);
     }
 
+    // fields for viewing the overflowing appointments
     private IEnumerable<Appointment> SelectedAppointments;
 
     protected override void OnInitialized()
     {
-        Appointments.ForEach(x =>
+        Appointments.AddRange(new List<Appointment>
         {
-            x.Color = RandomColor(new Random(x.GetHashCode()));
+            new Appointment { Title = "Open Sourced Date", Start = new DateTime(2021, 7, 9), End = new DateTime(2021, 7, 9), Color = Color.Green },
+            new Appointment { Title = "Vacation", Start = DateTime.Today.AddDays(4), End = DateTime.Today.AddDays(14), Color = Color.Pink },
+            new Appointment { Title = "Really busy day 1", Start = DateTime.Today.AddDays(1), End = DateTime.Today.AddDays(1), Color = Color.Orange },
+            new Appointment { Title = "Really busy day 2", Start = DateTime.Today.AddDays(1), End = DateTime.Today.AddDays(1), Color = Color.Orange },
+            new Appointment { Title = "Really busy day 3", Start = DateTime.Today.AddDays(1), End = DateTime.Today.AddDays(1), Color = Color.Orange },
+            new Appointment { Title = "Really busy day 4", Start = DateTime.Today.AddDays(1), End = DateTime.Today.AddDays(1), Color = Color.Orange },
+            new Appointment { Title = "Really busy day 5", Start = DateTime.Today.AddDays(1), End = DateTime.Today.AddDays(1), Color = Color.Orange },
+            new Appointment { Title = "Really busy day 6", Start = DateTime.Today.AddDays(1), End = DateTime.Today.AddDays(1), Color = Color.Orange },
+            new Appointment { Title = "Really busy day 7", Start = DateTime.Today.AddDays(1), End = DateTime.Today.AddDays(1), Color = Color.Orange },
+
+            new Appointment { Title = "New Year's Day", Start = new DateTime(DateTime.Today.Year, 1, 1), End = new DateTime(DateTime.Today.Year, 1, 1), Color = Color.Blue },
+            new Appointment { Title = "Groundhog Day", Start = new DateTime(DateTime.Today.Year, 2, 2), End = new DateTime(DateTime.Today.Year, 2, 2), Color = Color.Blue },
+            new Appointment { Title = "Valentine's Day", Start = new DateTime(DateTime.Today.Year, 2, 14), End = new DateTime(DateTime.Today.Year, 2, 14), Color = Color.Blue },
+            new Appointment { Title = "St. Patrick's Day", Start = new DateTime(DateTime.Today.Year, 3, 17), End = new DateTime(DateTime.Today.Year, 3, 17), Color = Color.Blue },
+            new Appointment { Title = "Earth Day", Start = new DateTime(DateTime.Today.Year, 4, 22), End = new DateTime(DateTime.Today.Year, 4, 22), Color = Color.Blue },
+            new Appointment { Title = "Independence Day", Start = new DateTime(DateTime.Today.Year, 7, 4), End = new DateTime(DateTime.Today.Year, 7, 4), Color = Color.Blue },
+            new Appointment { Title = "Patriot Day", Start = new DateTime(DateTime.Today.Year, 9, 11), End = new DateTime(DateTime.Today.Year, 9, 11), Color = Color.Blue },
+            new Appointment { Title = "Halloween", Start = new DateTime(DateTime.Today.Year, 10, 31), End = new DateTime(DateTime.Today.Year, 10, 31), Color = Color.Blue },
+            new Appointment { Title = "Veterans' Day", Start = new DateTime(DateTime.Today.Year, 11, 11), End = new DateTime(DateTime.Today.Year, 11, 11), Color = Color.Blue },
+            new Appointment { Title = "Pearl Harbor Day", Start = new DateTime(DateTime.Today.Year, 12, 7), End = new DateTime(DateTime.Today.Year, 12, 7), Color = Color.Blue },
+            new Appointment { Title = "Christmas Day", Start = new DateTime(DateTime.Today.Year, 12, 25), End = new DateTime(DateTime.Today.Year, 12, 25), Color = Color.Blue },
+            new Appointment { Title = "New Year's Eve", Start = new DateTime(DateTime.Today.Year, 12, 31), End = new DateTime(DateTime.Today.Year, 12, 31), Color = Color.Blue },
         });
         base.OnInitialized();
     }
 
     private async Task EditAppointment(Appointment appointment, bool enableDelete = true)
     {
-        EnableDelete = enableDelete;
+        SelectedAppointmentEnableDelete = enableDelete;
         SelectedAppointment = appointment;
         SelectedAppointmentCopy = SelectedAppointment.Copy();
         StateHasChanged();
@@ -86,11 +112,13 @@
     }
     private void DeleteAppointment()
     {
+        // delete from database here
         Appointments.Remove(SelectedAppointment);
         CloseAppointment();
     }
     private void SaveAppointment()
     {
+        // save new changes to database here
         SelectedAppointment.Title = SelectedAppointmentCopy.Title;
         SelectedAppointment.Start = SelectedAppointmentCopy.Start;
         SelectedAppointment.End = SelectedAppointmentCopy.End;
@@ -120,16 +148,12 @@
         return Task.CompletedTask;
     }
 
-    // helper methods
-    private Color RandomColor(Random r)
-    {
-        return Color.FromArgb(r.Next(0, 255), r.Next(0, 255), r.Next(0, 255));
-    }
     private string ToRgbString(Color color)
     {
         return $"rgb({color.R}, {color.G}, {color.B})";
     }
 
+    // create an implementation of BlazorScheduler.IAppointment that we can use to pass to the scheduler
     private class Appointment : IAppointment
     {
         public string Title { get; set; }
