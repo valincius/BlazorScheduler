@@ -11,7 +11,7 @@ The scheduler supports "all-day" appointments, appointments spanning multiple da
 Also has support for dragging to create appointments.
 
 ## Usage
-1. Download the release .dll (I plan to add to NuGet as soon as I can)
+1. Add `BlazorScheduler` NuGet package
 2. Add references to necessary js & css files in your `index.html`
     - Add `<link href="_content/BlazorScheduler/css/styles.css" rel="stylesheet" />` to the head
     - Add `<script src="_content/BlazorScheduler/js/scripts.js"></script>` to the body
