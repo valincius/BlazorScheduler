@@ -3,7 +3,7 @@
 
 A scheduler/calendar built with Blazor with zero dependancies.
 ![preview](https://user-images.githubusercontent.com/15176357/125132100-b1693b00-e0b8-11eb-9873-88a18973626b.png)
-[Demo here](https://github.valincius.dev/BlazorScheduler/)
+[Demo here](https://valincius.dev/BlazorScheduler/)
 
 ## Overview
 BlazorScheduler is a component library that provides a single component, the scheduler.
@@ -38,7 +38,7 @@ Also has support for dragging to create appointments.
 ## Interactions
 There are 3 callbacks that the scheduler provides.
 - `Task OnAddingNewAppointment(T appointment)` - invoked when the user is done dragging to create a new appointment
-- `Task OnAppointmentClick(Appointment appointment, MouseEventArgs mouse)` - invoked when the user clicks on an appointment
-- `Task OnOverflowAppointmentClick(IEnumerable<Appointment> appointments, MouseEventArgs mouse)` - invoked when the user clicks on an "overflowing" appointment
+- `Task OnAppointmentClick(T appointment, MouseEventArgs mouse)` - invoked when the user clicks on an appointment
+- `Task OnOverflowAppointmentClick(IEnumerable<T> appointments, MouseEventArgs mouse)` - invoked when the user clicks on an "overflowing" appointment
 
-See the demo [here](https://github.valincius.dev/BlazorScheduler/) for more information on usage
+See the demo [here](https://valincius.dev/BlazorScheduler/) for more information on usage
