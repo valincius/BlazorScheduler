@@ -58,7 +58,8 @@ namespace BlazorScheduler
         private IEnumerable<DateTime> GetDateRange()
         {
             var startDate = new DateTime(CurrentDate.Year, CurrentDate.Month, 1).GetPrevious(StartDayOfWeek);
-            var endDate = new DateTime(CurrentDate.Year, CurrentDate.Month, DateTime.DaysInMonth(CurrentDate.Year, CurrentDate.Month)).GetNext(StartDayOfWeek);
+            var endDate = new DateTime(CurrentDate.Year, CurrentDate.Month, DateTime.DaysInMonth(CurrentDate.Year, CurrentDate.Month)).GetNext((DayOfWeek)((int)(StartDayOfWeek - 1 + 7) % 7));
+
             return Enumerable.Range(0, 1 + endDate.Subtract(startDate).Days)
               .Select(offset => startDate.AddDays(offset));
         }

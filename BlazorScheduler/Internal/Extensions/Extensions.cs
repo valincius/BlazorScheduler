@@ -35,7 +35,8 @@ namespace BlazorScheduler.Internal.Extensions
                 }
                 dt.AddDays(-1);
             }
-            return dt.AddDays(DayOfWeek.Saturday - dt.DayOfWeek).Date;
+            int diff = (7 + (dayOfWeek - dt.DayOfWeek)) % 7;
+            return dt.AddDays(diff).Date;
         }
 
         public static bool Overlaps<T>(this (T, T) dt, (T, T) other) where T : IComparable<T> =>
