@@ -4,6 +4,17 @@
 
 @inject HttpClient HttpClient
 
+<label>Start Day of Week</label>
+<select @bind="StartDayOfWeek">
+    <option value="@DayOfWeek.Sunday">Sunday</option>
+    <option value="@DayOfWeek.Monday">Monday</option>
+    <option value="@DayOfWeek.Tuesday">Tuesday</option>
+    <option value="@DayOfWeek.Wednesday">Wednesday</option>
+    <option value="@DayOfWeek.Thursday">Thursday</option>
+    <option value="@DayOfWeek.Friday">Friday</option>
+    <option value="@DayOfWeek.Saturday">Saturday</option>
+</select>
+
 <Scheduler
     T="Appointment"
     Appointments="Appointments"
@@ -11,6 +22,7 @@
     OnAppointmentClick="OnAppointmentClick"
     OnOverflowAppointmentClick="OnOverflowAppointmentClick"
     ThemeColor="Color.Aqua"
+    StartDayOfWeek="StartDayOfWeek"
 />
 
 @if (SelectedAppointment is not null)
@@ -49,6 +61,7 @@
     private List<Appointment> Appointments = new();
 
     private string PopupX, PopupY;
+    private DayOfWeek StartDayOfWeek = DayOfWeek.Sunday;
 
     // fields for editing the selected appointment
     private Appointment SelectedAppointment;
