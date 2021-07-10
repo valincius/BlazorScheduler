@@ -28,9 +28,9 @@
     </div>
     <div class="month">
         <div class="week header">
-            @foreach (var day in Enum.GetNames(typeof(DayOfWeek)))
+            @for (int d=0;d<7;d++)
             {
-                <div class="day-of-month">@day</div>
+                <div class="day-of-month">@Enum.GetName(typeof(DayOfWeek), (DayOfWeek)((int)(StartDayOfWeek+d) % 7))</div>
             }
         </div>
         <CascadingValue Value="this">

@@ -18,6 +18,7 @@ namespace BlazorScheduler
         [Parameter] public Func<T, MouseEventArgs, Task> OnAppointmentClick { get; set; }
         [Parameter] public Func<IEnumerable<T>, MouseEventArgs, Task> OnOverflowAppointmentClick { get; set; }
         [Parameter] public Color ThemeColor { get; set; } = Color.Aqua;
+        [Parameter] public DayOfWeek StartDayOfWeek { get; set; } = DayOfWeek.Sunday;
 
         private DotNetObjectReference<Scheduler<T>> ObjectReference;
         private DateTime NewAppointmentAnchor;
@@ -56,8 +57,8 @@ namespace BlazorScheduler
 
         private IEnumerable<DateTime> GetDateRange()
         {
-            var startDate = new DateTime(CurrentDate.Year, CurrentDate.Month, 1).GetPrevious(DayOfWeek.Sunday);
-            var endDate = new DateTime(CurrentDate.Year, CurrentDate.Month, DateTime.DaysInMonth(CurrentDate.Year, CurrentDate.Month)).GetNext(DayOfWeek.Saturday);
+            var startDate = new DateTime(CurrentDate.Year, CurrentDate.Month, 1).GetPrevious(StartDayOfWeek);
+            var endDate = new DateTime(CurrentDate.Year, CurrentDate.Month, DateTime.DaysInMonth(CurrentDate.Year, CurrentDate.Month)).GetNext(StartDayOfWeek);
             return Enumerable.Range(0, 1 + endDate.Subtract(startDate).Days)
               .Select(offset => startDate.AddDays(offset));
         }
