@@ -2,6 +2,13 @@
 
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Authors>John Valincius</Authors>
+    <Company>Valincius</Company>
+    <Description>Scheduler component library for Blazor.</Description>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl></PackageProjectUrl>
+    <RepositoryUrl>https://github.com/valincius/BlazorScheduler</RepositoryUrl>
   </PropertyGroup>
 
 
