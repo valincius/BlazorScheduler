@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Drawing;
 
-namespace BlazorScheduler
+namespace BlazorScheduler.Core
 {
 	public interface IAppointment
 	{
