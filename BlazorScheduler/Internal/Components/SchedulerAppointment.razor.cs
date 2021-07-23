@@ -1,4 +1,5 @@
-﻿using BlazorScheduler.Internal.Extensions;
+﻿using BlazorScheduler.Core;
+using BlazorScheduler.Internal.Extensions;
 using Microsoft.AspNetCore.Components;
 
 namespace BlazorScheduler.Internal.Components

@@ -11,11 +11,13 @@ The scheduler supports "all-day" appointments, appointments spanning multiple da
 Also has support for dragging to create appointments.
 
 ## Usage
-1. Add `BlazorScheduler` NuGet package
+1. Run `Install-Package BlazorScheduler` in the package manager console to install the latest package in your frontend project.
+    - Optionally run `Install-Package BlazorScheduler.Core` in your shared project so you can have access to the interfaces there.
 2. Add references to necessary js & css files in your `index.html`
     - Add `<link href="_content/BlazorScheduler/css/styles.css" rel="stylesheet" />` to the head
     - Add `<script src="_content/BlazorScheduler/js/scripts.js"></script>` to the body
 3. Add `@using BlazorScheduler` to your page
+    - Add `using BlazorScheduler.Core` wherever you are creating an implementation of `BlazorScheduler.Core.IAppointment`
 4. Create an implementation of `IAppointment`
     ```c#
     public class Appointment : IAppointment
@@ -42,3 +44,16 @@ There are 3 callbacks that the scheduler provides.
 - `Task OnOverflowAppointmentClick(IEnumerable<T> appointments, MouseEventArgs mouse)` - invoked when the user clicks on an "overflowing" appointment
 
 See the demo [here](https://valincius.dev/BlazorScheduler/) for more information on usage
+
+# Changlog
+## 2.0.0
+- Created `BlazorScheduler.Core` project
+    - This project will contain any classes/interfaces that may be required outside of the main UI project.
+- Moved `IAppointment` from `BlazorScheduler` to `BlazorScheduler.Core`
+- **You will need to add `using BlazorScheduler.Core` to where you are creating your implementation of `IAppointment`**
+## 1.0.2
+- Fix bug introduced in 1.0.1
+## 1.0.1
+- Add start day of week parameter to Scheduler
+## 1.0.0
+- Initial release

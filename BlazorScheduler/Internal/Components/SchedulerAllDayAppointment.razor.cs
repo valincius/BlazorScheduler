@@ -1,4 +1,5 @@
-﻿using BlazorScheduler.Internal.Extensions;
+﻿using BlazorScheduler.Core;
+using BlazorScheduler.Internal.Extensions;
 using Microsoft.AspNetCore.Components;
 using System.Collections.Generic;
 

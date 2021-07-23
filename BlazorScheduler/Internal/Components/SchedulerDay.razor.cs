@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using BlazorScheduler.Internal.Extensions;
 using Microsoft.AspNetCore.Components.Web;
+using BlazorScheduler.Core;
 
 namespace BlazorScheduler.Internal.Components {
 	public partial class SchedulerDay<T> where T : IAppointment, new() {

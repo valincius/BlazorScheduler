@@ -8,6 +8,7 @@ using BlazorScheduler.Internal.Extensions;
 using BlazorScheduler.Internal.Components;
 using System.Drawing;
 using Microsoft.AspNetCore.Components.Web;
+using BlazorScheduler.Core;
 
 namespace BlazorScheduler
 {
