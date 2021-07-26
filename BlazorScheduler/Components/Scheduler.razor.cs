@@ -9,6 +9,7 @@ using BlazorScheduler.Internal.Components;
 using System.Drawing;
 using Microsoft.AspNetCore.Components.Web;
 using BlazorScheduler.Core;
+using BlazorScheduler.Themes;
 
 namespace BlazorScheduler
 {
@@ -20,6 +21,7 @@ namespace BlazorScheduler
         [Parameter] public Func<IEnumerable<T>, MouseEventArgs, Task> OnOverflowAppointmentClick { get; set; }
         [Parameter] public Color ThemeColor { get; set; } = Color.Aqua;
         [Parameter] public DayOfWeek StartDayOfWeek { get; set; } = DayOfWeek.Sunday;
+        [Parameter] public Theme Theme { get; set; } = BuiltinThemes.DefaultTheme;
 
         private DotNetObjectReference<Scheduler<T>> ObjectReference;
         private DateTime NewAppointmentAnchor;
