@@ -37,7 +37,7 @@ namespace BlazorScheduler.Internal.Components
 
         private void OnDayClick()
         {
-            Scheduler?.OnDayClick(Day);
+            Scheduler.OnDayClick?.Invoke(Day);
         }
     }
 }
