@@ -7,6 +7,7 @@
   "linkerEnabled": true,
   "resources": {
     "assembly": {
+      "BlazorScheduler.Core.dll": "sha256-Lxq7TTfWG24uaEquMbzbVhGBJRQDM9PJtpxXKGB4tHo=",
       "Microsoft.AspNetCore.Components.dll": "sha256-vJJdT5WJiSXBeQiZl4O5hAzxFFe2LIUO5jqIpVjMsFA=",
       "Microsoft.AspNetCore.Components.Web.dll": "sha256-N3Gld0kTeyJd7pVfvKmfBqKHoAl8x8T1Essc0MC0Ksc=",
       "Microsoft.AspNetCore.Components.WebAssembly.dll": "sha256-JVkYXLuEzAp5O0O0zcGBVkfktW5l1F3xyvH12EaEZOQ=",
@@ -22,9 +23,8 @@
       "Microsoft.JSInterop.dll": "sha256-TR5hDhis1xKErFGi0z7WTfCvkHgS9BWrl9meUe7pJ1M=",
       "Microsoft.JSInterop.WebAssembly.dll": "sha256-ZgZxgsJuivJx1FZBYEZrIMDwbVwRAg9xRMD7wCwEQUM=",
       "System.IO.Pipelines.dll": "sha256-qZYTUS+ga7CydtH54fYPbehFCvx3B49I74G8dxreTog=",
-      "BlazorScheduler.Core.dll": "sha256-0EmrRv7CN+yD3yJ\/Svce+uC6zkuK\/XBYbBnz9D4QS7I=",
-      "BlazorScheduler.dll": "sha256-aq8Py\/SQO0ARFNOhhb4Qu0c7HKVnYPaU\/KR8SL8F8r8=",
-      "DemoApp.dll": "sha256-NYRVzx13RG8OiTjTcLUQSVoEIadkpYMpR5DVpSWn\/Nw=",
+      "BlazorScheduler.dll": "sha256-49kjedjRKuQS\/3\/wHmPJuxaZwF4l0qx5MIScMZXDU8M=",
+      "DemoApp.dll": "sha256-lZN8qvc1PDWAsu15BbAgZfwOL+sVHqe7QokKmAH0ea4=",
       "System.Collections.Concurrent.dll": "sha256-y\/aMG1TMaQLrr8jGyZtQGD766YOQ8oXbVfvUcYN59XE=",
       "System.Collections.Immutable.dll": "sha256-tsM6wcStvc7qyCg86RQiTZ8U9Bm64kyI1tdeoYpa3FQ=",
       "System.Collections.NonGeneric.dll": "sha256-LNmyAsoy0X6Wxanaw8Yovn14V+WG3pJKpSYp131w2jo=",
