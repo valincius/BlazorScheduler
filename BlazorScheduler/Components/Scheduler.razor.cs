@@ -11,13 +11,6 @@ using BlazorScheduler.Core;
 using System.Drawing;
 using BlazorScheduler.Configuration;
 
-/*
-    - Use proper naming conventions for fields/props
-    - Allow creating templates and stuff that can be passed to the scheduler that we can display in place of the default ones, so that it is more customizable.
-        With each template, we can pass in the current state of the scheduler, etc, so that custom dates and stuff can be built
-    - Update to net6?
- */
-
 namespace BlazorScheduler
 {
     public partial class Scheduler<T> where T : IAppointment, new()
