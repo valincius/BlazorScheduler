@@ -38,9 +38,10 @@ Also has support for dragging to create appointments.
     ```
 
 ## Interactions
-There are 3 callbacks that the scheduler provides.
+There are 4 callbacks that the scheduler provides.
 - `Task OnAddingNewAppointment(T appointment)` - invoked when the user is done dragging to create a new appointment
 - `Task OnAppointmentClick(T appointment, MouseEventArgs mouse)` - invoked when the user clicks on an appointment
 - `Task OnOverflowAppointmentClick(IEnumerable<T> appointments, MouseEventArgs mouse)` - invoked when the user clicks on an "overflowing" appointment
+- `Task OnDayClick(DateTime day)` - invoked when the day number is clicked
 
 See the demo [here](https://valincius.dev/BlazorScheduler/) for more information on usage
