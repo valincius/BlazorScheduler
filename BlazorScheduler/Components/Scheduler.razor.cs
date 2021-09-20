@@ -6,27 +6,48 @@ using System.Linq;
 using System.Threading.Tasks;
 using BlazorScheduler.Internal.Extensions;
 using BlazorScheduler.Internal.Components;
-using System.Drawing;
 using Microsoft.AspNetCore.Components.Web;
 using BlazorScheduler.Core;
-using BlazorScheduler.Themes;
+using System.Drawing;
+using BlazorScheduler.Configuration;
+
+/*
+    - Use proper naming conventions for fields/props
+    - Allow creating templates and stuff that can be passed to the scheduler that we can display in place of the default ones, so that it is more customizable.
+        With each template, we can pass in the current state of the scheduler, etc, so that custom dates and stuff can be built
+    - Update to net6?
+ */
 
 namespace BlazorScheduler
 {
-	public partial class Scheduler<T> where T : IAppointment, new()
+    public partial class Scheduler<T> where T : IAppointment, new()
     {
         [Parameter] public List<T> Appointments { get; set; }
         [Parameter] public Func<T, Task> OnAddingNewAppointment { get; set; }
+        [Parameter] public Func<DateTime, Task> OnDayClick { get; set; }
         [Parameter] public Func<T, MouseEventArgs, Task> OnAppointmentClick { get; set; }
         [Parameter] public Func<IEnumerable<T>, MouseEventArgs, Task> OnOverflowAppointmentClick { get; set; }
-        [Parameter] public Color ThemeColor { get; set; } = Color.Aqua;
         [Parameter] public DayOfWeek StartDayOfWeek { get; set; } = DayOfWeek.Sunday;
-        [Parameter] public Theme Theme { get; set; } = BuiltinThemes.DefaultTheme;
+        [Parameter] public Color ThemeColor { get; set; } = Color.Aqua;
+        [Parameter] public Config Config { get; set; } = new();
 
         private DotNetObjectReference<Scheduler<T>> ObjectReference;
         private DateTime NewAppointmentAnchor;
 
         public DateTime CurrentDate { get; private set; }
+        private string MonthDisplay
+        {
+            get
+            {
+                var res = CurrentDate.ToString("MMMM");
+                if (Config.AlwaysShowYear || CurrentDate.Year != DateTime.Today.Year)
+                {
+                    return res += CurrentDate.ToString(" yyyy");
+                }
+                return res;
+            }
+        }
+
         public T NewAppointment { get; private set; }
         private bool DoneDragging = false;
 
@@ -48,15 +69,15 @@ namespace BlazorScheduler
         }
 
         private async Task AttachMouseHandler()
-		{
+        {
             await jsRuntime.InvokeVoidAsync("attachSchedulerMouseEventsHandler", ObjectReference);
         }
 
         private async Task ChangeMonth(int months = 0)
-		{
+        {
             CurrentDate = months == 0 ? DateTime.Today : CurrentDate.AddMonths(months);
             await AttachMouseHandler();
-		}
+        }
 
         private IEnumerable<DateTime> GetDateRange()
         {
@@ -71,9 +92,9 @@ namespace BlazorScheduler
         {
             var appointmentsInTimeframe = Appointments.Where(x => (start, end).Overlaps((x.Start, x.End))).ToList();
             if (NewAppointment is not null && (start, end).Overlaps((NewAppointment.Start, NewAppointment.End)))
-			{
+            {
                 appointmentsInTimeframe.Add(NewAppointment);
-			}
+            }
 
             return appointmentsInTimeframe
                 .OrderBy(x => x.Start)
@@ -82,7 +103,8 @@ namespace BlazorScheduler
 
         public void BeginDrag(SchedulerDay<T> day)
         {
-            NewAppointment = new T {
+            NewAppointment = new T
+            {
                 Start = day.Day,
                 End = day.Day,
                 Title = "New Appointment",
@@ -93,6 +115,7 @@ namespace BlazorScheduler
             NewAppointmentAnchor = NewAppointment.Start;
             StateHasChanged();
         }
+
         [JSInvokable]
         public async Task OnMouseUp(int button)
         {
@@ -107,6 +130,7 @@ namespace BlazorScheduler
                 }
             }
         }
+
         [JSInvokable]
         public void OnMouseMove(string date)
         {

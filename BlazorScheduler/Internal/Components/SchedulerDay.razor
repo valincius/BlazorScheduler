@@ -2,5 +2,5 @@
 @typeparam T
 
 <div class="day @Classes.AsString()" @onmousedown="OnMouseDown" data-date="@Day.Date.ToString("yyyyMMdd")">
-    <span>@DateText</span>
+    <span @onmousedown="OnDayClick" @onmousedown:stopPropagation="true">@DateText</span>
 </div>

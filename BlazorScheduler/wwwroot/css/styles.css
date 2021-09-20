@@ -94,19 +94,27 @@
 .scheduler > .month > .week > .days > .day > span {
     margin-top: 5px;
     font-size: .9rem;
+    font-size: .75rem;
+    display: inline-block;
+
+    background-color: inherit;
+    text-align: center;
+    border-radius: 50%;
+    --size: 1.5rem;
+    min-width: var(--size);
+    height: var(--size);
+    line-height: var(--size);
 }
 
 .scheduler > .month > .week > .days > .day.today > span {
-    --size: 1.5rem;
-    font-size: .75rem;
-    display: inline-block;
-    text-align: center;
     background-color: var(--theme-color);
     color: var(--theme-alt-color);
-    border-radius: 50%;
-    width: var(--size);
-    height: var(--size);
-    line-height: var(--size);
+}
+
+.scheduler > .month > .week > .days > .day > span:hover {
+    filter: brightness(85%);
+    margin-top: 4px;
+    cursor: pointer;
 }
 
 .scheduler > .month > .week > .days > .day.diff-month {

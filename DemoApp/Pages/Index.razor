@@ -17,15 +17,13 @@
     <option value="@DayOfWeek.Saturday">Saturday</option>
 </select>
 
-<Scheduler
-    T="Appointment"
-    Appointments="Appointments"
-    OnAddingNewAppointment="OnAddNewAppointment"
-    OnAppointmentClick="OnAppointmentClick"
-    OnOverflowAppointmentClick="OnOverflowAppointmentClick"
-    ThemeColor="Color.Aqua"
-    StartDayOfWeek="StartDayOfWeek"
-/>
+<Scheduler T="Appointment"
+           Appointments="Appointments"
+           OnAddingNewAppointment="OnAddNewAppointment"
+           OnAppointmentClick="OnAppointmentClick"
+           OnOverflowAppointmentClick="OnOverflowAppointmentClick"
+           StartDayOfWeek="StartDayOfWeek"
+           OnDayClick="DayClicked" />
 
 @if (SelectedAppointment is not null)
 {
@@ -50,10 +48,10 @@
     <div id="overlay" @onclick="() => SelectedAppointments = null">
         <div class="popup" style="left: @(PopupX); top: @(PopupY);" @onclick:stopPropagation="true">
             <ul>
-            @foreach (var appointment in SelectedAppointments)
-            {
-                <li style="--dot-color: @ToRgbString(appointment.Color)">@appointment.Title: @appointment.Start.ToShortDateString() to @appointment.End.ToShortDateString()</li>
-            }
+                @foreach (var appointment in SelectedAppointments)
+                {
+                    <li style="--dot-color: @ToRgbString(appointment.Color)">@appointment.Title: @appointment.Start.ToShortDateString() to @appointment.End.ToShortDateString()</li>
+                }
             </ul>
         </div>
     </div>
@@ -138,10 +136,24 @@
         SelectedAppointment.Start = SelectedAppointmentCopy.Start;
         SelectedAppointment.End = SelectedAppointmentCopy.End;
         SelectedAppointment.Color = SelectedAppointmentCopy.Color;
-        if (!Appointments.Contains(SelectedAppointment)) {
+        if (!Appointments.Contains(SelectedAppointment))
+        {
             Appointments.Add(SelectedAppointment);
         }
         CloseAppointment();
+    }
+
+    private Task DayClicked(DateTime day)
+    {
+        var todaysAppointemnts = Appointments.Where(x => x.Start.Date <= day && x.End.Date >= day);
+        if (todaysAppointemnts.Any())
+        {
+            (PopupX, PopupY) = ("50%", "50%");
+            SelectedAppointments = todaysAppointemnts;
+            StateHasChanged();
+        }
+
+        return Task.CompletedTask;
     }
 
     private async Task OnAddNewAppointment(Appointment appointment)
@@ -172,9 +184,9 @@
     private class Appointment : IAppointment
     {
         public string Title { get; set; }
-		public DateTime Start { get; set; }
-		public DateTime End { get; set; }
-		public Color Color { get; set; }
+        public DateTime Start { get; set; }
+        public DateTime End { get; set; }
+        public Color Color { get; set; }
 
         public Appointment Copy() => this.MemberwiseClone() as Appointment;
     }
