@@ -16,7 +16,7 @@ namespace BlazorScheduler.Internal.Components
         [Parameter] public IEnumerable<T> Appointments { get; set; }
 
 		private readonly Dictionary<T, int> Orderings = new();
-		private readonly int MaxNumOfAppointmentsPerDay = 5;
+		private int MaxNumOfAppointmentsPerDay => Scheduler.Config.MaxVisibleAppointmentsPerDay;
 
         protected override void OnParametersSet()
         {
