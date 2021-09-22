@@ -1,5 +1,4 @@
-﻿using BlazorScheduler.Core;
-using BlazorScheduler.Internal.Extensions;
+﻿using BlazorScheduler.Internal.Extensions;
 using Microsoft.AspNetCore.Components;
 using System;
 using System.Collections.Generic;
@@ -7,15 +6,15 @@ using System.Linq;
 
 namespace BlazorScheduler.Internal.Components
 {
-	public partial class SchedulerWeek<T> where T : IAppointment, new()
+	public partial class SchedulerWeek
     {
-        [CascadingParameter] public Scheduler<T> Scheduler { get; set; }
+        [CascadingParameter] public Scheduler Scheduler { get; set; }
         
         [Parameter] public DateTime Start { get; set; }
         [Parameter] public DateTime End { get; set; }
-        [Parameter] public IEnumerable<T> Appointments { get; set; }
+        [Parameter] public IEnumerable<Appointment> Appointments { get; set; }
 
-		private readonly Dictionary<T, int> Orderings = new();
+		private readonly Dictionary<Appointment, int> Orderings = new();
 		private int MaxNumOfAppointmentsPerDay => Scheduler.Config.MaxVisibleAppointmentsPerDay;
 
         protected override void OnParametersSet()
@@ -29,7 +28,7 @@ namespace BlazorScheduler.Internal.Components
             base.OnParametersSet();
         }
 
-        private (int, int) GetStartAndEndDayForAppointment(T appointment)
+        private (int, int) GetStartAndEndDayForAppointment(Appointment appointment)
         {
             DayOfWeek start = Scheduler.StartDayOfWeek, end = Scheduler.StartDayOfWeek + 6;
 
@@ -47,7 +46,7 @@ namespace BlazorScheduler.Internal.Components
             return ((start - Scheduler.StartDayOfWeek + 7) % 7, (end - Scheduler.StartDayOfWeek + 7) % 7);
         }
 
-        private int GetBestOrderingForAppointment(T appointment)
+        private int GetBestOrderingForAppointment(Appointment appointment)
         {
             if (ReferenceEquals(appointment, Scheduler.NewAppointment))
             {

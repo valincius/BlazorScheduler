@@ -1,12 +1,11 @@
 ﻿@namespace BlazorScheduler
-@typeparam T
 
 @using Microsoft.JSInterop
 @using BlazorScheduler.Internal
 
 @inject IJSRuntime jsRuntime
 
-<div class="scheduler" style="--theme-color: @ThemeColor.ToRgbString(); --theme-alt-color: @ThemeColor.GetAltColor().ToRgbString();">
+<div class="scheduler" style="--theme-color: @Config.ThemeColor;">
     <div class="actions">
         <button class="btn today" @onclick="() => ChangeMonth()">Today</button>
         <div class="navigation">
@@ -33,11 +32,13 @@
                 <div class="day-of-month">@Enum.GetName(typeof(DayOfWeek), (DayOfWeek)((int)(StartDayOfWeek+d) % 7))</div>
             }
         </div>
-        <CascadingValue Value="this">
+        <CascadingValue IsFixed="true" Value="this">
+            @ChildContent
+
             @foreach (var week in GetDateRange().Chunk(7))
             {
                 var (start, end) = (week.First(), week.Last());
-                <SchedulerWeek T="T" Start="start" End="end" Appointments="GetAppointments(start, end)" />
+                <SchedulerWeek Start="start" End="end" Appointments="GetAppointments(start, end)" />
             }
         </CascadingValue>
     </div>

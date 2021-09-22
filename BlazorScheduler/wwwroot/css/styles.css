@@ -108,7 +108,7 @@
 
 .scheduler > .month > .week > .days > .day.today > span {
     background-color: var(--theme-color);
-    color: var(--theme-alt-color);
+    /*color: var(--theme-alt-color);*/
 }
 
 .scheduler > .month > .week > .days > .day > span:hover {

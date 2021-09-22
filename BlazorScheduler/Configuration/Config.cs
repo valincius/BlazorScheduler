@@ -5,5 +5,6 @@
         public bool AlwaysShowYear { get; set; } = true;
         public int MaxVisibleAppointmentsPerDay { get; set; } = 5;
         public bool DisableDragging { get; set; } = false;
+        public string ThemeColor { get; set; } = "aqua";
     }
 }

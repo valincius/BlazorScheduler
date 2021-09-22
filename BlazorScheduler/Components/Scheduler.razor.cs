@@ -5,26 +5,25 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using BlazorScheduler.Internal.Extensions;
-using BlazorScheduler.Internal.Components;
 using Microsoft.AspNetCore.Components.Web;
-using BlazorScheduler.Core;
-using System.Drawing;
 using BlazorScheduler.Configuration;
+using BlazorScheduler.Internal.Components;
 
 namespace BlazorScheduler
 {
-    public partial class Scheduler<T> where T : IAppointment, new()
+    public partial class Scheduler
     {
-        [Parameter] public List<T> Appointments { get; set; }
-        [Parameter] public Func<T, Task> OnAddingNewAppointment { get; set; }
-        [Parameter] public Func<DateTime, Task> OnDayClick { get; set; }
-        [Parameter] public Func<T, MouseEventArgs, Task> OnAppointmentClick { get; set; }
-        [Parameter] public Func<IEnumerable<T>, MouseEventArgs, Task> OnOverflowAppointmentClick { get; set; }
-        [Parameter] public DayOfWeek StartDayOfWeek { get; set; } = DayOfWeek.Sunday;
-        [Parameter] public Color ThemeColor { get; set; } = Color.Aqua;
-        [Parameter] public Config Config { get; set; } = new();
+        [Parameter] public RenderFragment ChildContent { get; set; }
 
-        private DotNetObjectReference<Scheduler<T>> ObjectReference;
+        [Parameter] public Config Config { get; set; } = new();
+        [Parameter] public DayOfWeek StartDayOfWeek { get; set; } = DayOfWeek.Sunday;
+
+        [Parameter] public Func<DateTime, Task> OnDayClick { get; set; }
+        [Parameter] public Func<Appointment, Task> OnAddingNewAppointment { get; set; } // pass in mouse info here
+        [Parameter] public Func<IEnumerable<Appointment>, MouseEventArgs, Task> OnOverflowAppointmentClick { get; set; }
+
+        private DotNetObjectReference<Scheduler> ObjectReference;
+        private HashSet<Appointment> Appointments = new();
         private DateTime NewAppointmentAnchor;
 
         public DateTime CurrentDate { get; private set; }
@@ -41,7 +40,7 @@ namespace BlazorScheduler
             }
         }
 
-        public T NewAppointment { get; private set; }
+        public Appointment NewAppointment { get; private set; }
         private bool DoneDragging = false;
 
         protected override void OnInitialized()
@@ -59,6 +58,18 @@ namespace BlazorScheduler
                 await AttachMouseHandler();
             }
             base.OnAfterRender(firstRender);
+        }
+
+        public void AddAppointment(Appointment appointment)
+        {
+            Appointments.Add(appointment);
+            StateHasChanged();
+        }
+
+        public void RemoveAppointment(Appointment appointment)
+        {
+            Appointments.Remove(appointment);
+            StateHasChanged();
         }
 
         private async Task AttachMouseHandler()
@@ -81,7 +92,7 @@ namespace BlazorScheduler
               .Select(offset => startDate.AddDays(offset));
         }
 
-        private IEnumerable<T> GetAppointments(DateTime start, DateTime end)
+        private IEnumerable<Appointment> GetAppointments(DateTime start, DateTime end)
         {
             var appointmentsInTimeframe = Appointments.Where(x => (start, end).Overlaps((x.Start, x.End))).ToList();
             if (NewAppointment is not null && (start, end).Overlaps((NewAppointment.Start, NewAppointment.End)))
@@ -94,14 +105,23 @@ namespace BlazorScheduler
                 .ThenByDescending(x => (x.End - x.Start).Days);
         }
 
-        public void BeginDrag(SchedulerDay<T> day)
+        //private RenderFragment BuildAppointment() => builder =>
+        //{
+        //    builder.OpenComponent(0, typeof(Appointment));
+        //    builder.AddAttribute(1, "Start", "Some title");
+        //    builder.AddAttribute(1, "End", day.);
+        //    builder.AddAttribute(1, "Color", Config.ThemeColor);
+        //    builder.AddContent(0, "Title");
+        //    builder.CloseComponent();
+        //};
+
+        public void BeginDrag(SchedulerDay day)
         {
-            NewAppointment = new T
+            NewAppointment = new Appointment // need a better way to do this. Maybe make a separate component for it
             {
                 Start = day.Day,
                 End = day.Day,
-                Title = "New Appointment",
-                Color = ThemeColor
+                Color = Config.ThemeColor
             };
             DoneDragging = false;
 

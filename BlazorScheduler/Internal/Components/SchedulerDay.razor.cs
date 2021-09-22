@@ -3,13 +3,12 @@ using System;
 using System.Collections.Generic;
 using BlazorScheduler.Internal.Extensions;
 using Microsoft.AspNetCore.Components.Web;
-using BlazorScheduler.Core;
 
 namespace BlazorScheduler.Internal.Components
 {
-    public partial class SchedulerDay<T> where T : IAppointment, new()
+    public partial class SchedulerDay
     {
-        [CascadingParameter] public Scheduler<T> Scheduler { get; set; }
+        [CascadingParameter] public Scheduler Scheduler { get; set; }
 
         [Parameter] public DateTime Day { get; set; }
 
@@ -35,9 +34,12 @@ namespace BlazorScheduler.Internal.Components
             }
         }
 
-        private void OnDayClick()
+        private void OnClick(MouseEventArgs e)
         {
-            Scheduler.OnDayClick?.Invoke(Day);
+            if (e.Button == 0)
+            {
+                Scheduler.OnDayClick?.Invoke(Day);
+            }
         }
     }
 }
