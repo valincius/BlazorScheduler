@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using BlazorScheduler.Internal.Extensions;
-using Microsoft.AspNetCore.Components.Web;
 using BlazorScheduler.Configuration;
 using BlazorScheduler.Internal.Components;
 
@@ -19,11 +18,11 @@ namespace BlazorScheduler
         [Parameter] public DayOfWeek StartDayOfWeek { get; set; } = DayOfWeek.Sunday;
 
         [Parameter] public Func<DateTime, Task> OnDayClick { get; set; }
-        [Parameter] public Func<Appointment, Task> OnAddingNewAppointment { get; set; } // pass in mouse info here
-        [Parameter] public Func<IEnumerable<Appointment>, MouseEventArgs, Task> OnOverflowAppointmentClick { get; set; }
+        [Parameter] public Func<DateTime, DateTime, Task> OnAddingNewAppointment { get; set; }
+        [Parameter] public Func<DateTime, Task> OnOverflowAppointmentClick { get; set; }
 
+        private readonly HashSet<Appointment> Appointments = new();
         private DotNetObjectReference<Scheduler> ObjectReference;
-        private HashSet<Appointment> Appointments = new();
         private DateTime NewAppointmentAnchor;
 
         public DateTime CurrentDate { get; private set; }
@@ -105,20 +104,11 @@ namespace BlazorScheduler
                 .ThenByDescending(x => (x.End - x.Start).Days);
         }
 
-        //private RenderFragment BuildAppointment() => builder =>
-        //{
-        //    builder.OpenComponent(0, typeof(Appointment));
-        //    builder.AddAttribute(1, "Start", "Some title");
-        //    builder.AddAttribute(1, "End", day.);
-        //    builder.AddAttribute(1, "Color", Config.ThemeColor);
-        //    builder.AddContent(0, "Title");
-        //    builder.CloseComponent();
-        //};
-
         public void BeginDrag(SchedulerDay day)
         {
-            NewAppointment = new Appointment // need a better way to do this. Maybe make a separate component for it
+            NewAppointment = new Appointment
             {
+                ChildContent = new RenderFragment(builder => builder.AddContent(0, "New appointment")),
                 Start = day.Day,
                 End = day.Day,
                 Color = Config.ThemeColor
@@ -137,7 +127,7 @@ namespace BlazorScheduler
                 if (NewAppointment is not null && !DoneDragging)
                 {
                     DoneDragging = true;
-                    await OnAddingNewAppointment?.Invoke(NewAppointment);
+                    await OnAddingNewAppointment?.Invoke(NewAppointment.Start, NewAppointment.End);
                     NewAppointment = default;
                     StateHasChanged();
                 }

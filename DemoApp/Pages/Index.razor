@@ -1,5 +1,4 @@
 ﻿@page "/"
-@using System.Drawing
 
 @using BlazorScheduler
 
@@ -16,10 +15,14 @@
     <option value="@DayOfWeek.Saturday">Saturday</option>
 </select>
 
-<Scheduler StartDayOfWeek="StartDayOfWeek" OnDayClick="DayClicked">
+<Scheduler
+    StartDayOfWeek="StartDayOfWeek"
+    OnDayClick="DayClicked"
+    OnAddingNewAppointment="OnAddNewAppointment"
+    OnOverflowAppointmentClick="OnOverflowAppointmentClick">
     @foreach (var app in Appointments)
     {
-        <Appointment Start="@app.Start" End="@app.End" Color="@app.Color" OnClick="(a, e) => OnAppointmentClick(app, e)">
+        <Appointment Start="@app.Start" End="@app.End" Color="@app.Color" OnClick="() => OnAppointmentClick(app)">
             @app.Title
         </Appointment>
     }
@@ -142,10 +145,30 @@
 
     private Task DayClicked(DateTime day)
     {
+        return Task.CompletedTask;
+    }
+
+    private async Task OnAddNewAppointment(DateTime start, DateTime end)
+    {
+        // (PopupX, PopupY) = ($"{mouse.x}px", $"{mouse.y}px");
+        var appointment = new Appointment
+        {
+            Start = start,
+            End = end
+        };
+        await EditAppointment(appointment, false);
+    }
+    private async Task OnAppointmentClick(Appointment appointment)
+    {
+        // (PopupX, PopupY) = ($"{mouse.x}px", $"{mouse.y}px");
+        await EditAppointment(appointment);
+    }
+    private Task OnOverflowAppointmentClick(DateTime day)
+    {
         var todaysAppointemnts = Appointments.Where(x => x.Start.Date <= day && x.End.Date >= day);
         if (todaysAppointemnts.Any())
         {
-            (PopupX, PopupY) = ("50%", "50%");
+            // (PopupX, PopupY) = ($"{mouse.x}px", $"{mouse.y}px");
             SelectedAppointments = todaysAppointemnts;
             StateHasChanged();
         }
@@ -153,31 +176,6 @@
         return Task.CompletedTask;
     }
 
-    private async Task OnAddNewAppointment(Appointment appointment)
-    {
-        (PopupX, PopupY) = ("50%", "50%");
-        await EditAppointment(appointment, false);
-    }
-    private async Task OnAppointmentClick(Appointment appointment, MouseEventArgs mouse)
-    {
-        (PopupX, PopupY) = ($"{mouse.ClientX}px", $"{mouse.ClientY}px");
-        await EditAppointment(appointment);
-    }
-    private Task OnOverflowAppointmentClick(IEnumerable<Appointment> appointments, MouseEventArgs mouse)
-    {
-        (PopupX, PopupY) = ($"{mouse.ClientX}px", $"{mouse.ClientY}px");
-        SelectedAppointments = appointments;
-        StateHasChanged();
-
-        return Task.CompletedTask;
-    }
-
-    private string ToRgbString(Color color)
-    {
-        return $"rgb({color.R}, {color.G}, {color.B})";
-    }
-
-    // create an implementation of BlazorScheduler.IAppointment that we can use to pass to the scheduler
     private class Appointment
     {
         public string Title { get; set; }

@@ -11,7 +11,7 @@ namespace BlazorScheduler
 
         [Parameter] public RenderFragment ChildContent { get; set; }
 
-        [Parameter] public Func<Appointment, MouseEventArgs, Task> OnClick { get; set; }
+        [Parameter] public Func<Task> OnClick { get; set; }
 
         [Parameter] public DateTime Start { get; set; }
         [Parameter] public DateTime End { get; set; }
@@ -25,7 +25,7 @@ namespace BlazorScheduler
 
         public void Click(MouseEventArgs e)
         {
-            OnClick?.Invoke(this, e);
+            OnClick?.Invoke();
         }
 
         public void Dispose()

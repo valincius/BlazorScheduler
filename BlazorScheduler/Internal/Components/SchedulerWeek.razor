@@ -36,7 +36,11 @@
                 var overflowAppointments = todaysAppointments
                     .Where(x => x.Value > MaxNumOfAppointmentsPerDay - 1)
                     .Select(x => x.Key).ToList().AsReadOnly();
-                <SchedulerAppointmentOverflow Appointments="overflowAppointments" Start="(dt.DayOfWeek - Scheduler.StartDayOfWeek + 7) % 7" Order="MaxNumOfAppointmentsPerDay" />
+                <SchedulerAppointmentOverflow
+                    Day="dt"
+                    AppointmentCount="overflowAppointments.Count()"
+                    Start="(dt.DayOfWeek - Scheduler.StartDayOfWeek + 7) % 7"
+                    Order="MaxNumOfAppointmentsPerDay" />
             }
         }
     </div>
