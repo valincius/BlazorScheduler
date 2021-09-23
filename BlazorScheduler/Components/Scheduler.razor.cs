@@ -7,17 +7,16 @@ using System.Threading.Tasks;
 using BlazorScheduler.Internal.Extensions;
 using BlazorScheduler.Configuration;
 using BlazorScheduler.Internal.Components;
-
 namespace BlazorScheduler
 {
     public partial class Scheduler
     {
         [Parameter] public RenderFragment ChildContent { get; set; }
 
+        [Parameter] public RenderFragment<DateTime> DayTemplate { get; set; }
         [Parameter] public Config Config { get; set; } = new();
         [Parameter] public DayOfWeek StartDayOfWeek { get; set; } = DayOfWeek.Sunday;
 
-        [Parameter] public Func<DateTime, Task> OnDayClick { get; set; }
         [Parameter] public Func<DateTime, DateTime, Task> OnAddingNewAppointment { get; set; }
         [Parameter] public Func<DateTime, Task> OnOverflowAppointmentClick { get; set; }
 

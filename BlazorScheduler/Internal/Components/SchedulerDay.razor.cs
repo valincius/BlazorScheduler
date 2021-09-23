@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Components;
 using System;
 using System.Collections.Generic;
-using BlazorScheduler.Internal.Extensions;
 using Microsoft.AspNetCore.Components.Web;
 
 namespace BlazorScheduler.Internal.Components
@@ -13,7 +12,6 @@ namespace BlazorScheduler.Internal.Components
         [Parameter] public DateTime Day { get; set; }
 
         private bool IsDiffMonth => Day.Month != Scheduler.CurrentDate.Month;
-        private string DateText => (IsDiffMonth && Day.Day == 1) ? Day.ToString("MMM d") : Day.Day.ToString();
         private IEnumerable<string> Classes
         {
             get
@@ -31,14 +29,6 @@ namespace BlazorScheduler.Internal.Components
             if (e.Button == 0 && !Scheduler.Config.DisableDragging)
             {
                 Scheduler.BeginDrag(this);
-            }
-        }
-
-        private void OnClick(MouseEventArgs e)
-        {
-            if (e.Button == 0)
-            {
-                Scheduler.OnDayClick?.Invoke(Day);
             }
         }
     }

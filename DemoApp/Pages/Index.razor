@@ -17,21 +17,26 @@
 
 <Scheduler
     StartDayOfWeek="StartDayOfWeek"
-    OnDayClick="DayClicked"
     OnAddingNewAppointment="OnAddNewAppointment"
     OnOverflowAppointmentClick="OnOverflowAppointmentClick">
-    @foreach (var app in Appointments)
-    {
-        <Appointment Start="@app.Start" End="@app.End" Color="@app.Color" OnClick="() => OnAppointmentClick(app)">
-            @app.Title
-        </Appointment>
-    }
+    <DayTemplate>
+        <DefaultDayTemplate Day="context" OnClick="() => OnDayClicked(context)" />
+        @*@context.Day*@
+    </DayTemplate>
+    <ChildContent>
+        @foreach (var app in Appointments)
+        {
+            <Appointment Start="@app.Start" End="@app.End" Color="@app.Color" OnClick="() => OnAppointmentClick(app)">
+                @app.Title
+            </Appointment>
+        }
+    </ChildContent>
 </Scheduler>
 
 @if (SelectedAppointment is not null)
 {
     <div id="overlay" @onclick="CloseAppointment">
-        <div class="popup" style="left: @(PopupX); top: @(PopupY);" @onclick:stopPropagation="true">
+        <div class="popup" style="left: 50%; top: 50%;" @onclick:stopPropagation="true">
             <label>Title: </label><input type="text" @bind-value="SelectedAppointmentCopy.Title" /><br />
             <label>Start: </label><input type="text" @bind-value="SelectedAppointmentCopy.Start" /><br />
             <label>End: </label><input type="text" @bind-value="SelectedAppointmentCopy.End" /><br />
@@ -49,7 +54,7 @@
 @if (SelectedAppointments is not null)
 {
     <div id="overlay" @onclick="() => SelectedAppointments = null">
-        <div class="popup" style="left: @(PopupX); top: @(PopupY);" @onclick:stopPropagation="true">
+        <div class="popup" style="left: 50%; top: 50%;" @onclick:stopPropagation="true">
             <ul>
                 @foreach (var appointment in SelectedAppointments)
                 {
@@ -63,7 +68,6 @@
 @code {
     private List<Appointment> Appointments = new();
 
-    private string PopupX, PopupY;
     private DayOfWeek StartDayOfWeek = DayOfWeek.Sunday;
 
     // fields for editing the selected appointment
@@ -143,14 +147,8 @@
         CloseAppointment();
     }
 
-    private Task DayClicked(DateTime day)
-    {
-        return Task.CompletedTask;
-    }
-
     private async Task OnAddNewAppointment(DateTime start, DateTime end)
     {
-        // (PopupX, PopupY) = ($"{mouse.x}px", $"{mouse.y}px");
         var appointment = new Appointment
         {
             Start = start,
@@ -160,7 +158,6 @@
     }
     private async Task OnAppointmentClick(Appointment appointment)
     {
-        // (PopupX, PopupY) = ($"{mouse.x}px", $"{mouse.y}px");
         await EditAppointment(appointment);
     }
     private Task OnOverflowAppointmentClick(DateTime day)
@@ -168,13 +165,24 @@
         var todaysAppointemnts = Appointments.Where(x => x.Start.Date <= day && x.End.Date >= day);
         if (todaysAppointemnts.Any())
         {
-            // (PopupX, PopupY) = ($"{mouse.x}px", $"{mouse.y}px");
             SelectedAppointments = todaysAppointemnts;
             StateHasChanged();
         }
 
         return Task.CompletedTask;
     }
+    private Task OnDayClicked(DateTime day)
+    {
+        var todaysAppointemnts = Appointments.Where(x => x.Start.Date <= day && x.End.Date >= day);
+        if (todaysAppointemnts.Any())
+        {
+            SelectedAppointments = todaysAppointemnts;
+            StateHasChanged();
+        }
+
+        return Task.CompletedTask;
+    }
+
 
     private class Appointment
     {

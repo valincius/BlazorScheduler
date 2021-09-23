@@ -1,5 +1,5 @@
 ﻿@namespace BlazorScheduler.Internal.Components
 
 <div class="day @Classes.AsString()" @onmousedown="OnMouseDown" data-date="@Day.Date.ToString("yyyyMMdd")">
-    <span @onmousedown="OnClick" @onmousedown:stopPropagation="true">@DateText</span>
+    @Scheduler.DayTemplate(Day)
 </div>
