@@ -1,5 +1,5 @@
 ﻿@namespace BlazorScheduler.Internal.Components
 
 <div class="appointment" style="--start: @Start; --end: @Start; --order: @Order;" @onclick="e => Scheduler.OnOverflowAppointmentClick?.Invoke(Day)">
-    + @AppointmentCount others
+    @Scheduler.Config.PlusOthersText.Replace("{n}", AppointmentCount.ToString())
 </div>

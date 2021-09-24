@@ -106,17 +106,6 @@
     line-height: var(--size);
 }
 
-.scheduler > .month > .week > .days > .day.today > span {
-    background-color: var(--theme-color);
-    /*color: var(--theme-alt-color);*/
-}
-
-.scheduler > .month > .week > .days > .day > span:hover {
-    filter: brightness(85%);
-    margin-top: 4px;
-    cursor: pointer;
-}
-
 .scheduler > .month > .week > .days > .day.diff-month {
     background-color: #f7f7f7;
     color: #ababab;

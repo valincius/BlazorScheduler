@@ -39,7 +39,7 @@
                 <SchedulerAppointmentOverflow
                     Day="dt"
                     AppointmentCount="overflowAppointments.Count()"
-                    Start="(dt.DayOfWeek - Scheduler.StartDayOfWeek + 7) % 7"
+                    Start="(dt.DayOfWeek - Scheduler.Config.StartDayOfWeek + 7) % 7"
                     Order="MaxNumOfAppointmentsPerDay" />
             }
         }

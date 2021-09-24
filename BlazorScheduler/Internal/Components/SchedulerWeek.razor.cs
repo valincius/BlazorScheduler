@@ -30,20 +30,21 @@ namespace BlazorScheduler.Internal.Components
 
         private (int, int) GetStartAndEndDayForAppointment(Appointment appointment)
         {
-            DayOfWeek start = Scheduler.StartDayOfWeek, end = Scheduler.StartDayOfWeek + 6;
+            DayOfWeek schedStart = Scheduler.Config.StartDayOfWeek;
+            DayOfWeek start = schedStart, end = schedStart + 6;
 
             if (appointment.Start.Between(Start, End))
             {
                 start = appointment.Start.DayOfWeek;
-                end = appointment.End.Between(Start, End) ? appointment.End.DayOfWeek : Scheduler.StartDayOfWeek - 1;
+                end = appointment.End.Between(Start, End) ? appointment.End.DayOfWeek : schedStart - 1;
             }
             else if (appointment.End.Between(Start, End))
             {
-                start = Scheduler.StartDayOfWeek;
+                start = schedStart;
                 end = appointment.End.DayOfWeek;
             }
 
-            return ((start - Scheduler.StartDayOfWeek + 7) % 7, (end - Scheduler.StartDayOfWeek + 7) % 7);
+            return ((start - schedStart + 7) % 7, (end - schedStart + 7) % 7);
         }
 
         private int GetBestOrderingForAppointment(Appointment appointment)

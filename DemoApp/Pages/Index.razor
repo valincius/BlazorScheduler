@@ -6,31 +6,30 @@
 
 <label>Start Day of Week</label>
 <select @bind="StartDayOfWeek">
-    <option value="@DayOfWeek.Sunday">Sunday</option>
-    <option value="@DayOfWeek.Monday">Monday</option>
-    <option value="@DayOfWeek.Tuesday">Tuesday</option>
-    <option value="@DayOfWeek.Wednesday">Wednesday</option>
-    <option value="@DayOfWeek.Thursday">Thursday</option>
-    <option value="@DayOfWeek.Friday">Friday</option>
-    <option value="@DayOfWeek.Saturday">Saturday</option>
+    <option value="@DayOfWeek.Sunday">@DayOfWeek.Sunday</option>
+    <option value="@DayOfWeek.Monday">@DayOfWeek.Monday</option>
+    <option value="@DayOfWeek.Tuesday">@DayOfWeek.Tuesday</option>
+    <option value="@DayOfWeek.Wednesday">@DayOfWeek.Wednesday</option>
+    <option value="@DayOfWeek.Thursday">@DayOfWeek.Thursday</option>
+    <option value="@DayOfWeek.Friday">@DayOfWeek.Friday</option>
+    <option value="@DayOfWeek.Saturday">@DayOfWeek.Saturday</option>
 </select>
 
 <Scheduler
-    StartDayOfWeek="StartDayOfWeek"
     OnAddingNewAppointment="OnAddNewAppointment"
     OnOverflowAppointmentClick="OnOverflowAppointmentClick">
-    <DayTemplate>
-        <DefaultDayTemplate Day="context" OnClick="() => OnDayClicked(context)" />
-        @*@context.Day*@
-    </DayTemplate>
-    <ChildContent>
+    @*<HeaderTemplate>
+    </HeaderTemplate>*@
+    @*<DayTemplate>
+    </DayTemplate>*@
+    <Appointments>
         @foreach (var app in Appointments)
         {
             <Appointment Start="@app.Start" End="@app.End" Color="@app.Color" OnClick="() => OnAppointmentClick(app)">
                 @app.Title
             </Appointment>
         }
-    </ChildContent>
+    </Appointments>
 </Scheduler>
 
 @if (SelectedAppointment is not null)

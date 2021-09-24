@@ -16,7 +16,7 @@ namespace BlazorScheduler.Internal.Components
 		{
             get
             {
-                if (ReferenceEquals(this, Scheduler.NewAppointment))
+                if (ReferenceEquals(Appointment, Scheduler.NewAppointment))
                 {
                     yield return "new-appointment";
                 }

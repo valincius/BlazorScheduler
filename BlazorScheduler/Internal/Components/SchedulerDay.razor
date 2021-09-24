@@ -1,5 +1,16 @@
 ﻿@namespace BlazorScheduler.Internal.Components
 
 <div class="day @Classes.AsString()" @onmousedown="OnMouseDown" data-date="@Day.Date.ToString("yyyyMMdd")">
-    @Scheduler.DayTemplate(Day)
+    @if (Scheduler.DayTemplate != null)
+    {
+        @Scheduler.DayTemplate(Day)
+    }
+    else
+    {
+        string color = "";
+        if (Day.Date == DateTime.Today) {
+            color = Scheduler.Config.ThemeColor;
+        }
+        <span style="background-color: @color;">@DateText</span>
+    }
 </div>
