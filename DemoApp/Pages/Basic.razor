@@ -1,0 +1,25 @@
+﻿@page "/"
+
+@using Models
+@using BlazorScheduler
+
+<Scheduler OnAddingNewAppointment="OnAddingNewAppointment">
+    <Appointments>
+        @foreach (var app in _appointments)
+        {
+            <Appointment Start="@app.Start" End="@app.End" Color="@app.Color">
+                @app.Title
+            </Appointment>
+        }
+    </Appointments>
+</Scheduler>
+
+@code {
+    private List<AppointmentDto> _appointments = new();
+
+    Task OnAddingNewAppointment(DateTime start, DateTime end)
+    {
+        _appointments.Add(new AppointmentDto { Start = start, End = end, Title = "A newly added appointment!", Color = "aqua" });
+        return Task.CompletedTask;
+    }
+}

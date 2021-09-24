@@ -39,8 +39,8 @@ namespace BlazorScheduler.Internal.Extensions
             return dt.AddDays(diff).Date;
         }
 
-        public static bool Overlaps<T>(this (T, T) dt, (T, T) other) where T : IComparable<T> =>
-            dt.Item1.CompareTo(other.Item2) <= 0 && other.Item1.CompareTo(dt.Item2) <= 0;
+        public static bool Overlaps<T>(this (T start, T end) dt, (T start, T end) other) where T : IComparable<T> =>
+            dt.start.CompareTo(other.end) <= 0 && other.start.CompareTo(dt.end) <= 0;
 
         public static bool Between<T>(this T item, T start, T end, bool inclusive = true) where T : IComparable<T>
         {

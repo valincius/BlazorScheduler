@@ -1,0 +1,63 @@
+﻿@page "/configuration"
+
+@using Models
+@using BlazorScheduler
+@using BlazorScheduler.Configuration
+
+<MudCard Class="mb-3">
+    <MudCardHeader>
+        <MudText Typo="Typo.h6">Config</MudText>
+    </MudCardHeader>
+    <MudCardContent>
+        <MudGrid>
+            <MudItem xs="12" md="6">
+                <MudCheckBox @bind-Checked="_config.DisableDragging" Label="Disable Dragging" />
+            </MudItem>
+            <MudItem xs="12" md="6">
+                <MudCheckBox @bind-Checked="_config.AlwaysShowYear" Label="Always show year in header" />
+            </MudItem>
+            <MudItem xs="12" md="6">
+                <MudNumericField @bind-Value="_config.MaxVisibleAppointmentsPerDay" Label="Max Visible Appointments Per Day" Step="1" Min="1" Max="5" />
+            </MudItem>
+            <MudItem xs="12" md="6">
+                <MudColorPicker Label="Theme Color" @bind-Text="_config.ThemeColor" Style="@($"color: {_config.ThemeColor};")" />
+            </MudItem>
+            <MudItem xs="12" md="6">
+                <MudSelect Label="Start Day of Week" @bind-Value="_config.StartDayOfWeek">
+                    @foreach (var day in Enum.GetValues<DayOfWeek>())
+                    {
+                        <MudSelectItem Value="@day" />
+                    }
+                </MudSelect>
+            </MudItem>
+            <MudItem xs="12" md="6">
+                <MudTextField @bind-Value="_config.PlusOthersText" Label="Overflow text" />
+            </MudItem>
+            <MudItem xs="12" md="6">
+                <MudTextField @bind-Value="_config.TodayButtonText" Label="Today Button Text" />
+            </MudItem>
+        </MudGrid>
+    </MudCardContent>
+</MudCard>
+
+<Scheduler Config="_config" OnAddingNewAppointment="OnAddingNewAppointment">
+    <Appointments>
+        @foreach (var app in _appointments)
+        {
+            <Appointment Start="@app.Start" End="@app.End" Color="@app.Color">
+                @app.Title
+            </Appointment>
+        }
+    </Appointments>
+</Scheduler>
+
+@code {
+    private List<AppointmentDto> _appointments = new();
+    private Config _config = new();
+
+    Task OnAddingNewAppointment(DateTime start, DateTime end)
+    {
+        _appointments.Add(new AppointmentDto { Start = start, End = end, Title = "A newly added appointment!", Color = "aqua" });
+        return Task.CompletedTask;
+    }
+}

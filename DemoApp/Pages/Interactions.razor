@@ -1,0 +1,74 @@
+﻿@page "/interactions"
+
+@using Models
+@using BlazorScheduler
+
+@inject AppointmentService AppointmentService
+
+<Scheduler
+    OnDateRangeChanged="OnDateRangeChanged"
+    OnAddingNewAppointment="OnAddingNewAppointment"
+    OnOverflowAppointmentClick="OnOverflowAppointmentClick">
+    <Appointments>
+        @foreach (var app in _appointments)
+        {
+            <Appointment Start="@app.Start" End="@app.End" Color="@app.Color" OnClick="() => OnAppointmentClicked(app)">
+                @app.Title
+            </Appointment>
+        }
+    </Appointments>
+</Scheduler>
+
+<MudDialog @bind-IsVisible="_showModal">
+    <TitleContent>
+        <MudText Typo="Typo.h6">
+            <MudIcon Icon="@Icons.Material.Filled.CalendarToday" Class="mr-3"/> Appointments for @SelectedDate.ToShortDateString()
+        </MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudList Dense="true">
+        @foreach (var app in _appointments.Where(x => x.Start.Date <= SelectedDate && x.End.Date >= SelectedDate))
+        {
+            <MudListItem>
+                @app.Title
+                <MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Small" @onclick="() => _appointments.Remove(app)"></MudIconButton>
+            </MudListItem>
+        }
+        </MudList>
+    </DialogContent>
+    <DialogActions>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="() => _showModal = false" Class="px-10">Close</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    private List<AppointmentDto> _appointments = new();
+    private bool _showModal;
+    private DateTime SelectedDate; 
+
+    Task OnDateRangeChanged(DateTime start, DateTime end)
+    {
+        _appointments = AppointmentService.GetAppointments(start, end).ToList();
+        return Task.CompletedTask;
+    }
+
+    void OnAppointmentClicked(AppointmentDto app)
+    {
+        // show a modal that allows us to edit or delete the selected appointment
+    }
+
+    Task OnAddingNewAppointment(DateTime start, DateTime end)
+    {
+        // POST to a database so it's persisted
+        _appointments.Add(new AppointmentDto { Start = start, End = end, Title = "A newly added appointment!", Color = "aqua" });
+        return Task.CompletedTask;
+    }
+
+    Task OnOverflowAppointmentClick(DateTime day)
+    {
+        SelectedDate = day;
+        _showModal = true;
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+}

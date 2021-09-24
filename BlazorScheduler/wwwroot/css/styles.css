@@ -14,6 +14,7 @@
     padding: 10px;
     display: flex;
     justify-content: space-between;
+    background-color: white;
 }
 .scheduler > .actions > .navigation > .selected-month {
     width: 160px;
@@ -77,6 +78,9 @@
     font-weight: bold;
     flex: 1;
 }
+.scheduler > .month > .week.header > .day-of-month > .short-dayname {
+    display: none;
+}
 .scheduler > .month > .week.header > div:not(:last-of-type) {
     border-right: 1px solid #eee;
 }
@@ -138,4 +142,13 @@
     vertical-align: middle;
     border-radius: 50%;
     background-color: red;
+}
+
+@media only screen and (max-width: 550px) {
+    .scheduler > .month > .week.header > .day-of-month > .full-dayname {
+        display: none;
+    }
+    .scheduler > .month > .week.header > .day-of-month > .short-dayname {
+        display: initial;
+    }
 }

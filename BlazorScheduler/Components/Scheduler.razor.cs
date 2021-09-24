@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using BlazorScheduler.Internal.Extensions;
 using BlazorScheduler.Configuration;
 using BlazorScheduler.Internal.Components;
+
 namespace BlazorScheduler
 {
     public partial class Scheduler
@@ -17,10 +18,11 @@ namespace BlazorScheduler
         [Parameter] public RenderFragment<Scheduler> HeaderTemplate { get; set; }
         [Parameter] public RenderFragment<DateTime> DayTemplate { get; set; }
 
-        [Parameter] public Config Config { get; set; } = new();
         [Parameter] public Func<DateTime, DateTime, Task> OnDateRangeChanged { get; set; }
         [Parameter] public Func<DateTime, DateTime, Task> OnAddingNewAppointment { get; set; }
         [Parameter] public Func<DateTime, Task> OnOverflowAppointmentClick { get; set; }
+        
+        [Parameter] public Config Config { get; set; } = new();
 
         public DateTime CurrentDate { get; private set; }
         public Appointment NewAppointment { get; private set; }
@@ -77,7 +79,11 @@ namespace BlazorScheduler
             CurrentDate = date;
             await AttachMouseHandler();
             var (start, end) = GetDateRangeForCurrentMonth();
-            OnDateRangeChanged?.Invoke(start, end);
+            if (OnDateRangeChanged != null)
+            {
+                await OnDateRangeChanged(start, end);
+            }
+            StateHasChanged();
         }
 
         private async Task AttachMouseHandler()

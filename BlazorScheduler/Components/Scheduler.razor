@@ -2,6 +2,7 @@
 
 @using Microsoft.JSInterop
 @using BlazorScheduler.Internal
+@using System.Globalization
 
 @inject IJSRuntime jsRuntime
 
@@ -13,7 +14,7 @@
     else
     {
         <div class="actions">
-            <button class="btn today" @onclick="() => ChangeMonth()">Today</button>
+            <button class="btn today" @onclick="() => ChangeMonth()">@Config.TodayButtonText</button>
             <div class="navigation">
                 <button class="btn icon-btn" @onclick="() => ChangeMonth(-1)">
                     <svg viewBox="0 0 24 24">
@@ -36,7 +37,12 @@
         <div class="week header">
             @for (int d=0;d<7;d++)
             {
-                <div class="day-of-month">@Enum.GetName(typeof(DayOfWeek), (DayOfWeek)((int)(Config.StartDayOfWeek+d) % 7))</div>
+                int dayNumber = (int)(Config.StartDayOfWeek + d) % 7;
+                string dayName = CultureInfo.CurrentCulture.DateTimeFormat.DayNames[dayNumber];
+                <div class="day-of-month">
+                    <span class="full-dayname">@dayName</span>
+                    <span class="short-dayname">@dayName.Substring(0, 3)</span>
+                </div>
             }
         </div>
         <CascadingValue IsFixed="true" Value="this">

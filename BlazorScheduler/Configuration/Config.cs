@@ -9,6 +9,7 @@ namespace BlazorScheduler.Configuration
         public bool DisableDragging { get; set; } = false;
         public string ThemeColor { get; set; } = "aqua";
         public DayOfWeek StartDayOfWeek { get; set; } = DayOfWeek.Sunday;
+        public string TodayButtonText { get; set; } = "Today";
         public string PlusOthersText { get; set; } = "+ {n} others";
     }
 }
