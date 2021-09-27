@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Drawing;
 
 namespace BlazorScheduler.Core
 {
@@ -8,6 +7,6 @@ namespace BlazorScheduler.Core
 		string Title { get; set; }
 		DateTime Start { get; set; }
 		DateTime End { get; set; }
-		Color Color { get; set; }
+		string Color { get; set; }
 	}
 }

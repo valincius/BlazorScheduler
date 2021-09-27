@@ -12,36 +12,32 @@ Also has support for dragging to create appointments.
 
 ## Usage
 1. Run `Install-Package BlazorScheduler` in the package manager console to install the latest package in your frontend project.
-    - Optionally run `Install-Package BlazorScheduler.Core` in your shared project so you can have access to the interfaces there.
 2. Add references to necessary js & css files in your `index.html`
     - Add `<link href="_content/BlazorScheduler/css/styles.css" rel="stylesheet" />` to the head
     - Add `<script src="_content/BlazorScheduler/js/scripts.js"></script>` to the body
 3. Add `@using BlazorScheduler` to your page
-    - Add `using BlazorScheduler.Core` wherever you are creating an implementation of `BlazorScheduler.Core.IAppointment`
-4. Create an implementation of `IAppointment`
+4. Create a `List` of your appointments
     ```c#
-    public class Appointment : IAppointment
-    {
-        public string Title { get; set; }
-		public DateTime Start { get; set; }
-		public DateTime End { get; set; }
-		public Color Color { get; set; }
-    }
+    List<AppointmentDto> _appointments = new();
     ```
-5. Create a `List` of your appointments
+5. Add the component to your view and build the appointments like so:
     ```c#
-    List<Appointment> Appointments = new();
-    ```
-5. Add the component to your view
-    ```html
-    <Scheduler T="Appointment" Appointments="Appointments" />
+    <Scheduler T="Appointment" Appointments="Appointments">
+        <Appointments>
+            @foreach (var app in _appointments)
+            {
+                <Appointment Start="@app.Start" End="@app.End" Color="@app.Color">
+                    @app.Title
+                </Appointment>
+            }
+        </Appointments>
+    </Scheduler>
     ```
 
 ## Interactions
-There are 4 callbacks that the scheduler provides.
-- `Task OnAddingNewAppointment(T appointment)` - invoked when the user is done dragging to create a new appointment
-- `Task OnAppointmentClick(T appointment, MouseEventArgs mouse)` - invoked when the user clicks on an appointment
-- `Task OnOverflowAppointmentClick(IEnumerable<T> appointments, MouseEventArgs mouse)` - invoked when the user clicks on an "overflowing" appointment
-- `Task OnDayClick(DateTime day)` - invoked when the day number is clicked
+There are 3 callbacks that the scheduler provides.
+- `Task OnAddingNewAppointment(DateTime start, DateTime end)` - invoked when the user is done dragging to create a new appointment, the range is returned in the parameters
+- `Task OnOverflowAppointmentClick(DateTime day)` - invoked when the user clicks on an "overflowing" appointment, the date of the overflow is returned in the parameters
+- `Task OnRequestNewData(DateTime start, DateTime end)` - invoked on first render and when the month is changed, the range is returned in the parameters
 
 See the demo [here](https://valincius.dev/BlazorScheduler/) for more information on usage

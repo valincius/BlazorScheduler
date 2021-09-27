@@ -1,43 +1,66 @@
 ﻿@namespace BlazorScheduler
-@typeparam T
 
 @using Microsoft.JSInterop
 @using BlazorScheduler.Internal
+@using System.Globalization
 
 @inject IJSRuntime jsRuntime
 
-<div class="scheduler" style="--theme-color: @ThemeColor.ToRgbString(); --theme-alt-color: @ThemeColor.GetAltColor().ToRgbString();">
-    <div class="actions">
-        <button class="btn today" @onclick="() => ChangeMonth()">Today</button>
-        <div class="navigation">
-            <button class="btn icon-btn" @onclick="() => ChangeMonth(-1)">
-                <svg viewBox="0 0 24 24">
-                    <path d="M24 0v24H0V0h24z" fill="none"/>
-                    <path d="M14 7l-5 5 5 5V7z"/>
-                </svg>
-            </button>
-            <span class="selected-month">@MonthDisplay</span>
-            <button class="btn icon-btn" @onclick="() => ChangeMonth(+1)">
-                <svg viewBox="0 0 24 24">
-                    <path d="M0 0h24v24H0V0z" fill="none"/>
-                    <path d="M10 17l5-5-5-5v10z"/>
-                </svg>
-            </button>
-        </div>
-        <span></span>
+<div class="scheduler">
+    <div class="header">
+        @if (HeaderTemplate != null)
+        {
+            @HeaderTemplate(this)
+        }
+        else
+        {
+            <div class="actions">
+                <button class="btn today" @onclick="() => ChangeMonth()">@Config.TodayButtonText</button>
+                <div class="navigation">
+                    <button class="btn icon-btn" @onclick="() => ChangeMonth(-1)">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M24 0v24H0V0h24z" fill="none"/>
+                            <path d="M14 7l-5 5 5 5V7z"/>
+                        </svg>
+                    </button>
+                    <span class="selected-month">@MonthDisplay</span>
+                    <button class="btn icon-btn" @onclick="() => ChangeMonth(+1)">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M0 0h24v24H0V0z" fill="none"/>
+                            <path d="M10 17l5-5-5-5v10z"/>
+                        </svg>
+                    </button>
+                </div>
+                @if (_loading)
+                {
+                    <div class="scheduler-loader" style="--size: 25px; --color1: #666; --color2: #ccc;"></div>
+                }
+                else
+                {
+                    <span></span>
+                }
+            </div>
+        }
     </div>
     <div class="month">
         <div class="week header">
             @for (int d=0;d<7;d++)
             {
-                <div class="day-of-month">@Enum.GetName(typeof(DayOfWeek), (DayOfWeek)((int)(StartDayOfWeek+d) % 7))</div>
+                int dayNumber = (int)(Config.StartDayOfWeek + d) % 7;
+                string dayName = CultureInfo.CurrentCulture.DateTimeFormat.DayNames[dayNumber];
+                <div class="day-of-month">
+                    <span class="full-dayname">@dayName</span>
+                    <span class="short-dayname">@dayName.Substring(0, 3)</span>
+                </div>
             }
         </div>
-        <CascadingValue Value="this">
-            @foreach (var week in GetDateRange().Chunk(7))
+        <CascadingValue IsFixed="true" Value="this">
+            @Appointments
+
+            @foreach (var week in GetDaysInRange().Chunk(7))
             {
                 var (start, end) = (week.First(), week.Last());
-                <SchedulerWeek T="T" Start="start" End="end" Appointments="GetAppointments(start, end)" />
+                <SchedulerWeek Start="start" End="end" Appointments="GetAppointments(start, end)" />
             }
         </CascadingValue>
     </div>

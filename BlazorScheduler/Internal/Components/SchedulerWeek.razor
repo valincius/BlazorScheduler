@@ -1,11 +1,10 @@
 ﻿@namespace BlazorScheduler.Internal.Components
-@typeparam T
 
 <div class="week">
     <div class="days">
         @for (var dt = Start; dt <= End; dt = dt.AddDays(1))
         {
-            <SchedulerDay Day="dt" T="T" />
+            <SchedulerDay Day="dt"/>
         }
     </div>
     <div class="appointments">
@@ -19,12 +18,12 @@
                 bool isTimedAppointment = appointment.Start.Date == appointment.End.Date && appointment.Start != appointment.End;
                 if (isTimedAppointment)
                 {
-                    <SchedulerAppointment T="T" Appointment="appointment" Order="order" />
+                    <SchedulerAppointment Appointment="appointment" Order="order" />
                 }
                 else
                 {
                     var (start, end) = GetStartAndEndDayForAppointment(appointment);
-                    <SchedulerAllDayAppointment T="T" Appointment="appointment" Order="order" Start="start" End="end" />
+                    <SchedulerAllDayAppointment Appointment="appointment" Order="order" Start="start" End="end" />
                 }
             }
         }
@@ -37,7 +36,11 @@
                 var overflowAppointments = todaysAppointments
                     .Where(x => x.Value > MaxNumOfAppointmentsPerDay - 1)
                     .Select(x => x.Key).ToList().AsReadOnly();
-                <SchedulerAppointmentOverflow T="T" Appointments="overflowAppointments" Start="(dt.DayOfWeek - Scheduler.StartDayOfWeek + 7) % 7" Order="MaxNumOfAppointmentsPerDay" />
+                <SchedulerAppointmentOverflow
+                    Day="dt"
+                    AppointmentCount="overflowAppointments.Count()"
+                    Start="(dt.DayOfWeek - Scheduler.Config.StartDayOfWeek + 7) % 7"
+                    Order="MaxNumOfAppointmentsPerDay" />
             }
         }
     </div>

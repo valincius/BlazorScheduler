@@ -5,29 +5,28 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using BlazorScheduler.Internal.Extensions;
-using BlazorScheduler.Internal.Components;
-using Microsoft.AspNetCore.Components.Web;
-using BlazorScheduler.Core;
-using System.Drawing;
 using BlazorScheduler.Configuration;
+using BlazorScheduler.Internal.Components;
 
 namespace BlazorScheduler
 {
-    public partial class Scheduler<T> where T : IAppointment, new()
+    public partial class Scheduler
     {
-        [Parameter] public List<T> Appointments { get; set; }
-        [Parameter] public Func<T, Task> OnAddingNewAppointment { get; set; }
-        [Parameter] public Func<DateTime, Task> OnDayClick { get; set; }
-        [Parameter] public Func<T, MouseEventArgs, Task> OnAppointmentClick { get; set; }
-        [Parameter] public Func<IEnumerable<T>, MouseEventArgs, Task> OnOverflowAppointmentClick { get; set; }
-        [Parameter] public DayOfWeek StartDayOfWeek { get; set; } = DayOfWeek.Sunday;
-        [Parameter] public Color ThemeColor { get; set; } = Color.Aqua;
+        [Parameter] public RenderFragment Appointments { get; set; }
+        [Parameter] public RenderFragment<Scheduler> HeaderTemplate { get; set; }
+        [Parameter] public RenderFragment<DateTime> DayTemplate { get; set; }
+
+        [Parameter] public Func<DateTime, DateTime, Task> OnRequestNewData { get; set; }
+        [Parameter] public Func<DateTime, DateTime, Task> OnAddingNewAppointment { get; set; }
+        [Parameter] public Func<DateTime, Task> OnOverflowAppointmentClick { get; set; }
+        
         [Parameter] public Config Config { get; set; } = new();
 
-        private DotNetObjectReference<Scheduler<T>> ObjectReference;
-        private DateTime NewAppointmentAnchor;
-
         public DateTime CurrentDate { get; private set; }
+        public Appointment NewAppointment { get; private set; }
+
+        internal event EventHandler OnInvalidate = delegate { };
+
         private string MonthDisplay
         {
             get
@@ -41,15 +40,18 @@ namespace BlazorScheduler
             }
         }
 
-        public T NewAppointment { get; private set; }
-        private bool DoneDragging = false;
+        private readonly HashSet<Appointment> _appointments = new();
+        private DotNetObjectReference<Scheduler> _objReference;
+        private DateTime _draggingAppointmentAnchor;
+        private bool _doneDragging = false;
+        private bool _loading = false;
 
-        protected override void OnInitialized()
+        protected override async Task OnInitializedAsync()
         {
-            ObjectReference = DotNetObjectReference.Create(this);
-            CurrentDate = DateTime.Today;
+            _objReference = DotNetObjectReference.Create(this);
+            await SetCurrentMonth(DateTime.Today);
 
-            base.OnInitialized();
+            await base.OnInitializedAsync();
         }
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -61,29 +63,69 @@ namespace BlazorScheduler
             base.OnAfterRender(firstRender);
         }
 
+        internal void AddAppointment(Appointment appointment)
+        {
+            _appointments.Add(appointment);
+            StateHasChanged();
+        }
+
+        internal void RemoveAppointment(Appointment appointment)
+        {
+            _appointments.Remove(appointment);
+            StateHasChanged();
+        }
+
+        public async Task SetCurrentMonth(DateTime date)
+        {
+            CurrentDate = date;
+            await AttachMouseHandler();
+            var (start, end) = GetDateRangeForCurrentMonth();
+            if (OnRequestNewData != null)
+            {
+                _loading = true;
+                StateHasChanged();
+                await OnRequestNewData(start, end);
+                _loading = false;
+            }
+            StateHasChanged();
+        }
+
+        public void Invalidate()
+        {
+            OnInvalidate(this, new EventArgs());
+            StateHasChanged();
+        }
+
         private async Task AttachMouseHandler()
         {
-            await jsRuntime.InvokeVoidAsync("attachSchedulerMouseEventsHandler", ObjectReference);
+            await jsRuntime.InvokeVoidAsync("attachSchedulerMouseEventsHandler", _objReference);
         }
 
         private async Task ChangeMonth(int months = 0)
         {
-            CurrentDate = months == 0 ? DateTime.Today : CurrentDate.AddMonths(months);
-            await AttachMouseHandler();
+            await SetCurrentMonth(months == 0 ? DateTime.Today : CurrentDate.AddMonths(months));
         }
 
-        private IEnumerable<DateTime> GetDateRange()
+        private (DateTime, DateTime) GetDateRangeForCurrentMonth()
         {
-            var startDate = new DateTime(CurrentDate.Year, CurrentDate.Month, 1).GetPrevious(StartDayOfWeek);
-            var endDate = new DateTime(CurrentDate.Year, CurrentDate.Month, DateTime.DaysInMonth(CurrentDate.Year, CurrentDate.Month)).GetNext((DayOfWeek)((int)(StartDayOfWeek - 1 + 7) % 7));
+            var startDate = new DateTime(CurrentDate.Year, CurrentDate.Month, 1).GetPrevious(Config.StartDayOfWeek);
+            var endDate = new DateTime(CurrentDate.Year, CurrentDate.Month, DateTime.DaysInMonth(CurrentDate.Year, CurrentDate.Month))
+                .GetNext((DayOfWeek)((int)(Config.StartDayOfWeek - 1 + 7) % 7));
 
-            return Enumerable.Range(0, 1 + endDate.Subtract(startDate).Days)
-              .Select(offset => startDate.AddDays(offset));
+            return (startDate, endDate);
         }
 
-        private IEnumerable<T> GetAppointments(DateTime start, DateTime end)
+        private IEnumerable<DateTime> GetDaysInRange()
         {
-            var appointmentsInTimeframe = Appointments.Where(x => (start, end).Overlaps((x.Start, x.End))).ToList();
+            var (start, end) = GetDateRangeForCurrentMonth();
+            return Enumerable
+                .Range(0, 1 + end.Subtract(start).Days)
+                .Select(offset => start.AddDays(offset));
+        }
+
+        private IEnumerable<Appointment> GetAppointments(DateTime start, DateTime end)
+        {
+            var appointmentsInTimeframe = _appointments.Where(x => (start, end).Overlaps((x.Start, x.End))).ToList();
             if (NewAppointment is not null && (start, end).Overlaps((NewAppointment.Start, NewAppointment.End)))
             {
                 appointmentsInTimeframe.Add(NewAppointment);
@@ -94,18 +136,18 @@ namespace BlazorScheduler
                 .ThenByDescending(x => (x.End - x.Start).Days);
         }
 
-        public void BeginDrag(SchedulerDay<T> day)
+        public void BeginDrag(SchedulerDay day)
         {
-            NewAppointment = new T
+            NewAppointment = new Appointment
             {
+                ChildContent = new RenderFragment(builder => builder.AddContent(0, "New appointment")),
                 Start = day.Day,
                 End = day.Day,
-                Title = "New Appointment",
-                Color = ThemeColor
+                Color = Config.ThemeColor
             };
-            DoneDragging = false;
+            _doneDragging = false;
 
-            NewAppointmentAnchor = NewAppointment.Start;
+            _draggingAppointmentAnchor = NewAppointment.Start;
             StateHasChanged();
         }
 
@@ -114,10 +156,10 @@ namespace BlazorScheduler
         {
             if (button == 0)
             {
-                if (NewAppointment is not null && !DoneDragging)
+                if (NewAppointment is not null && !_doneDragging)
                 {
-                    DoneDragging = true;
-                    await OnAddingNewAppointment?.Invoke(NewAppointment);
+                    _doneDragging = true;
+                    await OnAddingNewAppointment?.Invoke(NewAppointment.Start, NewAppointment.End);
                     NewAppointment = default;
                     StateHasChanged();
                 }
@@ -127,10 +169,10 @@ namespace BlazorScheduler
         [JSInvokable]
         public void OnMouseMove(string date)
         {
-            if (NewAppointment is not null && !DoneDragging)
+            if (NewAppointment is not null && !_doneDragging)
             {
                 var day = DateTime.ParseExact(date, "yyyyMMdd", null);
-                (NewAppointment.Start, NewAppointment.End) = day < NewAppointmentAnchor ? (day, NewAppointmentAnchor) : (NewAppointmentAnchor, day);
+                (NewAppointment.Start, NewAppointment.End) = day < _draggingAppointmentAnchor ? (day, _draggingAppointmentAnchor) : (_draggingAppointmentAnchor, day);
                 StateHasChanged();
             }
         }
