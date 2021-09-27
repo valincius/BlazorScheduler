@@ -1,0 +1,60 @@
+﻿@page "/interactions"
+
+@inject AppointmentService AppointmentService
+@inject IDialogService DialogService
+
+<Scheduler
+    OnRequestNewData="OnRequestNewData"
+    OnAddingNewAppointment="OnAddingNewAppointment"
+    OnOverflowAppointmentClick="OnOverflowAppointmentClick">
+    <Appointments>
+        @foreach (var app in _appointments)
+        {
+            <Appointment Start="@app.Start" End="@app.End" Color="@app.Color" OnClick="() => OnAppointmentClicked(app)">
+                @app.Title
+            </Appointment>
+        }
+    </Appointments>
+</Scheduler>
+
+
+
+@code {
+    private List<AppointmentDto> _appointments = new();
+
+    async Task OnRequestNewData(DateTime start, DateTime end)
+    {
+        await Task.Delay(500);
+        _appointments = AppointmentService.GetAppointments(start, end).ToList();
+    }
+
+    async Task OnAppointmentClicked(AppointmentDto app)
+    {
+        var dialog = DialogService.Show<EditAppointmentDialog>("Edit Appointment", new DialogParameters
+        {
+            ["Appointment"] = app,
+        });
+        await dialog.Result;
+
+        StateHasChanged();
+    }
+
+    Task OnAddingNewAppointment(DateTime start, DateTime end)
+    {
+        // POST to a database so it's persisted
+        _appointments.Add(new AppointmentDto { Start = start, End = end, Title = "A newly added appointment!", Color = "aqua" });
+        return Task.CompletedTask;
+    }
+
+    async Task OnOverflowAppointmentClick(DateTime day)
+    {
+        var dialog = DialogService.Show<OverflowAppointmentDialog>($"Appointments for {day.ToShortDateString()}", new DialogParameters
+        {
+            ["Appointments"] = _appointments,
+            ["SelectedDate"] = day,
+        });
+        await dialog.Result;
+
+        StateHasChanged();
+    }
+}

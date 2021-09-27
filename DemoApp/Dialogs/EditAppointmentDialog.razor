@@ -1,0 +1,43 @@
+﻿<MudDialog>
+    <TitleContent>
+        <MudText Typo="Typo.h6">
+            <MudIcon Icon="@Icons.Material.Filled.CalendarToday" Class="mr-3"/> @Appointment.Title
+        </MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudTextFieldString Label="Title" @bind-Text="Appointment.Title" />
+        <MudDateRangePicker Label="When" @bind-DateRange="_dateRange" />
+        <MudColorPicker Label="Color" @bind-Text="Appointment.Color" Style="@($"color: {Appointment.Color};")" />
+    </DialogContent>
+    <DialogActions>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="Close" Class="px-10">Close</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+
+    [Parameter] public AppointmentDto Appointment { get; set; }
+
+    DateRange __dateRange;
+    DateRange _dateRange
+    {
+        get
+        {
+            return __dateRange;
+        }
+        set
+        {
+            (Appointment.Start, Appointment.End) = (value.Start ?? Appointment.Start, value.End ?? Appointment.End);
+            (__dateRange.Start, __dateRange.End) = (value.Start, value.End);
+        }
+    }
+
+    protected override void OnParametersSet()
+    {
+        __dateRange = new DateRange(Appointment.Start, Appointment.End);
+        base.OnParametersSet();
+    }
+
+    void Close() => MudDialog.Close(DialogResult.Ok(true));
+}

@@ -1,17 +1,17 @@
 ﻿using Microsoft.AspNetCore.Components;
 using System;
 using System.Collections.Generic;
-using BlazorScheduler.Internal.Extensions;
 using Microsoft.AspNetCore.Components.Web;
-using BlazorScheduler.Core;
+using System.Threading.Tasks;
 
 namespace BlazorScheduler.Internal.Components
 {
-    public partial class SchedulerDay<T> where T : IAppointment, new()
+    public partial class SchedulerDay : IDisposable
     {
-        [CascadingParameter] public Scheduler<T> Scheduler { get; set; }
+        [CascadingParameter] public Scheduler Scheduler { get; set; }
 
         [Parameter] public DateTime Day { get; set; }
+        [Parameter] public Func<DateTime, Task> OnClick { get; set; }
 
         private bool IsDiffMonth => Day.Month != Scheduler.CurrentDate.Month;
         private string DateText => (IsDiffMonth && Day.Day == 1) ? Day.ToString("MMM d") : Day.Day.ToString();
@@ -19,13 +19,23 @@ namespace BlazorScheduler.Internal.Components
         {
             get
             {
-                if (Day == DateTime.Today)
-                    yield return "today";
-
                 if (IsDiffMonth)
                     yield return "diff-month";
             }
         }
+
+        protected override void OnInitialized()
+        {
+            Scheduler.OnInvalidate += Invalidate;
+        }
+
+        public void Dispose()
+        {
+            Scheduler.OnInvalidate -= Invalidate;
+            GC.SuppressFinalize(this);
+        }
+
+        private void Invalidate(object sender, EventArgs e) => StateHasChanged();
 
         private void OnMouseDown(MouseEventArgs e)
         {
@@ -33,11 +43,6 @@ namespace BlazorScheduler.Internal.Components
             {
                 Scheduler.BeginDrag(this);
             }
-        }
-
-        private void OnDayClick()
-        {
-            Scheduler.OnDayClick?.Invoke(Day);
         }
     }
 }
