@@ -1,0 +1,56 @@
+﻿@page "/header"
+
+@inject AppointmentService AppointmentService
+
+<Scheduler OnRequestNewData="OnRequestNewData" OnAddingNewAppointment="OnAddingNewAppointment">
+    <HeaderTemplate>
+        <MudToolBar>
+            <MudIconButton Icon="@Icons.Filled.RotateLeft" Color="Color.Dark" OnClick="() => context.SetCurrentMonth(context.CurrentDate.AddMonths(-1))" />
+            @if (_loading)
+            {
+                <MudProgressCircular Color="Color.Default" Indeterminate="true" />
+            }
+            else
+            {
+                <MudText Typo="Typo.h4">@context.CurrentDate.ToString("MMM yy")</MudText>
+            }
+            <MudIconButton Icon="@Icons.Filled.RotateRight" Color="Color.Dark" OnClick="() => context.SetCurrentMonth(context.CurrentDate.AddMonths(+1))" />
+            <MudSpacer />
+            <MudButton EndIcon="@Icons.Material.Filled.Add" Variant="Variant.Outlined" Disabled="_loading">
+                New Appointment
+            </MudButton>
+            <MudButton EndIcon="@Icons.Material.Filled.Save" Variant="Variant.Outlined" Class="ml-2" Disabled="_loading">
+                Save
+            </MudButton>
+        </MudToolBar>
+    </HeaderTemplate>
+    <Appointments>
+        @foreach (var app in _appointments)
+        {
+            <Appointment Start="@app.Start" End="@app.End" Color="@app.Color">
+                @app.Title
+            </Appointment>
+        }
+    </Appointments>
+</Scheduler>
+
+@code {
+    private List<AppointmentDto> _appointments = new();
+    private bool _loading = false;
+
+    async Task OnRequestNewData(DateTime start, DateTime end)
+    {
+        _loading = true;
+        StateHasChanged();
+        await Task.Delay(500);
+        _appointments = AppointmentService.GetAppointments(start, end).ToList();
+        _loading = false;
+        StateHasChanged();
+    }
+
+    Task OnAddingNewAppointment(DateTime start, DateTime end)
+    {
+        _appointments.Add(new AppointmentDto { Start = start, End = end, Title = "A newly added appointment!", Color = "aqua" });
+        return Task.CompletedTask;
+    }
+}

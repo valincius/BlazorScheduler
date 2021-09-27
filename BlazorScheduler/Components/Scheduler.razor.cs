@@ -12,13 +12,11 @@ namespace BlazorScheduler
 {
     public partial class Scheduler
     {
-        // need a way for the scheduler to tell the other end what the visible span/range is so we can fetch data accordingly
-
         [Parameter] public RenderFragment Appointments { get; set; }
         [Parameter] public RenderFragment<Scheduler> HeaderTemplate { get; set; }
         [Parameter] public RenderFragment<DateTime> DayTemplate { get; set; }
 
-        [Parameter] public Func<DateTime, DateTime, Task> OnDateRangeChanged { get; set; }
+        [Parameter] public Func<DateTime, DateTime, Task> OnRequestNewData { get; set; }
         [Parameter] public Func<DateTime, DateTime, Task> OnAddingNewAppointment { get; set; }
         [Parameter] public Func<DateTime, Task> OnOverflowAppointmentClick { get; set; }
         
@@ -26,6 +24,8 @@ namespace BlazorScheduler
 
         public DateTime CurrentDate { get; private set; }
         public Appointment NewAppointment { get; private set; }
+
+        internal event EventHandler OnInvalidate = delegate { };
 
         private string MonthDisplay
         {
@@ -44,6 +44,7 @@ namespace BlazorScheduler
         private DotNetObjectReference<Scheduler> _objReference;
         private DateTime _draggingAppointmentAnchor;
         private bool _doneDragging = false;
+        private bool _loading = false;
 
         protected override async Task OnInitializedAsync()
         {
@@ -79,10 +80,19 @@ namespace BlazorScheduler
             CurrentDate = date;
             await AttachMouseHandler();
             var (start, end) = GetDateRangeForCurrentMonth();
-            if (OnDateRangeChanged != null)
+            if (OnRequestNewData != null)
             {
-                await OnDateRangeChanged(start, end);
+                _loading = true;
+                StateHasChanged();
+                await OnRequestNewData(start, end);
+                _loading = false;
             }
+            StateHasChanged();
+        }
+
+        public void Invalidate()
+        {
+            OnInvalidate(this, new EventArgs());
             StateHasChanged();
         }
 

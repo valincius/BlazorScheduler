@@ -10,20 +10,20 @@
     border-radius: 3px;
 }
 
-.scheduler > .actions {
+.scheduler > .header > .actions {
     padding: 10px;
     display: flex;
     justify-content: space-between;
     background-color: white;
 }
-.scheduler > .actions > .navigation > .selected-month {
+.scheduler > .header > .actions > .navigation > .selected-month {
     width: 160px;
     display: inline-block;
     text-align: center;
     font-size: 1.25rem;
     vertical-align: middle;
 }
-.scheduler > .actions .btn {
+.scheduler > .header > .actions .btn {
     background-color: #ddd;
     border: none;
     color: black;
@@ -31,18 +31,18 @@
     text-decoration: none;
     display: inline-block;
 }
-.scheduler > .actions .btn:focus {
+.scheduler > .header > .actions .btn:focus {
     outline: none;
 }
 
-.scheduler > .actions .icon-btn {
+.scheduler > .header > .actions .icon-btn {
     background: initial;
     border-radius: 50%;
 }
-.scheduler > .actions .icon-btn:hover {
+.scheduler > .header > .actions .icon-btn:hover {
     background-color: #ddd;
 }
-.scheduler > .actions .icon-btn > svg  {
+.scheduler > .header > .actions .icon-btn > svg {
     width: 1em;
     height: 1em;
     fill: currentColor;
@@ -143,6 +143,50 @@
     border-radius: 50%;
     background-color: red;
 }
+
+.scheduler-loader,
+.scheduler-loader:after {
+    border-radius: 50%;
+    width: var(--size);
+    height: var(--size);
+}
+
+.scheduler-loader {
+    border-top: calc(var(--size)/10) solid var(--color1);
+    border-right: calc(var(--size)/10) solid var(--color2);
+    border-bottom: calc(var(--size)/10) solid var(--color2);
+    border-left: calc(var(--size)/10) solid var(--color2);
+    -webkit-transform: translateZ(0);
+    -ms-transform: translateZ(0);
+    transform: translateZ(0);
+    -webkit-animation: scheduler-loader-anim 1.1s infinite linear;
+    animation: scheduler-loader-anim 1.1s infinite linear;
+}
+
+@-webkit-keyframes scheduler-loader-anim {
+    0% {
+        -webkit-transform: rotate(0deg);
+        transform: rotate(0deg);
+    }
+
+    100% {
+        -webkit-transform: rotate(360deg);
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes scheduler-loader-anim {
+    0% {
+        -webkit-transform: rotate(0deg);
+        transform: rotate(0deg);
+    }
+
+    100% {
+        -webkit-transform: rotate(360deg);
+        transform: rotate(360deg);
+    }
+}
+
 
 @media only screen and (max-width: 550px) {
     .scheduler > .month > .week.header > .day-of-month > .full-dayname {

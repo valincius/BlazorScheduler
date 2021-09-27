@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace BlazorScheduler.Internal.Components
 {
-    public partial class SchedulerDay
+    public partial class SchedulerDay : IDisposable
     {
         [CascadingParameter] public Scheduler Scheduler { get; set; }
 
@@ -23,6 +23,19 @@ namespace BlazorScheduler.Internal.Components
                     yield return "diff-month";
             }
         }
+
+        protected override void OnInitialized()
+        {
+            Scheduler.OnInvalidate += Invalidate;
+        }
+
+        public void Dispose()
+        {
+            Scheduler.OnInvalidate -= Invalidate;
+            GC.SuppressFinalize(this);
+        }
+
+        private void Invalidate(object sender, EventArgs e) => StateHasChanged();
 
         private void OnMouseDown(MouseEventArgs e)
         {

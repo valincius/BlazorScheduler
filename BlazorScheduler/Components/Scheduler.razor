@@ -7,32 +7,41 @@
 @inject IJSRuntime jsRuntime
 
 <div class="scheduler">
-    @if (HeaderTemplate != null)
-    {
-        @HeaderTemplate(this)
-    }
-    else
-    {
-        <div class="actions">
-            <button class="btn today" @onclick="() => ChangeMonth()">@Config.TodayButtonText</button>
-            <div class="navigation">
-                <button class="btn icon-btn" @onclick="() => ChangeMonth(-1)">
-                    <svg viewBox="0 0 24 24">
-                        <path d="M24 0v24H0V0h24z" fill="none"/>
-                        <path d="M14 7l-5 5 5 5V7z"/>
-                    </svg>
-                </button>
-                <span class="selected-month">@MonthDisplay</span>
-                <button class="btn icon-btn" @onclick="() => ChangeMonth(+1)">
-                    <svg viewBox="0 0 24 24">
-                        <path d="M0 0h24v24H0V0z" fill="none"/>
-                        <path d="M10 17l5-5-5-5v10z"/>
-                    </svg>
-                </button>
+    <div class="header">
+        @if (HeaderTemplate != null)
+        {
+            @HeaderTemplate(this)
+        }
+        else
+        {
+            <div class="actions">
+                <button class="btn today" @onclick="() => ChangeMonth()">@Config.TodayButtonText</button>
+                <div class="navigation">
+                    <button class="btn icon-btn" @onclick="() => ChangeMonth(-1)">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M24 0v24H0V0h24z" fill="none"/>
+                            <path d="M14 7l-5 5 5 5V7z"/>
+                        </svg>
+                    </button>
+                    <span class="selected-month">@MonthDisplay</span>
+                    <button class="btn icon-btn" @onclick="() => ChangeMonth(+1)">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M0 0h24v24H0V0z" fill="none"/>
+                            <path d="M10 17l5-5-5-5v10z"/>
+                        </svg>
+                    </button>
+                </div>
+                @if (_loading)
+                {
+                    <div class="scheduler-loader" style="--size: 25px; --color1: #666; --color2: #ccc;"></div>
+                }
+                else
+                {
+                    <span></span>
+                }
             </div>
-            <span></span>
-        </div>
-    }
+        }
+    </div>
     <div class="month">
         <div class="week header">
             @for (int d=0;d<7;d++)

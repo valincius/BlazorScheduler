@@ -1,0 +1,76 @@
+﻿@page "/day"
+
+<Scheduler OnAddingNewAppointment="OnAddingNewAppointment" @ref="_scheduler">
+    <DayTemplate>
+        <div style="height: 100%; background-color: @GetBGColorForDate(context);">
+            <span>@context.Date.ToString("dd")</span>
+            <div class="d-inline float-right">
+                @if (GetAppointmentsForDay(context).Count() >= 3)
+                {
+                    <MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Small" Class="mr-1" OnClick="() => ClearDay(context)" @onmousedown:stopPropagation="true" />
+                }
+                <MudIconButton Icon="@Icons.Material.Filled.Add" Size="Size.Small" OnClick="() => AddApp(context)" @onmousedown:stopPropagation="true" />
+            </div>
+        </div>
+    </DayTemplate>
+    <Appointments>
+        @foreach (var app in _appointments)
+        {
+            <Appointment Start="@app.Start" End="@app.End" Color="@app.Color">
+                @app.Title
+            </Appointment>
+        }
+    </Appointments>
+</Scheduler>
+
+@code {
+    private List<AppointmentDto> _appointments = new();
+    private Scheduler _scheduler; // create a ref to the Scheduler so we can call invalidate down the line
+
+    protected override void OnInitialized()
+    {
+        for (int i=1; i<DateTime.DaysInMonth(DateTime.Today.Year, DateTime.Today.Month);i++) {
+            var app = new AppointmentDto
+            {
+                Title = "Appointment",
+                Start = new DateTime(DateTime.Today.Year, DateTime.Today.Month, i),   
+                End = new DateTime(DateTime.Today.Year, DateTime.Today.Month, i),
+                Color = "aqua"
+            };
+            _appointments.AddRange(Enumerable.Repeat(app, new Random().Next(0, 5)));
+        }
+        base.OnInitialized();
+    }
+
+    Task OnAddingNewAppointment(DateTime start, DateTime end)
+    {
+        _appointments.Add(new AppointmentDto { Start = start, End = end, Title = "A newly added appointment!", Color = "aqua" });
+        _scheduler.Invalidate(); // we call invalidate so we can re-render the Day, so the template is updated and it shows accurately.
+        return Task.CompletedTask;
+    }
+
+    void ClearDay(DateTime day)
+    {
+        _appointments.RemoveAll(x => x.Start.Date <= day && x.End.Date >= day);
+        _scheduler.Invalidate();
+    }
+    void AddApp(DateTime day)
+    {
+        _appointments.Add(new AppointmentDto { Start = day, End = day, Title = "A newly added appointment!", Color = "pink" });
+        _scheduler.Invalidate();
+    }
+
+    string GetBGColorForDate(DateTime day)
+    {
+        var appsForToday = GetAppointmentsForDay(day);
+        return appsForToday.Count() switch {
+            >= 3 => "#ff5b5b",
+            2 => "#ffc04a",
+            1 => "#f8ffc4",
+            0 => "white",
+        };
+    }
+
+    IEnumerable<AppointmentDto> GetAppointmentsForDay(DateTime day) =>
+        _appointments.Where(x => x.Start.Date <= day && x.End.Date >= day);
+}

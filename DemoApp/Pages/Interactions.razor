@@ -1,12 +1,10 @@
 ﻿@page "/interactions"
 
-@using Models
-@using BlazorScheduler
-
 @inject AppointmentService AppointmentService
+@inject IDialogService DialogService
 
 <Scheduler
-    OnDateRangeChanged="OnDateRangeChanged"
+    OnRequestNewData="OnRequestNewData"
     OnAddingNewAppointment="OnAddingNewAppointment"
     OnOverflowAppointmentClick="OnOverflowAppointmentClick">
     <Appointments>
@@ -19,42 +17,26 @@
     </Appointments>
 </Scheduler>
 
-<MudDialog @bind-IsVisible="_showModal">
-    <TitleContent>
-        <MudText Typo="Typo.h6">
-            <MudIcon Icon="@Icons.Material.Filled.CalendarToday" Class="mr-3"/> Appointments for @SelectedDate.ToShortDateString()
-        </MudText>
-    </TitleContent>
-    <DialogContent>
-        <MudList Dense="true">
-        @foreach (var app in _appointments.Where(x => x.Start.Date <= SelectedDate && x.End.Date >= SelectedDate))
-        {
-            <MudListItem>
-                @app.Title
-                <MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Small" @onclick="() => _appointments.Remove(app)"></MudIconButton>
-            </MudListItem>
-        }
-        </MudList>
-    </DialogContent>
-    <DialogActions>
-        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="() => _showModal = false" Class="px-10">Close</MudButton>
-    </DialogActions>
-</MudDialog>
+
 
 @code {
     private List<AppointmentDto> _appointments = new();
-    private bool _showModal;
-    private DateTime SelectedDate; 
 
-    Task OnDateRangeChanged(DateTime start, DateTime end)
+    async Task OnRequestNewData(DateTime start, DateTime end)
     {
+        await Task.Delay(500);
         _appointments = AppointmentService.GetAppointments(start, end).ToList();
-        return Task.CompletedTask;
     }
 
-    void OnAppointmentClicked(AppointmentDto app)
+    async Task OnAppointmentClicked(AppointmentDto app)
     {
-        // show a modal that allows us to edit or delete the selected appointment
+        var dialog = DialogService.Show<EditAppointmentDialog>("Edit Appointment", new DialogParameters
+        {
+            ["Appointment"] = app,
+        });
+        await dialog.Result;
+
+        StateHasChanged();
     }
 
     Task OnAddingNewAppointment(DateTime start, DateTime end)
@@ -64,11 +46,15 @@
         return Task.CompletedTask;
     }
 
-    Task OnOverflowAppointmentClick(DateTime day)
+    async Task OnOverflowAppointmentClick(DateTime day)
     {
-        SelectedDate = day;
-        _showModal = true;
+        var dialog = DialogService.Show<OverflowAppointmentDialog>($"Appointments for {day.ToShortDateString()}", new DialogParameters
+        {
+            ["Appointments"] = _appointments,
+            ["SelectedDate"] = day,
+        });
+        await dialog.Result;
+
         StateHasChanged();
-        return Task.CompletedTask;
     }
 }

@@ -1,8 +1,5 @@
 ﻿@page "/"
 
-@using Models
-@using BlazorScheduler
-
 <Scheduler OnAddingNewAppointment="OnAddingNewAppointment">
     <Appointments>
         @foreach (var app in _appointments)

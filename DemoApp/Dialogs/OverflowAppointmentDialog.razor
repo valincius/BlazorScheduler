@@ -1,0 +1,25 @@
+﻿<MudDialog>
+    <DialogContent>
+        <MudList Dense="true">
+        @foreach (var app in Appointments.Where(x => x.Start.Date <= SelectedDate && x.End.Date >= SelectedDate))
+        {
+            <MudListItem>
+                @app.Title
+                <MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Small" @onclick="() => Appointments.Remove(app)"></MudIconButton>
+            </MudListItem>
+        }
+        </MudList>
+    </DialogContent>
+    <DialogActions>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="Close" Class="px-10">Close</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+
+    [Parameter] public List<AppointmentDto> Appointments { get; set; }
+    [Parameter] public DateTime SelectedDate { get; set; }
+
+    void Close() => MudDialog.Close(DialogResult.Ok(true));
+}
