@@ -21,6 +21,14 @@ jobs:
     - run: dotnet build
     - run: dotnet publish DemoApp -c Release -o release --nologo
 
+      # changes the base-tag in index.html from '/' to 'BlazorGitHubPagesDemo' to match GitHub Pages repository subdirectory
+    - name: Change base-tag in index.html from / to BlazorGitHubPagesDemo
+      run: sed -i 's/<base href="\/" \/>/<base href="\/BlazorScheduler\/" \/>/g' release/wwwroot/index.html
+      
+      # copy index.html to 404.html to serve the same file when a file is not found
+    - name: copy index.html to 404.html
+      run: cp release/wwwroot/index.html release/wwwroot/404.html
+
     - name: Add .nojekyll file
       run: touch release/wwwroot/.nojekyll
       
