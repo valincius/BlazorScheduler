@@ -38,6 +38,6 @@ Also has support for dragging to create appointments.
 There are 3 callbacks that the scheduler provides.
 - `Task OnAddingNewAppointment(DateTime start, DateTime end)` - invoked when the user is done dragging to create a new appointment, the range is returned in the parameters
 - `Task OnOverflowAppointmentClick(DateTime day)` - invoked when the user clicks on an "overflowing" appointment, the date of the overflow is returned in the parameters
-- `Task OnDateRangeChanged(DateTime start, DateTime end)` - invoked when the month is changed, the range is returned in the parameters
+- `Task OnRequestNewData(DateTime start, DateTime end)` - invoked on first render and when the month is changed, the range is returned in the parameters
 
 See the demo [here](https://valincius.dev/BlazorScheduler/) for more information on usage
