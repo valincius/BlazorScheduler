@@ -22,7 +22,7 @@ Also has support for dragging to create appointments.
     ```
 5. Add the component to your view and build the appointments like so:
     ```c#
-    <Scheduler T="Appointment" Appointments="Appointments">
+    <Scheduler>
         <Appointments>
             @foreach (var app in _appointments)
             {
