@@ -59,17 +59,8 @@ namespace BlazorScheduler.Internal.Components
 
         private int GetBestOrderingForAppointment(Appointment appointment)
         {
-            if (ReferenceEquals(appointment, Scheduler.NewAppointment))
-            {
-                return -1;
-            }
-
-            var (start, end) = _startsAndEnds[appointment];
             return _orderings
-                .Where(x => {
-                    return !ReferenceEquals(x.Key, Scheduler.NewAppointment)
-                    && (start, end).Overlaps(_startsAndEnds[x.Key]);
-                })
+                .Where(x => _startsAndEnds[appointment].Overlaps(_startsAndEnds[x.Key]))
                 .OrderBy(x => x.Value)
                 .TakeWhile((x, i) => x.Value == ++i)
                 .LastOrDefault().Value + 1;

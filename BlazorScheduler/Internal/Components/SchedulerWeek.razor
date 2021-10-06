@@ -8,14 +8,18 @@
         }
     </div>
     <div class="appointments">
+        @if (Scheduler.NewAppointment != null && (Scheduler.NewAppointment.Start, Scheduler.NewAppointment.End).Overlaps((Start, End)))
+        {
+            var (start, end) = GetStartAndEndDayForAppointment(Scheduler.NewAppointment);
+            <SchedulerAllDayAppointment Appointment="Scheduler.NewAppointment" Order="-1" Start="start" End="end" />
+        }
+
         @foreach (var (appointment, order) in _orderings)
         {
             int maxOrderOfSpan = _orderings
                 .Where(x => (x.Key.Start.Date, x.Key.End.Date).Overlaps((appointment.Start.Date, appointment.End.Date)))
                 .Max(x => (int?)x.Value) ?? 0;
-            if (order < _maxNumOfAppointmentsPerDay
-                || (order == _maxNumOfAppointmentsPerDay && maxOrderOfSpan <= _maxNumOfAppointmentsPerDay)
-                || ReferenceEquals(appointment, Scheduler.NewAppointment))
+            if (order < _maxNumOfAppointmentsPerDay || (order == _maxNumOfAppointmentsPerDay && maxOrderOfSpan <= _maxNumOfAppointmentsPerDay))
             {
                 bool isTimedAppointment = appointment.Start.Date == appointment.End.Date && appointment.Start != appointment.End;
                 if (isTimedAppointment)

@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Components;
+using System;
 using System.Collections.Generic;
 
 namespace BlazorScheduler.Internal.Components
@@ -22,23 +23,5 @@ namespace BlazorScheduler.Internal.Components
                 }
             }
         }
-        
-        private Appointment _previousAppointment;
-        private int _previousStart, _previousEnd;
-        private bool _shouldRender;
-
-        protected override void OnParametersSet()
-        {
-            _shouldRender = true;
-            _shouldRender &= _previousAppointment == Appointment;
-            _shouldRender &= _previousStart == Start;
-            _shouldRender &= _previousEnd == End;
-
-            _previousAppointment = Appointment;
-            _previousStart = Start;
-            _previousEnd = End;
-        }
-
-        protected override bool ShouldRender() => _shouldRender;
     }
 }

@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using BlazorScheduler.Internal.Extensions;
 using BlazorScheduler.Configuration;
 using BlazorScheduler.Internal.Components;
+using System.Collections.ObjectModel;
 
 namespace BlazorScheduler
 {
@@ -38,7 +39,7 @@ namespace BlazorScheduler
             }
         }
 
-        private readonly HashSet<Appointment> _appointments = new();
+        private readonly ObservableCollection<Appointment> _appointments = new();
         private DotNetObjectReference<Scheduler> _objReference;
         private DateTime _draggingAppointmentAnchor;
         private bool _doneDragging = false;
@@ -117,12 +118,7 @@ namespace BlazorScheduler
 
         private IEnumerable<Appointment> GetAppointmentsInRange(DateTime start, DateTime end)
         {
-            var appointmentsInTimeframe = _appointments.Where(x => (start, end).Overlaps((x.Start, x.End))).ToList();
-            if (NewAppointment is not null && (start, end).Overlaps((NewAppointment.Start, NewAppointment.End)))
-            {
-                appointmentsInTimeframe.Add(NewAppointment);
-            }
-
+            var appointmentsInTimeframe = _appointments.Where(x => (start, end).Overlaps((x.Start, x.End)));
             return appointmentsInTimeframe
                 .OrderBy(x => x.Start)
                 .ThenByDescending(x => (x.End - x.Start).Days);
@@ -130,6 +126,7 @@ namespace BlazorScheduler
 
         public void BeginDrag(SchedulerDay day)
         {
+            // TODO
             NewAppointment = new Appointment
             {
                 ChildContent = new RenderFragment(builder => builder.AddContent(0, "New appointment")),
