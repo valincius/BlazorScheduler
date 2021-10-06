@@ -8,12 +8,6 @@
         }
     </div>
     <div class="appointments">
-        @if (Scheduler.NewAppointment != null && (Scheduler.NewAppointment.Start, Scheduler.NewAppointment.End).Overlaps((Start, End)))
-        {
-            var (start, end) = GetStartAndEndDayForAppointment(Scheduler.NewAppointment);
-            <SchedulerAllDayAppointment Appointment="Scheduler.NewAppointment" Order="-1" Start="start" End="end" />
-        }
-
         @foreach (var (appointment, order) in _orderings)
         {
             int maxOrderOfSpan = _orderings

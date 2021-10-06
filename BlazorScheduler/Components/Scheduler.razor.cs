@@ -41,9 +41,11 @@ namespace BlazorScheduler
 
         private readonly ObservableCollection<Appointment> _appointments = new();
         private DotNetObjectReference<Scheduler> _objReference;
-        private DateTime _draggingAppointmentAnchor;
-        private bool _doneDragging = false;
         private bool _loading = false;
+
+        public bool _showNewAppointment;
+        private DateTime _draggingAppointmentAnchor;
+        private DateTime _newAppointmentStart, _newAppointmentEnd;
 
         protected override async Task OnInitializedAsync()
         {
@@ -126,17 +128,10 @@ namespace BlazorScheduler
 
         public void BeginDrag(SchedulerDay day)
         {
-            // TODO
-            NewAppointment = new Appointment
-            {
-                ChildContent = new RenderFragment(builder => builder.AddContent(0, "New appointment")),
-                Start = day.Day,
-                End = day.Day,
-                Color = Config.ThemeColor
-            };
-            _doneDragging = false;
+            _newAppointmentStart = _newAppointmentEnd = day.Day;
+            _showNewAppointment = true;
 
-            _draggingAppointmentAnchor = NewAppointment.Start;
+            _draggingAppointmentAnchor = _newAppointmentStart;
             StateHasChanged();
         }
 
@@ -145,11 +140,10 @@ namespace BlazorScheduler
         {
             if (button == 0)
             {
-                if (NewAppointment is not null && !_doneDragging)
+                if (_showNewAppointment)
                 {
-                    _doneDragging = true;
-                    await OnAddingNewAppointment?.Invoke(NewAppointment.Start, NewAppointment.End);
-                    NewAppointment = default;
+                    _showNewAppointment = false;
+                    await OnAddingNewAppointment?.Invoke(_newAppointmentStart, _newAppointmentEnd);
                     StateHasChanged();
                 }
             }
@@ -158,10 +152,10 @@ namespace BlazorScheduler
         [JSInvokable]
         public void OnMouseMove(string date)
         {
-            if (NewAppointment is not null && !_doneDragging)
+            if (_showNewAppointment)
             {
                 var day = DateTime.ParseExact(date, "yyyyMMdd", null);
-                (NewAppointment.Start, NewAppointment.End) = day < _draggingAppointmentAnchor ? (day, _draggingAppointmentAnchor) : (_draggingAppointmentAnchor, day);
+                (_newAppointmentStart, _newAppointmentEnd) = day < _draggingAppointmentAnchor ? (day, _draggingAppointmentAnchor) : (_draggingAppointmentAnchor, day);
                 StateHasChanged();
             }
         }
