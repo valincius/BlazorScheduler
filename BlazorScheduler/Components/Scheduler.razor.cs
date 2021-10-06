@@ -25,8 +25,6 @@ namespace BlazorScheduler
         public DateTime CurrentDate { get; private set; }
         public Appointment NewAppointment { get; private set; }
 
-        internal event EventHandler OnInvalidate = delegate { };
-
         private string MonthDisplay
         {
             get
@@ -90,12 +88,6 @@ namespace BlazorScheduler
             StateHasChanged();
         }
 
-        public void Invalidate()
-        {
-            OnInvalidate(this, new EventArgs());
-            StateHasChanged();
-        }
-
         private async Task AttachMouseHandler()
         {
             await jsRuntime.InvokeVoidAsync("attachSchedulerMouseEventsHandler", _objReference);
@@ -123,7 +115,7 @@ namespace BlazorScheduler
                 .Select(offset => start.AddDays(offset));
         }
 
-        private IEnumerable<Appointment> GetAppointments(DateTime start, DateTime end)
+        private IEnumerable<Appointment> GetAppointmentsInRange(DateTime start, DateTime end)
         {
             var appointmentsInTimeframe = _appointments.Where(x => (start, end).Overlaps((x.Start, x.End))).ToList();
             if (NewAppointment is not null && (start, end).Overlaps((NewAppointment.Start, NewAppointment.End)))
