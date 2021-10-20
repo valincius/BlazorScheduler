@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlazorScheduler", "BlazorSc
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DemoApp", "DemoApp\DemoApp.csproj", "{5FA9FE4D-C4C7-4A49-A10B-5B84E15D33E7}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazorServerDemoApp", "BlazorServerDemoApp\BlazorServerDemoApp.csproj", "{BAE2506B-3C6D-4F32-984E-03F9E074F491}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{5FA9FE4D-C4C7-4A49-A10B-5B84E15D33E7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5FA9FE4D-C4C7-4A49-A10B-5B84E15D33E7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5FA9FE4D-C4C7-4A49-A10B-5B84E15D33E7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BAE2506B-3C6D-4F32-984E-03F9E074F491}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BAE2506B-3C6D-4F32-984E-03F9E074F491}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BAE2506B-3C6D-4F32-984E-03F9E074F491}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BAE2506B-3C6D-4F32-984E-03F9E074F491}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

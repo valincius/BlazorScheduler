@@ -11,7 +11,7 @@ using System.Collections.ObjectModel;
 
 namespace BlazorScheduler
 {
-    public partial class Scheduler
+    public partial class Scheduler : IDisposable
     {
         [Parameter] public RenderFragment Appointments { get; set; }
         [Parameter] public RenderFragment<Scheduler> HeaderTemplate { get; set; }
@@ -50,7 +50,7 @@ namespace BlazorScheduler
         protected override async Task OnInitializedAsync()
         {
             _objReference = DotNetObjectReference.Create(this);
-            await SetCurrentMonth(DateTime.Today);
+            await SetCurrentMonth(DateTime.Today, true);
 
             await base.OnInitializedAsync();
         }
@@ -76,10 +76,13 @@ namespace BlazorScheduler
             StateHasChanged();
         }
 
-        public async Task SetCurrentMonth(DateTime date)
+        public async Task SetCurrentMonth(DateTime date, bool skipJsInvoke = false)
         {
             CurrentDate = date;
-            await AttachMouseHandler();
+            if (!skipJsInvoke)
+            {
+                await AttachMouseHandler();
+            }
             var (start, end) = GetDateRangeForCurrentMonth();
             if (OnRequestNewData != null)
             {
@@ -158,6 +161,12 @@ namespace BlazorScheduler
                 (_newAppointmentStart, _newAppointmentEnd) = day < _draggingAppointmentAnchor ? (day, _draggingAppointmentAnchor) : (_draggingAppointmentAnchor, day);
                 StateHasChanged();
             }
+        }
+
+        public void Dispose()
+        {
+            _objReference.Dispose();
+            GC.SuppressFinalize(this);
         }
     }
 }
