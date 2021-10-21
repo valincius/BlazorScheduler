@@ -4,43 +4,42 @@
     <div class="days">
         @for (var dt = Start; dt <= End; dt = dt.AddDays(1))
         {
-            <SchedulerDay Day="dt"/>
+            <SchedulerDay Day="dt" @key="dt" />
         }
     </div>
     <div class="appointments">
-        @foreach (var (appointment, order) in Orderings)
+        @foreach (var (appointment, order) in _orderings)
         {
-            int maxOrderOfSpan = Orderings.Where(x => (x.Key.Start.Date, x.Key.End.Date).Overlaps((appointment.Start.Date, appointment.End.Date))).Max(x => (int?)x.Value) ?? 0;
-            if (order < MaxNumOfAppointmentsPerDay
-                || (order == MaxNumOfAppointmentsPerDay && maxOrderOfSpan <= MaxNumOfAppointmentsPerDay)
-                || ReferenceEquals(appointment, Scheduler.NewAppointment))
+            int maxOrderOfSpan = _orderings
+                .Where(x => (x.Key.Start.Date, x.Key.End.Date).Overlaps((appointment.Start.Date, appointment.End.Date)))
+                .Max(x => (int?)x.Value) ?? 0;
+            if (order < _maxNumOfAppointmentsPerDay || (order == _maxNumOfAppointmentsPerDay && maxOrderOfSpan <= _maxNumOfAppointmentsPerDay))
             {
                 bool isTimedAppointment = appointment.Start.Date == appointment.End.Date && appointment.Start != appointment.End;
                 if (isTimedAppointment)
                 {
-                    <SchedulerAppointment Appointment="appointment" Order="order" />
+                    <SchedulerAppointment Appointment="appointment" Order="order" @key="appointment" />
                 }
                 else
                 {
-                    var (start, end) = GetStartAndEndDayForAppointment(appointment);
-                    <SchedulerAllDayAppointment Appointment="appointment" Order="order" Start="start" End="end" />
+                    var (start, end) = _startsAndEnds[appointment];
+                    <SchedulerAllDayAppointment Appointment="appointment" Order="order" Start="start" End="end" @key="appointment" />
                 }
             }
         }
         @for (var dt = Start; dt <= End; dt = dt.AddDays(1))
         {
-            var todaysAppointments = Orderings.Where(x => dt.Between(x.Key.Start.Date, x.Key.End.Date));
+            var todaysAppointments = _orderings.Where(x => dt.Between(x.Key.Start.Date, x.Key.End.Date));
             int maxOrder = todaysAppointments.Max(x => (int?)x.Value) ?? 0;
-            if (maxOrder > MaxNumOfAppointmentsPerDay)
+            if (maxOrder > _maxNumOfAppointmentsPerDay)
             {
-                var overflowAppointments = todaysAppointments
-                    .Where(x => x.Value > MaxNumOfAppointmentsPerDay - 1)
-                    .Select(x => x.Key).ToList().AsReadOnly();
-                <SchedulerAppointmentOverflow
-                    Day="dt"
-                    AppointmentCount="overflowAppointments.Count()"
+                var numOverFlowAppointments = todaysAppointments
+                .Count(x => x.Value > _maxNumOfAppointmentsPerDay - 1);
+                <SchedulerAppointmentOverflow Day="dt"
+                    AppointmentCount="numOverFlowAppointments"
                     Start="(dt.DayOfWeek - Scheduler.Config.StartDayOfWeek + 7) % 7"
-                    Order="MaxNumOfAppointmentsPerDay" />
+                    Order="_maxNumOfAppointmentsPerDay"
+                    @key="dt" />
             }
         }
     </div>

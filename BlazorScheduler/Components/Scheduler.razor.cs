@@ -7,10 +7,11 @@ using System.Threading.Tasks;
 using BlazorScheduler.Internal.Extensions;
 using BlazorScheduler.Configuration;
 using BlazorScheduler.Internal.Components;
+using System.Collections.ObjectModel;
 
 namespace BlazorScheduler
 {
-    public partial class Scheduler
+    public partial class Scheduler : IDisposable
     {
         [Parameter] public RenderFragment Appointments { get; set; }
         [Parameter] public RenderFragment<Scheduler> HeaderTemplate { get; set; }
@@ -25,8 +26,6 @@ namespace BlazorScheduler
         public DateTime CurrentDate { get; private set; }
         public Appointment NewAppointment { get; private set; }
 
-        internal event EventHandler OnInvalidate = delegate { };
-
         private string MonthDisplay
         {
             get
@@ -40,16 +39,18 @@ namespace BlazorScheduler
             }
         }
 
-        private readonly HashSet<Appointment> _appointments = new();
+        private readonly ObservableCollection<Appointment> _appointments = new();
         private DotNetObjectReference<Scheduler> _objReference;
-        private DateTime _draggingAppointmentAnchor;
-        private bool _doneDragging = false;
         private bool _loading = false;
+
+        public bool _showNewAppointment;
+        private DateTime _draggingAppointmentAnchor;
+        private DateTime _newAppointmentStart, _newAppointmentEnd;
 
         protected override async Task OnInitializedAsync()
         {
             _objReference = DotNetObjectReference.Create(this);
-            await SetCurrentMonth(DateTime.Today);
+            await SetCurrentMonth(DateTime.Today, true);
 
             await base.OnInitializedAsync();
         }
@@ -75,10 +76,13 @@ namespace BlazorScheduler
             StateHasChanged();
         }
 
-        public async Task SetCurrentMonth(DateTime date)
+        public async Task SetCurrentMonth(DateTime date, bool skipJsInvoke = false)
         {
             CurrentDate = date;
-            await AttachMouseHandler();
+            if (!skipJsInvoke)
+            {
+                await AttachMouseHandler();
+            }
             var (start, end) = GetDateRangeForCurrentMonth();
             if (OnRequestNewData != null)
             {
@@ -87,12 +91,6 @@ namespace BlazorScheduler
                 await OnRequestNewData(start, end);
                 _loading = false;
             }
-            StateHasChanged();
-        }
-
-        public void Invalidate()
-        {
-            OnInvalidate(this, new EventArgs());
             StateHasChanged();
         }
 
@@ -123,14 +121,9 @@ namespace BlazorScheduler
                 .Select(offset => start.AddDays(offset));
         }
 
-        private IEnumerable<Appointment> GetAppointments(DateTime start, DateTime end)
+        private IEnumerable<Appointment> GetAppointmentsInRange(DateTime start, DateTime end)
         {
-            var appointmentsInTimeframe = _appointments.Where(x => (start, end).Overlaps((x.Start, x.End))).ToList();
-            if (NewAppointment is not null && (start, end).Overlaps((NewAppointment.Start, NewAppointment.End)))
-            {
-                appointmentsInTimeframe.Add(NewAppointment);
-            }
-
+            var appointmentsInTimeframe = _appointments.Where(x => (start, end).Overlaps((x.Start, x.End)));
             return appointmentsInTimeframe
                 .OrderBy(x => x.Start)
                 .ThenByDescending(x => (x.End - x.Start).Days);
@@ -138,16 +131,10 @@ namespace BlazorScheduler
 
         public void BeginDrag(SchedulerDay day)
         {
-            NewAppointment = new Appointment
-            {
-                ChildContent = new RenderFragment(builder => builder.AddContent(0, "New appointment")),
-                Start = day.Day,
-                End = day.Day,
-                Color = Config.ThemeColor
-            };
-            _doneDragging = false;
+            _newAppointmentStart = _newAppointmentEnd = day.Day;
+            _showNewAppointment = true;
 
-            _draggingAppointmentAnchor = NewAppointment.Start;
+            _draggingAppointmentAnchor = _newAppointmentStart;
             StateHasChanged();
         }
 
@@ -156,11 +143,10 @@ namespace BlazorScheduler
         {
             if (button == 0)
             {
-                if (NewAppointment is not null && !_doneDragging)
+                if (_showNewAppointment)
                 {
-                    _doneDragging = true;
-                    await OnAddingNewAppointment?.Invoke(NewAppointment.Start, NewAppointment.End);
-                    NewAppointment = default;
+                    _showNewAppointment = false;
+                    await OnAddingNewAppointment?.Invoke(_newAppointmentStart, _newAppointmentEnd);
                     StateHasChanged();
                 }
             }
@@ -169,12 +155,18 @@ namespace BlazorScheduler
         [JSInvokable]
         public void OnMouseMove(string date)
         {
-            if (NewAppointment is not null && !_doneDragging)
+            if (_showNewAppointment)
             {
                 var day = DateTime.ParseExact(date, "yyyyMMdd", null);
-                (NewAppointment.Start, NewAppointment.End) = day < _draggingAppointmentAnchor ? (day, _draggingAppointmentAnchor) : (_draggingAppointmentAnchor, day);
+                (_newAppointmentStart, _newAppointmentEnd) = day < _draggingAppointmentAnchor ? (day, _draggingAppointmentAnchor) : (_draggingAppointmentAnchor, day);
                 StateHasChanged();
             }
+        }
+
+        public void Dispose()
+        {
+            _objReference.Dispose();
+            GC.SuppressFinalize(this);
         }
     }
 }

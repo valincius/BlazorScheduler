@@ -56,11 +56,17 @@
         </div>
         <CascadingValue IsFixed="true" Value="this">
             @Appointments
+            @if (_showNewAppointment)
+            {
+                <Appointment @ref="NewAppointment" Start="_newAppointmentStart" End="_newAppointmentEnd" Color="@Config.ThemeColor">
+                    New Appointment
+                </Appointment>
+            }
 
             @foreach (var week in GetDaysInRange().Chunk(7))
             {
                 var (start, end) = (week.First(), week.Last());
-                <SchedulerWeek Start="start" End="end" Appointments="GetAppointments(start, end)" />
+                <SchedulerWeek Start="start" End="end" Appointments="GetAppointmentsInRange(start, end)" @key="week" />
             }
         </CascadingValue>
     </div>

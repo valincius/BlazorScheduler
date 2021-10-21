@@ -1,6 +1,6 @@
 ﻿@page "/day"
 
-<Scheduler OnAddingNewAppointment="OnAddingNewAppointment" @ref="_scheduler">
+<Scheduler OnAddingNewAppointment="OnAddingNewAppointment">
     <DayTemplate>
         <div style="height: 100%; background-color: @GetBGColorForDate(context);">
             <span>@context.Date.ToString("dd")</span>
@@ -16,7 +16,7 @@
     <Appointments>
         @foreach (var app in _appointments)
         {
-            <Appointment Start="@app.Start" End="@app.End" Color="@app.Color">
+            <Appointment Start="@app.Start" End="@app.End" Color="@app.Color" >
                 @app.Title
             </Appointment>
         }
@@ -25,7 +25,6 @@
 
 @code {
     private List<AppointmentDto> _appointments = new();
-    private Scheduler _scheduler; // create a ref to the Scheduler so we can call invalidate down the line
 
     protected override void OnInitialized()
     {
@@ -45,19 +44,16 @@
     Task OnAddingNewAppointment(DateTime start, DateTime end)
     {
         _appointments.Add(new AppointmentDto { Start = start, End = end, Title = "A newly added appointment!", Color = "aqua" });
-        _scheduler.Invalidate(); // we call invalidate so we can re-render the Day, so the template is updated and it shows accurately.
         return Task.CompletedTask;
     }
 
     void ClearDay(DateTime day)
     {
         _appointments.RemoveAll(x => x.Start.Date <= day && x.End.Date >= day);
-        _scheduler.Invalidate();
     }
     void AddApp(DateTime day)
     {
         _appointments.Add(new AppointmentDto { Start = day, End = day, Title = "A newly added appointment!", Color = "pink" });
-        _scheduler.Invalidate();
     }
 
     string GetBGColorForDate(DateTime day)

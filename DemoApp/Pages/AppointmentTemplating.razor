@@ -1,0 +1,93 @@
+﻿@page "/appointments"
+
+<Scheduler Config="_config">
+    <Appointments>
+        @foreach (var appGroup in _appointments.GroupBy(x => new { x.Start, x.End }))
+        {
+            <Appointment Start="@appGroup.Key.Start" End="@appGroup.Key.End">
+                <div style="font-weight: bold; color: green; border: 1px solid black; border-radius: 4px; padding-left: 3px;">
+                    <span class="oi oi-book" aria-hidden="true"></span>
+                    @string.Join(", ", appGroup.Select(x => x.Name))
+                </div>
+            </Appointment>
+        }
+    </Appointments>
+</Scheduler>
+
+@code {
+    private BlazorScheduler.Configuration.Config _config = new() { DisableDragging = true };
+    private List<BoardingReservation> _appointments = new();
+
+    protected override void OnInitialized()
+    {
+        _appointments.AddRange(new List<BoardingReservation> {
+            new BoardingReservation
+            {
+                Name = "Bella",
+                Start = DateTime.Today.AddDays(-15),
+                End = DateTime.Today.AddDays(-12),
+            },
+            new BoardingReservation
+            {
+                Name = "Lucy",
+                Start = DateTime.Today.AddDays(-15),
+                End = DateTime.Today.AddDays(-12),
+            },
+            new BoardingReservation
+            {
+                Name = "Lola",
+                Start = DateTime.Today.AddDays(-15),
+                End = DateTime.Today.AddDays(-12),
+            },
+            new BoardingReservation
+            {
+                Name = "Molly",
+                Start = DateTime.Today.AddDays(-5),
+                End = DateTime.Today.AddDays(-2),
+            },
+            new BoardingReservation
+            {
+                Name = "Stella",
+                Start = DateTime.Today.AddDays(0),
+                End = DateTime.Today.AddDays(2),
+            },
+            new BoardingReservation
+            {
+                Name = "Max",
+                Start = DateTime.Today.AddDays(0),
+                End = DateTime.Today.AddDays(2),
+            },
+            new BoardingReservation
+            {
+                Name = "Cooper",
+                Start = DateTime.Today.AddDays(5),
+                End = DateTime.Today.AddDays(6),
+            },
+            new BoardingReservation
+            {
+                Name = "Milo",
+                Start = DateTime.Today.AddDays(5),
+                End = DateTime.Today.AddDays(5),
+            },
+            new BoardingReservation
+            {
+                Name = "Rocky",
+                Start = DateTime.Today.AddDays(10),
+                End = DateTime.Today.AddDays(13),
+            },
+            new BoardingReservation
+            {
+                Name = "Tucker",
+                Start = DateTime.Today.AddDays(10),
+                End = DateTime.Today.AddDays(13),
+            }
+        });
+    }
+
+    public class BoardingReservation
+    {
+        public string Name { get; set; }
+        public DateTime Start { get; set; }
+        public DateTime End { get; set; }
+    }
+}

@@ -14,15 +14,25 @@ namespace BlazorScheduler.Internal.Components
         [Parameter] public DateTime End { get; set; }
         [Parameter] public IEnumerable<Appointment> Appointments { get; set; }
 
-		private readonly Dictionary<Appointment, int> Orderings = new();
-		private int MaxNumOfAppointmentsPerDay => Scheduler.Config.MaxVisibleAppointmentsPerDay;
+		private readonly Dictionary<Appointment, int> _orderings = new();
+        private readonly Dictionary<Appointment, (int, int)> _startsAndEnds = new();
+		private int _maxNumOfAppointmentsPerDay => Scheduler.Config.MaxVisibleAppointmentsPerDay;
+
+        protected override void OnInitialized()
+        {
+            foreach (var app in Appointments)
+            {
+                _startsAndEnds[app] = GetStartAndEndDayForAppointment(app);
+            }
+            base.OnInitialized();
+        }
 
         protected override void OnParametersSet()
         {
-            Orderings.Clear();
+            _orderings.Clear();
             foreach (var app in Appointments)
             {
-                Orderings[app] = GetBestOrderingForAppointment(app);
+                _orderings[app] = GetBestOrderingForAppointment(app);
             }
 
             base.OnParametersSet();
@@ -49,16 +59,8 @@ namespace BlazorScheduler.Internal.Components
 
         private int GetBestOrderingForAppointment(Appointment appointment)
         {
-            if (ReferenceEquals(appointment, Scheduler.NewAppointment))
-            {
-                return -1;
-            }
-
-            return Orderings
-                .Where(x => {
-                    return GetStartAndEndDayForAppointment(appointment).Overlaps(GetStartAndEndDayForAppointment(x.Key))
-                        && !ReferenceEquals(x.Key, Scheduler.NewAppointment);
-                })
+            return _orderings
+                .Where(x => _startsAndEnds[appointment].Overlaps(_startsAndEnds[x.Key]))
                 .OrderBy(x => x.Value)
                 .TakeWhile((x, i) => x.Value == ++i)
                 .LastOrDefault().Value + 1;
