@@ -17,7 +17,7 @@
 
   <ItemGroup>
     <PackageReference Include="BlazorScheduler.Core" Version="1.0.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="5.0.*" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="6.0.*" />
   </ItemGroup>
 
 </Project>
