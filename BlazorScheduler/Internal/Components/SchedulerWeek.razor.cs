@@ -60,6 +60,7 @@ namespace BlazorScheduler.Internal.Components
         private int GetBestOrderingForAppointment(Appointment appointment)
         {
             return _orderings
+                .Where(x => x.Key != Scheduler.NewAppointment)
                 .Where(x => _startsAndEnds[appointment].Overlaps(_startsAndEnds[x.Key]))
                 .OrderBy(x => x.Value)
                 .TakeWhile((x, i) => x.Value == ++i)
