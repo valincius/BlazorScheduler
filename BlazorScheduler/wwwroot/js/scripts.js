@@ -1,4 +1,9 @@
-function throttle(fn, delay) {
+window.BlazorScheduler = window.BlazorScheduler || {
+    mouseUpListener: null,
+    mouseMoveListener: null,
+};
+
+window.BlazorScheduler.throttle = (fn, delay) => {
     let lastCall = 0;
     return function (...args) {
         const now = (new Date).getTime();
@@ -8,12 +13,13 @@ function throttle(fn, delay) {
         lastCall = now;
         return fn(...args);
     }
-}
+};
 
-window.attachSchedulerMouseEventsHandler = objRef => {
-    document.addEventListener('mouseup', e => objRef.invokeMethodAsync('OnMouseUp', e.button));
+window.BlazorScheduler.attachSchedulerMouseEventsHandler = objRef => {
+    window.BlazorScheduler.destroySchedulerMouseEventsHandler();
 
-    document.addEventListener('mousemove', throttle(e => {
+    window.BlazorScheduler.mouseUpListener = e => objRef.invokeMethodAsync('OnMouseUp', e.button);
+    window.BlazorScheduler.mouseMoveListener = window.BlazorScheduler.throttle(e => {
         let distances = [];
 
         let elements = Array.from(document.querySelectorAll('.day'));
@@ -29,5 +35,19 @@ window.attachSchedulerMouseEventsHandler = objRef => {
         if (closestLinkIndex >= 0) {
             objRef.invokeMethodAsync('OnMouseMove', elements[closestLinkIndex].dataset.date);
         }
-    }, 50));
+    }, 50);
+
+    document.addEventListener('mouseup', window.BlazorScheduler.mouseUpListener);
+    document.addEventListener('mousemove', window.BlazorScheduler.mouseMoveListener);
+};
+
+window.BlazorScheduler.destroySchedulerMouseEventsHandler = () => {
+    if (window.BlazorScheduler.mouseUpListener !== null) {
+        document.removeEventListener('mouseup', window.BlazorScheduler.mouseUpListener);
+        window.BlazorScheduler.mouseUpListener = null;
+    }
+    if (window.BlazorScheduler.mouseMoveListener !== null) {
+        document.removeEventListener('mousemove', window.BlazorScheduler.mouseMoveListener);
+        window.BlazorScheduler.mouseMoveListener = null;
+    }
 };

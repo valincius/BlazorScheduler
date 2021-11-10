@@ -11,7 +11,7 @@ using System.Collections.ObjectModel;
 
 namespace BlazorScheduler
 {
-    public partial class Scheduler : IDisposable
+    public partial class Scheduler : IAsyncDisposable
     {
         [Parameter] public RenderFragment Appointments { get; set; }
         [Parameter] public RenderFragment<Scheduler> HeaderTemplate { get; set; }
@@ -96,7 +96,11 @@ namespace BlazorScheduler
 
         private async Task AttachMouseHandler()
         {
-            await jsRuntime.InvokeVoidAsync("attachSchedulerMouseEventsHandler", _objReference);
+            await jsRuntime.InvokeVoidAsync("BlazorScheduler.attachSchedulerMouseEventsHandler", _objReference);
+        }
+        private async Task DestroyMouseHandler()
+        {
+            await jsRuntime.InvokeVoidAsync("BlazorScheduler.destroySchedulerMouseEventsHandler");
         }
 
         private async Task ChangeMonth(int months = 0)
@@ -163,8 +167,9 @@ namespace BlazorScheduler
             }
         }
 
-        public void Dispose()
+        public async ValueTask DisposeAsync()
         {
+            await DestroyMouseHandler();
             _objReference.Dispose();
             GC.SuppressFinalize(this);
         }
