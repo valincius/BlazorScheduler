@@ -5,7 +5,7 @@
         </MudText>
     </TitleContent>
     <DialogContent>
-        <MudTextFieldString Label="Title" @bind-Text="Appointment.Title" />
+        <MudTextField T="string" Label="Title" @bind-Text="Appointment.Title" />
         <MudDateRangePicker Label="When" @bind-DateRange="_dateRange" />
         <MudColorPicker Label="Color" @bind-Text="Appointment.Color" Style="@($"color: {Appointment.Color};")" />
     </DialogContent>
