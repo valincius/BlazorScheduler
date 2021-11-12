@@ -16,8 +16,7 @@ jobs:
     - name: Setup dotnet
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: '5.0.x'
-        include-prerelease: true
+        dotnet-version: '6.0.x'
     - run: dotnet build
     - run: dotnet publish DemoApp -c Release -o release --nologo
 
