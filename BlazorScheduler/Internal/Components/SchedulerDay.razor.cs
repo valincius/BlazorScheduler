@@ -26,7 +26,7 @@ namespace BlazorScheduler.Internal.Components
         
         private void OnMouseDown(MouseEventArgs e)
         {
-            if (e.Button == 0 && !Scheduler.Config.DisableDragging)
+            if (e.Button == 0 && Scheduler.Config.EnableDragging)
             {
                 Scheduler.BeginDrag(this);
             }

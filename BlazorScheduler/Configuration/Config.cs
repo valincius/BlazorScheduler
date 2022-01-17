@@ -6,7 +6,7 @@ namespace BlazorScheduler.Configuration
     {
         public bool AlwaysShowYear { get; set; } = true;
         public int MaxVisibleAppointmentsPerDay { get; set; } = 5;
-        public bool DisableDragging { get; set; } = false;
+        public bool EnableDragging { get; set; } = true;
         public string ThemeColor { get; set; } = "aqua";
         public DayOfWeek StartDayOfWeek { get; set; } = DayOfWeek.Sunday;
         public string TodayButtonText { get; set; } = "Today";

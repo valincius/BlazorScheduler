@@ -15,7 +15,7 @@
 </Scheduler>
 
 @code {
-    private BlazorScheduler.Configuration.Config _config = new() { DisableDragging = true };
+    private BlazorScheduler.Configuration.Config _config = new() { EnableDragging = false };
     private List<BoardingReservation> _appointments = new();
 
     protected override void OnInitialized()
