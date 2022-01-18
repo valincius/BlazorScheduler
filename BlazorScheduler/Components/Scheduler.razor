@@ -58,7 +58,7 @@
             @Appointments
             @if (_showNewAppointment)
             {
-                <Appointment @ref="NewAppointment" Start="_newAppointmentStart" End="_newAppointmentEnd" Color="@Config.ThemeColor">
+                <Appointment @ref="NewAppointment" Start="_draggingStart" End="_draggingEnd" Color="@Config.ThemeColor">
                     New Appointment
                 </Appointment>
             }

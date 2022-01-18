@@ -17,6 +17,9 @@ namespace BlazorScheduler
         [Parameter] public DateTime End { get; set; }
         [Parameter] public string Color { get; set; }
 
+        [Parameter] public EventCallback<DateTime> StartChanged { get; set; }
+        [Parameter] public EventCallback<DateTime> EndChanged { get; set; }
+
         protected override void OnInitialized()
         {
             Scheduler.AddAppointment(this);
@@ -32,6 +35,13 @@ namespace BlazorScheduler
         {
             Scheduler.RemoveAppointment(this);
             GC.SuppressFinalize(this);
+        }
+
+        public async Task Update(DateTime start, DateTime end)
+        {
+            (Start, End) = (start, end);
+            await StartChanged.InvokeAsync(start);
+            await EndChanged.InvokeAsync(end);
         }
     }
 }

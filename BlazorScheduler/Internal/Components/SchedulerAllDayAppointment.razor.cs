@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Components;
-using System;
+using Microsoft.AspNetCore.Components.Web;
 using System.Collections.Generic;
 
 namespace BlazorScheduler.Internal.Components
@@ -21,6 +21,14 @@ namespace BlazorScheduler.Internal.Components
                 {
                     yield return "new-appointment";
                 }
+            }
+        }
+
+        private void OnMouseDown(MouseEventArgs e)
+        {
+            if (e.Button == 0)
+            {
+                Scheduler.BeginDrag(this);
             }
         }
     }

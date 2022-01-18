@@ -45,7 +45,7 @@ namespace BlazorScheduler
 
         public bool _showNewAppointment;
         private DateTime _draggingAppointmentAnchor;
-        private DateTime _newAppointmentStart, _newAppointmentEnd;
+        private DateTime _draggingStart, _draggingEnd;
 
         protected override async Task OnInitializedAsync()
         {
@@ -133,12 +133,26 @@ namespace BlazorScheduler
                 .ThenByDescending(x => (x.End - x.Start).Days);
         }
 
+        SchedulerAllDayAppointment _draggingAppointment;
+        int _draggingAppointmentDiff = 0;
+        public void BeginDrag(SchedulerAllDayAppointment appointment)
+        {
+            _draggingAppointment = appointment;
+            _draggingStart = appointment.Appointment.Start;
+            _draggingEnd = appointment.Appointment.End;
+            _draggingAppointmentDiff = _draggingAppointment.Appointment.End.DayOfYear - _draggingAppointment.Appointment.Start.DayOfYear;
+
+            _draggingAppointmentAnchor = _draggingStart;
+
+            StateHasChanged();
+        }
+
         public void BeginDrag(SchedulerDay day)
         {
-            _newAppointmentStart = _newAppointmentEnd = day.Day;
+            _draggingStart = _draggingEnd = day.Day;
             _showNewAppointment = true;
 
-            _draggingAppointmentAnchor = _newAppointmentStart;
+            _draggingAppointmentAnchor = _draggingStart;
             StateHasChanged();
         }
 
@@ -150,19 +164,41 @@ namespace BlazorScheduler
                 if (_showNewAppointment)
                 {
                     _showNewAppointment = false;
-                    await OnAddingNewAppointment?.Invoke(_newAppointmentStart, _newAppointmentEnd);
+                    await OnAddingNewAppointment?.Invoke(_draggingStart, _draggingEnd);
+                    StateHasChanged();
+                }
+
+                if (_draggingAppointment is not null)
+                {
+                    _draggingAppointment = null;
+
                     StateHasChanged();
                 }
             }
         }
 
         [JSInvokable]
-        public void OnMouseMove(string date)
+        public async Task OnMouseMove(string date)
         {
             if (_showNewAppointment)
             {
                 var day = DateTime.ParseExact(date, "yyyyMMdd", null);
-                (_newAppointmentStart, _newAppointmentEnd) = day < _draggingAppointmentAnchor ? (day, _draggingAppointmentAnchor) : (_draggingAppointmentAnchor, day);
+                (_draggingStart, _draggingEnd) = day < _draggingAppointmentAnchor ? (day, _draggingAppointmentAnchor) : (_draggingAppointmentAnchor, day);
+                StateHasChanged();
+            }
+
+            if (_draggingAppointment is not null)
+            {
+                var day = DateTime.ParseExact(date, "yyyyMMdd", null);
+
+                _draggingStart = _draggingAppointmentAnchor.AddDays(day.DayOfYear - _draggingAppointmentAnchor.DayOfYear);
+                _draggingEnd = _draggingStart.AddDays(_draggingAppointmentDiff);
+
+                Console.WriteLine($"day = {day}");
+                Console.WriteLine($"_draggingStart = {_draggingStart}");
+                Console.WriteLine($"_draggingEnd = {_draggingEnd}");
+
+                await _draggingAppointment.Appointment.Update(_draggingStart, _draggingEnd);
                 StateHasChanged();
             }
         }

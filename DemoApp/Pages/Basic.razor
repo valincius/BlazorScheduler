@@ -4,7 +4,7 @@
     <Appointments>
         @foreach (var app in _appointments)
         {
-            <Appointment Start="@app.Start" End="@app.End" Color="@app.Color">
+            <Appointment @bind-Start="@app.Start" @bind-End="@app.End" Color="@app.Color">
                 @app.Title
             </Appointment>
         }

@@ -2,6 +2,6 @@
 
 <div class="appointment @Classes.AsString()"
     style="--start: @Start; --end: @End; --order: @Order; background-color: @Appointment.Color;"
-    @onclick="Appointment.Click">
+    @onclick="Appointment.Click" @onmousedown="OnMouseDown">
     @Appointment.ChildContent
 </div>
