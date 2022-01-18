@@ -58,8 +58,15 @@
             @Appointments
             @if (_showNewAppointment)
             {
-                <Appointment @ref="NewAppointment" Start="_draggingStart" End="_draggingEnd" Color="@Config.ThemeColor">
+                <Appointment @ref="DraggingAppointment" Start="_draggingStart" End="_draggingEnd" Color="@Config.ThemeColor">
                     New Appointment
+                </Appointment>
+            }
+
+            @if (_draggingAppointment?.Appointment is not null)
+            {
+                <Appointment @ref="DraggingAppointment" Start="_draggingStart" End="_draggingEnd" Color="@_draggingAppointment.Appointment.Color">
+                    @_draggingAppointment?.Appointment.ChildContent
                 </Appointment>
             }
 

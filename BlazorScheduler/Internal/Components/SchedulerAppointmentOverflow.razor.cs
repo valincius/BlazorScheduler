@@ -5,7 +5,7 @@ namespace BlazorScheduler.Internal.Components
 {
 	public partial class SchedulerAppointmentOverflow
 	{
-		[CascadingParameter] public Scheduler Scheduler { get; set; }
+		[CascadingParameter] public Scheduler Scheduler { get; set; } = null!;
 
 		[Parameter] public DateTime Day { get; set;}
 		[Parameter] public int AppointmentCount { get; set;}

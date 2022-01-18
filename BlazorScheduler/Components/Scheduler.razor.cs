@@ -13,18 +13,18 @@ namespace BlazorScheduler
 {
     public partial class Scheduler : IAsyncDisposable
     {
-        [Parameter] public RenderFragment Appointments { get; set; }
-        [Parameter] public RenderFragment<Scheduler> HeaderTemplate { get; set; }
-        [Parameter] public RenderFragment<DateTime> DayTemplate { get; set; }
+        [Parameter] public RenderFragment Appointments { get; set; } = null!;
+        [Parameter] public RenderFragment<Scheduler>? HeaderTemplate { get; set; }
+        [Parameter] public RenderFragment<DateTime>? DayTemplate { get; set; }
 
-        [Parameter] public Func<DateTime, DateTime, Task> OnRequestNewData { get; set; }
-        [Parameter] public Func<DateTime, DateTime, Task> OnAddingNewAppointment { get; set; }
-        [Parameter] public Func<DateTime, Task> OnOverflowAppointmentClick { get; set; }
+        [Parameter] public Func<DateTime, DateTime, Task>? OnRequestNewData { get; set; }
+        [Parameter] public Func<DateTime, DateTime, Task>? OnAddingNewAppointment { get; set; }
+        [Parameter] public Func<DateTime, Task>? OnOverflowAppointmentClick { get; set; }
         
         [Parameter] public Config Config { get; set; } = new();
 
         public DateTime CurrentDate { get; private set; }
-        public Appointment NewAppointment { get; private set; }
+        public Appointment? DraggingAppointment { get; private set; }
 
         private string MonthDisplay
         {
@@ -40,7 +40,7 @@ namespace BlazorScheduler
         }
 
         private readonly ObservableCollection<Appointment> _appointments = new();
-        private DotNetObjectReference<Scheduler> _objReference;
+        private DotNetObjectReference<Scheduler> _objReference = null!;
         private bool _loading = false;
 
         public bool _showNewAppointment;
@@ -127,22 +127,23 @@ namespace BlazorScheduler
 
         private IEnumerable<Appointment> GetAppointmentsInRange(DateTime start, DateTime end)
         {
-            var appointmentsInTimeframe = _appointments.Where(x => (start, end).Overlaps((x.Start, x.End)));
+            var appointmentsInTimeframe = _appointments
+                .Where(x => x.IsVisible)
+                .Where(x => (start, end).Overlaps((x.Start, x.End)));
+
             return appointmentsInTimeframe
                 .OrderBy(x => x.Start)
                 .ThenByDescending(x => (x.End - x.Start).Days);
         }
 
-        SchedulerAllDayAppointment _draggingAppointment;
-        int _draggingAppointmentDiff = 0;
+        SchedulerAllDayAppointment? _draggingAppointment;
         public void BeginDrag(SchedulerAllDayAppointment appointment)
         {
+            appointment.Appointment.IsVisible = false;
+
             _draggingAppointment = appointment;
             _draggingStart = appointment.Appointment.Start;
             _draggingEnd = appointment.Appointment.End;
-            _draggingAppointmentDiff = _draggingAppointment.Appointment.End.DayOfYear - _draggingAppointment.Appointment.Start.DayOfYear;
-
-            _draggingAppointmentAnchor = _draggingStart;
 
             StateHasChanged();
         }
@@ -164,12 +165,18 @@ namespace BlazorScheduler
                 if (_showNewAppointment)
                 {
                     _showNewAppointment = false;
-                    await OnAddingNewAppointment?.Invoke(_draggingStart, _draggingEnd);
+                    if (OnAddingNewAppointment is not null)
+                        await OnAddingNewAppointment.Invoke(_draggingStart, _draggingEnd);
+
                     StateHasChanged();
                 }
 
                 if (_draggingAppointment is not null)
                 {
+                    if (_draggingAppointment.Appointment.OnReschedule is not null)
+                        await _draggingAppointment.Appointment.OnReschedule.Invoke(_draggingStart, _draggingEnd);
+
+                    _draggingAppointment.Appointment.IsVisible = true;
                     _draggingAppointment = null;
 
                     StateHasChanged();
@@ -178,7 +185,7 @@ namespace BlazorScheduler
         }
 
         [JSInvokable]
-        public async Task OnMouseMove(string date)
+        public void OnMouseMove(string date)
         {
             if (_showNewAppointment)
             {
@@ -190,15 +197,9 @@ namespace BlazorScheduler
             if (_draggingAppointment is not null)
             {
                 var day = DateTime.ParseExact(date, "yyyyMMdd", null);
+                _draggingStart = day;
+                _draggingEnd = day.AddDays(_draggingAppointment.Appointment.End.DayOfYear - _draggingAppointment.Appointment.Start.DayOfYear);
 
-                _draggingStart = _draggingAppointmentAnchor.AddDays(day.DayOfYear - _draggingAppointmentAnchor.DayOfYear);
-                _draggingEnd = _draggingStart.AddDays(_draggingAppointmentDiff);
-
-                Console.WriteLine($"day = {day}");
-                Console.WriteLine($"_draggingStart = {_draggingStart}");
-                Console.WriteLine($"_draggingEnd = {_draggingEnd}");
-
-                await _draggingAppointment.Appointment.Update(_draggingStart, _draggingEnd);
                 StateHasChanged();
             }
         }

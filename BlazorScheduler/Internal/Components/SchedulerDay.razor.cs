@@ -8,10 +8,10 @@ namespace BlazorScheduler.Internal.Components
 {
     public partial class SchedulerDay
     {
-        [CascadingParameter] public Scheduler Scheduler { get; set; }
+        [CascadingParameter] public Scheduler Scheduler { get; set; } = null!;
 
         [Parameter] public DateTime Day { get; set; }
-        [Parameter] public Func<DateTime, Task> OnClick { get; set; }
+        [Parameter] public Func<DateTime, Task>? OnClick { get; set; }
 
         private bool IsDiffMonth => Day.Month != Scheduler.CurrentDate.Month;
         private string DateText => (IsDiffMonth && Day.Day == 1) ? Day.ToString("MMM d") : Day.Day.ToString();
