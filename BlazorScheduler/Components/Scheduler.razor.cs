@@ -44,8 +44,8 @@ namespace BlazorScheduler
         private bool _loading = false;
 
         public bool _showNewAppointment;
-        private DateTime _draggingAppointmentAnchor;
-        private DateTime _draggingStart, _draggingEnd;
+        private DateTime? _draggingAppointmentAnchor;
+        private DateTime? _draggingStart, _draggingEnd;
 
         protected override async Task OnInitializedAsync()
         {
@@ -129,21 +129,23 @@ namespace BlazorScheduler
         {
             var appointmentsInTimeframe = _appointments
                 .Where(x => x.IsVisible)
-                .Where(x => (start, end).Overlaps((x.Start, x.End)));
+                .Where(x => (start, end).Overlaps((x.Start.Date, x.End.Date)))
+                .ToList();
 
             return appointmentsInTimeframe
                 .OrderBy(x => x.Start)
                 .ThenByDescending(x => (x.End - x.Start).Days);
         }
 
-        SchedulerAllDayAppointment? _draggingAppointment;
-        public void BeginDrag(SchedulerAllDayAppointment appointment)
+        Appointment? _draggingAppointment;
+        public void BeginDrag(Appointment appointment)
         {
-            appointment.Appointment.IsVisible = false;
+            appointment.IsVisible = false;
 
             _draggingAppointment = appointment;
-            _draggingStart = appointment.Appointment.Start;
-            _draggingEnd = appointment.Appointment.End;
+            _draggingStart = appointment.Start;
+            _draggingEnd = appointment.End;
+            _draggingAppointmentAnchor = null;
 
             StateHasChanged();
         }
@@ -160,24 +162,25 @@ namespace BlazorScheduler
         [JSInvokable]
         public async Task OnMouseUp(int button)
         {
-            if (button == 0)
+            if (button == 0 && _draggingStart is not null && _draggingEnd is not null)
             {
                 if (_showNewAppointment)
                 {
                     _showNewAppointment = false;
                     if (OnAddingNewAppointment is not null)
-                        await OnAddingNewAppointment.Invoke(_draggingStart, _draggingEnd);
+                        await OnAddingNewAppointment.Invoke(_draggingStart.Value, _draggingEnd.Value);
 
                     StateHasChanged();
                 }
 
                 if (_draggingAppointment is not null)
                 {
-                    if (_draggingAppointment.Appointment.OnReschedule is not null)
-                        await _draggingAppointment.Appointment.OnReschedule.Invoke(_draggingStart, _draggingEnd);
-
-                    _draggingAppointment.Appointment.IsVisible = true;
+                    var tempApp = _draggingAppointment;
                     _draggingAppointment = null;
+
+                    if (tempApp.OnReschedule is not null)
+                        await tempApp.OnReschedule.Invoke(_draggingStart.Value, _draggingEnd.Value);
+                    tempApp.IsVisible = true;
 
                     StateHasChanged();
                 }
@@ -187,18 +190,22 @@ namespace BlazorScheduler
         [JSInvokable]
         public void OnMouseMove(string date)
         {
-            if (_showNewAppointment)
+            if (_showNewAppointment && _draggingAppointmentAnchor is not null)
             {
                 var day = DateTime.ParseExact(date, "yyyyMMdd", null);
-                (_draggingStart, _draggingEnd) = day < _draggingAppointmentAnchor ? (day, _draggingAppointmentAnchor) : (_draggingAppointmentAnchor, day);
+                (_draggingStart, _draggingEnd) = day < _draggingAppointmentAnchor ? (day, _draggingAppointmentAnchor.Value) : (_draggingAppointmentAnchor.Value, day);
                 StateHasChanged();
             }
 
             if (_draggingAppointment is not null)
             {
                 var day = DateTime.ParseExact(date, "yyyyMMdd", null);
-                _draggingStart = day;
-                _draggingEnd = day.AddDays(_draggingAppointment.Appointment.End.DayOfYear - _draggingAppointment.Appointment.Start.DayOfYear);
+                _draggingAppointmentAnchor ??= day;
+
+                var diff = (day - _draggingAppointmentAnchor.Value).Days;
+
+                _draggingStart = _draggingAppointment.Start.AddDays(diff);
+                _draggingEnd = _draggingAppointment.End.AddDays(diff);
 
                 StateHasChanged();
             }

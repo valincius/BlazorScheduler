@@ -28,7 +28,7 @@ namespace BlazorScheduler.Internal.Components
         {
             if (e.Button == 0)
             {
-                Scheduler.BeginDrag(this);
+                Scheduler.BeginDrag(Appointment);
             }
         }
     }

@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Web;
 
 namespace BlazorScheduler.Internal.Components
 {
@@ -10,6 +11,13 @@ namespace BlazorScheduler.Internal.Components
 		[Parameter] public int Order { get; set; }
 
 		private int Start => (int)Appointment.Start.DayOfWeek;
-		private bool IsTimedAppointment => Appointment.Start.Date == Appointment.End.Date && Appointment.Start != Appointment.End;
+
+		private void OnMouseDown(MouseEventArgs e)
+		{
+			if (e.Button == 0)
+			{
+				Scheduler.BeginDrag(Appointment);
+			}
+		}
 	}
 }

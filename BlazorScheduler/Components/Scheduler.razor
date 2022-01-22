@@ -56,18 +56,21 @@
         </div>
         <CascadingValue IsFixed="true" Value="this">
             @Appointments
-            @if (_showNewAppointment)
+            @if (_draggingStart is not null && _draggingEnd is not null)
             {
-                <Appointment @ref="DraggingAppointment" Start="_draggingStart" End="_draggingEnd" Color="@Config.ThemeColor">
-                    New Appointment
-                </Appointment>
-            }
+                @if (_showNewAppointment)
+                {
+                    <Appointment @ref="DraggingAppointment" Start="_draggingStart.Value" End="_draggingEnd.Value" Color="@Config.ThemeColor">
+                        New Appointment
+                    </Appointment>
+                }
 
-            @if (_draggingAppointment?.Appointment is not null)
-            {
-                <Appointment @ref="DraggingAppointment" Start="_draggingStart" End="_draggingEnd" Color="@_draggingAppointment.Appointment.Color">
-                    @_draggingAppointment?.Appointment.ChildContent
-                </Appointment>
+                @if (_draggingAppointment is not null)
+                {
+                    <Appointment @ref="DraggingAppointment" Start="_draggingStart.Value" End="_draggingEnd.Value" Color="@_draggingAppointment.Color">
+                        @_draggingAppointment?.ChildContent
+                    </Appointment>
+                }
             }
 
             @foreach (var week in GetDaysInRange().Chunk(7))
