@@ -224,13 +224,6 @@ namespace BlazorScheduler
                 _draggingStart = _reschedulingAppointment.Start.AddDays(diff);
                 _draggingEnd = _reschedulingAppointment.End.AddDays(diff);
 
-                Console.WriteLine($"After: day = {day}");
-                Console.WriteLine($"After: _draggingAppointmentAnchor = {_draggingAppointmentAnchor}");
-                Console.WriteLine($"After: diff = {diff}");
-                Console.WriteLine($"After: _draggingStart = {_draggingStart}");
-                Console.WriteLine($"After: _draggingEnd = {_draggingEnd}");
-                Console.WriteLine();
-
                 StateHasChanged();
             }
         }
