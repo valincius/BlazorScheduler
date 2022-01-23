@@ -137,8 +137,7 @@ namespace BlazorScheduler
         {
             var appointmentsInTimeframe = _appointments
                 .Where(x => x.IsVisible)
-                .Where(x => (start, end).Overlaps((x.Start.Date, x.End.Date)))
-                .ToList();
+                .Where(x => (start, end).Overlaps((x.Start.Date, x.End.Date)));
 
             return appointmentsInTimeframe
                 .OrderBy(x => x.Start)
