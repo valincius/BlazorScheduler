@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using BlazorScheduler.Internal.Extensions;
-using BlazorScheduler.Configuration;
 using BlazorScheduler.Internal.Components;
 using System.Collections.ObjectModel;
 
