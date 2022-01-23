@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
+using System.Collections.Generic;
 
 namespace BlazorScheduler.Internal.Components
 {
@@ -11,6 +12,17 @@ namespace BlazorScheduler.Internal.Components
 		[Parameter] public int Order { get; set; }
 
 		private int Start => (int)Appointment.Start.DayOfWeek;
+
+		private IEnumerable<string> Classes
+		{
+			get
+			{
+				if (ReferenceEquals(Appointment, Scheduler.DraggingAppointment))
+				{
+					yield return "new-appointment";
+				}
+			}
+		}
 
 		private void OnMouseDown(MouseEventArgs e)
 		{

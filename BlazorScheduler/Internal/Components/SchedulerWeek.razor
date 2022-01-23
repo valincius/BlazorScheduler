@@ -11,9 +11,9 @@
         @foreach (var (appointment, order) in _orderings)
         {
             int maxOrderOfSpan = _orderings
-                .Where(x => (x.Key.Start.Date, x.Key.End.Date).Overlaps((appointment.Start.Date, appointment.End.Date)))
+                .Where(x => (x.Key.Start.Date, x.Key.End.Date).Overlaps((appointment.Start.Date, appointment.End.Date)) && !ReferenceEquals(x.Key, Scheduler.DraggingAppointment))
                 .Max(x => (int?)x.Value) ?? 0;
-            if (order < _maxNumOfAppointmentsPerDay || (order == _maxNumOfAppointmentsPerDay && maxOrderOfSpan <= _maxNumOfAppointmentsPerDay))
+            if (order < _maxNumOfAppointmentsPerDay || (order == _maxNumOfAppointmentsPerDay && maxOrderOfSpan <= _maxNumOfAppointmentsPerDay) || ReferenceEquals(appointment, Scheduler.DraggingAppointment))
             {
                 bool isTimedAppointment = appointment.Start.Date == appointment.End.Date && appointment.Start != appointment.End;
                 if (isTimedAppointment)
@@ -29,7 +29,7 @@
         }
         @for (var dt = Start; dt <= End; dt = dt.AddDays(1))
         {
-            var todaysAppointments = _orderings.Where(x => dt.Between(x.Key.Start.Date, x.Key.End.Date));
+            var todaysAppointments = _orderings.Where(x => dt.Between(x.Key.Start.Date, x.Key.End.Date) && !ReferenceEquals(x.Key, Scheduler.DraggingAppointment));
             int maxOrder = todaysAppointments.Max(x => (int?)x.Value) ?? 0;
             if (maxOrder > _maxNumOfAppointmentsPerDay)
             {

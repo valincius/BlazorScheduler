@@ -6,7 +6,8 @@
 <Scheduler
     OnRequestNewData="OnRequestNewData"
     OnAddingNewAppointment="OnAddingNewAppointment"
-    OnOverflowAppointmentClick="OnOverflowAppointmentClick">
+    OnOverflowAppointmentClick="OnOverflowAppointmentClick"
+    EnableRescheduling="true">
     <Appointments>
         @foreach (var app in _appointments)
         {
