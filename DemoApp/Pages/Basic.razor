@@ -1,6 +1,6 @@
 ﻿@page "/"
 
-<Scheduler OnAddingNewAppointment="OnAddingNewAppointment">
+<Scheduler OnAddingNewAppointment="OnAddingNewAppointment" EnableRescheduling="true">
     <Appointments>
         @foreach (var app in _appointments)
         {

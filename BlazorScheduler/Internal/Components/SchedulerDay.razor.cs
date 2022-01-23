@@ -23,10 +23,12 @@ namespace BlazorScheduler.Internal.Components
                     yield return "diff-month";
             }
         }
-        
+
+        private string Color => Day.Date == DateTime.Today ? Scheduler.ThemeColor : "";
+
         private void OnMouseDown(MouseEventArgs e)
         {
-            if (e.Button == 0 && Scheduler.Config.EnableDragging)
+            if (e.Button == 0)
             {
                 Scheduler.BeginDrag(this);
             }

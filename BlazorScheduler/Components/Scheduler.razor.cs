@@ -20,8 +20,17 @@ namespace BlazorScheduler
         [Parameter] public Func<DateTime, DateTime, Task>? OnRequestNewData { get; set; }
         [Parameter] public Func<DateTime, DateTime, Task>? OnAddingNewAppointment { get; set; }
         [Parameter] public Func<DateTime, Task>? OnOverflowAppointmentClick { get; set; }
-        
-        [Parameter] public Config Config { get; set; } = new();
+
+        #region Config
+        [Parameter] public bool AlwaysShowYear { get; set; } = true;
+        [Parameter] public int MaxVisibleAppointmentsPerDay { get; set; } = 5;
+        [Parameter] public bool EnableDragging { get; set; } = true;
+        [Parameter] public bool EnableRescheduling { get; set; }
+        [Parameter] public string ThemeColor { get; set; } = "aqua";
+        [Parameter] public DayOfWeek StartDayOfWeek { get; set; } = DayOfWeek.Sunday;
+        [Parameter] public string TodayButtonText { get; set; } = "Today";
+        [Parameter] public string PlusOthersText { get; set; } = "+ {n} others";
+        #endregion
 
         public DateTime CurrentDate { get; private set; }
         public Appointment? DraggingAppointment { get; private set; }
@@ -31,7 +40,7 @@ namespace BlazorScheduler
             get
             {
                 var res = CurrentDate.ToString("MMMM");
-                if (Config.AlwaysShowYear || CurrentDate.Year != DateTime.Today.Year)
+                if (AlwaysShowYear || CurrentDate.Year != DateTime.Today.Year)
                 {
                     return res += CurrentDate.ToString(" yyyy");
                 }
@@ -110,9 +119,9 @@ namespace BlazorScheduler
 
         private (DateTime, DateTime) GetDateRangeForCurrentMonth()
         {
-            var startDate = new DateTime(CurrentDate.Year, CurrentDate.Month, 1).GetPrevious(Config.StartDayOfWeek);
+            var startDate = new DateTime(CurrentDate.Year, CurrentDate.Month, 1).GetPrevious(StartDayOfWeek);
             var endDate = new DateTime(CurrentDate.Year, CurrentDate.Month, DateTime.DaysInMonth(CurrentDate.Year, CurrentDate.Month))
-                .GetNext((DayOfWeek)((int)(Config.StartDayOfWeek - 1 + 7) % 7));
+                .GetNext((DayOfWeek)((int)(StartDayOfWeek - 1 + 7) % 7));
 
             return (startDate, endDate);
         }
@@ -140,6 +149,9 @@ namespace BlazorScheduler
         Appointment? _draggingAppointment;
         public void BeginDrag(Appointment appointment)
         {
+            if (!EnableRescheduling || appointment.OnReschedule is null)
+                return;
+
             appointment.IsVisible = false;
 
             _draggingAppointment = appointment;
@@ -152,6 +164,9 @@ namespace BlazorScheduler
 
         public void BeginDrag(SchedulerDay day)
         {
+            if (!EnableDragging)
+                return;
+
             _draggingStart = _draggingEnd = day.Day;
             _showNewAppointment = true;
 

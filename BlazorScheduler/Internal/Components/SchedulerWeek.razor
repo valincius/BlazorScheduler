@@ -37,7 +37,7 @@
                 .Count(x => x.Value > _maxNumOfAppointmentsPerDay - 1);
                 <SchedulerAppointmentOverflow Day="dt"
                     AppointmentCount="numOverFlowAppointments"
-                    Start="(dt.DayOfWeek - Scheduler.Config.StartDayOfWeek + 7) % 7"
+                    Start="(dt.DayOfWeek - Scheduler.StartDayOfWeek + 7) % 7"
                     Order="_maxNumOfAppointmentsPerDay"
                     @key="dt" />
             }

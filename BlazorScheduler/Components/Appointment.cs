@@ -35,7 +35,7 @@ namespace BlazorScheduler
         protected override void OnInitialized()
         {
             Scheduler.AddAppointment(this);
-            Color ??= Scheduler.Config.ThemeColor;
+            Color ??= Scheduler.ThemeColor;
 
             base.OnInitialized();
         }
