@@ -14,9 +14,10 @@ namespace BlazorScheduler.Internal.Components
         [Parameter] public DateTime End { get; set; }
         [Parameter] public IEnumerable<Appointment> Appointments { get; set; } = null!;
 
+		private int MaxNumOfAppointmentsPerDay => Scheduler.MaxVisibleAppointmentsPerDay;
+
         private readonly Dictionary<Appointment, int> _orderings = new();
         private readonly Dictionary<Appointment, (int, int)> _startsAndEnds = new();
-		private int _maxNumOfAppointmentsPerDay => Scheduler.MaxVisibleAppointmentsPerDay;
 
         protected override void OnInitialized()
         {
@@ -42,6 +43,9 @@ namespace BlazorScheduler.Internal.Components
         {
             DayOfWeek schedStart = Scheduler.StartDayOfWeek;
             DayOfWeek start = schedStart, end = schedStart + 6;
+
+            if (!(appointment.Start.Date, appointment.End.Date).Overlaps((Start, End)))
+                return ((int)appointment.Start.DayOfWeek, (int)appointment.End.DayOfWeek);
 
             if (appointment.Start.Between(Start, End))
             {

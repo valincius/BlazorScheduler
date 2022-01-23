@@ -145,7 +145,7 @@ namespace BlazorScheduler
                 .ThenByDescending(x => (x.End - x.Start).Days);
         }
 
-        Appointment? _draggingAppointment;
+        private Appointment? _reschedulingAppointment;
         public void BeginDrag(Appointment appointment)
         {
             if (!EnableRescheduling || appointment.OnReschedule is null)
@@ -153,7 +153,7 @@ namespace BlazorScheduler
 
             appointment.IsVisible = false;
 
-            _draggingAppointment = appointment;
+            _reschedulingAppointment = appointment;
             _draggingStart = appointment.Start;
             _draggingEnd = appointment.End;
             _draggingAppointmentAnchor = null;
@@ -173,6 +173,9 @@ namespace BlazorScheduler
             StateHasChanged();
         }
 
+        public bool IsDayBeingScheduled(Appointment appointment)
+            => ReferenceEquals(appointment, DraggingAppointment) && _reschedulingAppointment is not null;
+
         [JSInvokable]
         public async Task OnMouseUp(int button)
         {
@@ -187,10 +190,10 @@ namespace BlazorScheduler
                     StateHasChanged();
                 }
 
-                if (_draggingAppointment is not null)
+                if (_reschedulingAppointment is not null)
                 {
-                    var tempApp = _draggingAppointment;
-                    _draggingAppointment = null;
+                    var tempApp = _reschedulingAppointment;
+                    _reschedulingAppointment = null;
 
                     if (tempApp.OnReschedule is not null)
                         await tempApp.OnReschedule.Invoke(_draggingStart.Value, _draggingEnd.Value);
@@ -211,15 +214,22 @@ namespace BlazorScheduler
                 StateHasChanged();
             }
 
-            if (_draggingAppointment is not null)
+            if (_reschedulingAppointment is not null)
             {
                 var day = DateTime.ParseExact(date, "yyyyMMdd", null);
                 _draggingAppointmentAnchor ??= day;
 
                 var diff = (day - _draggingAppointmentAnchor.Value).Days;
 
-                _draggingStart = _draggingAppointment.Start.AddDays(diff);
-                _draggingEnd = _draggingAppointment.End.AddDays(diff);
+                _draggingStart = _reschedulingAppointment.Start.AddDays(diff);
+                _draggingEnd = _reschedulingAppointment.End.AddDays(diff);
+
+                Console.WriteLine($"After: day = {day}");
+                Console.WriteLine($"After: _draggingAppointmentAnchor = {_draggingAppointmentAnchor}");
+                Console.WriteLine($"After: diff = {diff}");
+                Console.WriteLine($"After: _draggingStart = {_draggingStart}");
+                Console.WriteLine($"After: _draggingEnd = {_draggingEnd}");
+                Console.WriteLine();
 
                 StateHasChanged();
             }

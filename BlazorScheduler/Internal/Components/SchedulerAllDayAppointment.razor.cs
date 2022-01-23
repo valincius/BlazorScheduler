@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
+using System;
 using System.Collections.Generic;
 
 namespace BlazorScheduler.Internal.Components
@@ -13,7 +14,7 @@ namespace BlazorScheduler.Internal.Components
         [Parameter] public int End { get; set; }
         [Parameter] public int Order { get; set; }
 
-		private IEnumerable<string> Classes
+        private IEnumerable<string> Classes
 		{
             get
             {

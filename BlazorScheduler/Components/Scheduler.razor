@@ -65,10 +65,10 @@
                     </Appointment>
                 }
 
-                @if (_draggingAppointment is not null)
+                @if (_reschedulingAppointment is not null)
                 {
-                    <Appointment @ref="DraggingAppointment" Start="_draggingStart.Value" End="_draggingEnd.Value" Color="@_draggingAppointment.Color">
-                        @_draggingAppointment?.ChildContent
+                    <Appointment @ref="DraggingAppointment" Start="_draggingStart.Value" End="_draggingEnd.Value" Color="@_reschedulingAppointment.Color">
+                        @_reschedulingAppointment?.ChildContent
                     </Appointment>
                 }
             }
