@@ -5,9 +5,11 @@
     -ms-user-select: none;
     user-select: none;
     outline: 0;
-
     border: 1px solid #ccc;
     border-radius: 3px;
+
+    --background-color: white;
+    background-color: var(--background-color);
 }
 
 .scheduler > .header > .actions {
@@ -132,6 +134,13 @@
     top: 30px;
     z-index: 1;
     box-shadow: 3px 6px 6px rgb(0 0 0 / 50%);
+}
+.scheduler > .month > .week > .appointments > .appointment-timed {
+    background-color: var(--background-color);
+    width: calc(100% / 7 - 4px);
+}
+.scheduler > .month > .week > .appointments > .appointment-timed.new-appointment {
+    border: 1px solid #eee;
 }
 .scheduler > .month > .week > .appointments > .appointment > .dot {
     --size: 7px;

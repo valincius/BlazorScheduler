@@ -1,7 +1,5 @@
 ﻿@page "/configuration"
 
-@using BlazorScheduler.Configuration
-
 <MudCard Class="mb-3">
     <MudCardHeader>
         <MudText Typo="Typo.h6">Config</MudText>
@@ -9,19 +7,22 @@
     <MudCardContent>
         <MudGrid>
             <MudItem xs="12" md="6">
-                <MudCheckBox @bind-Checked="_config.DisableDragging" Label="Disable Dragging" />
+                <MudCheckBox @bind-Checked="_enableDragging" Label="Enable Dragging" />
             </MudItem>
             <MudItem xs="12" md="6">
-                <MudCheckBox @bind-Checked="_config.AlwaysShowYear" Label="Always show year in header" />
+                <MudCheckBox @bind-Checked="_enableRescheduling" Label="Enable Rescheduling" />
             </MudItem>
             <MudItem xs="12" md="6">
-                <MudNumericField @bind-Value="_config.MaxVisibleAppointmentsPerDay" Label="Max Visible Appointments Per Day" Step="1" Min="1" Max="5" />
+                <MudCheckBox @bind-Checked="_alwaysShowYear" Label="Always show year in header" />
             </MudItem>
             <MudItem xs="12" md="6">
-                <MudColorPicker Label="Theme Color" @bind-Text="_config.ThemeColor" Style="@($"color: {_config.ThemeColor};")" />
+                <MudNumericField @bind-Value="_maxVisibleAppointmentsPerDay" Label="Max Visible Appointments Per Day" Step="1" Min="1" Max="5" />
             </MudItem>
             <MudItem xs="12" md="6">
-                <MudSelect Label="Start Day of Week" @bind-Value="_config.StartDayOfWeek">
+                <MudColorPicker Label="Theme Color" @bind-Text="_themeColor" Style="@($"color: {_themeColor};")" />
+            </MudItem>
+            <MudItem xs="12" md="6">
+                <MudSelect Label="Start Day of Week" @bind-Value="_startDayOfWeek">
                     @foreach (var day in Enum.GetValues<DayOfWeek>())
                     {
                         <MudSelectItem Value="@day" />
@@ -29,20 +30,29 @@
                 </MudSelect>
             </MudItem>
             <MudItem xs="12" md="6">
-                <MudTextField @bind-Value="_config.PlusOthersText" Label="Overflow text" />
+                <MudTextField @bind-Value="_plusOthersText" Label="Overflow text" />
             </MudItem>
             <MudItem xs="12" md="6">
-                <MudTextField @bind-Value="_config.TodayButtonText" Label="Today Button Text" />
+                <MudTextField @bind-Value="_todayButtonText" Label="Today Button Text" />
             </MudItem>
         </MudGrid>
     </MudCardContent>
 </MudCard>
 
-<Scheduler Config="_config" OnAddingNewAppointment="OnAddingNewAppointment">
+<Scheduler
+    OnAddingNewAppointment="OnAddingNewAppointment"
+    AlwaysShowYear="_alwaysShowYear"
+    MaxVisibleAppointmentsPerDay="_maxVisibleAppointmentsPerDay"
+    EnableDragging="_enableDragging"
+    EnableRescheduling="_enableRescheduling"
+    ThemeColor="@_themeColor"
+    StartDayOfWeek="_startDayOfWeek"
+    TodayButtonText="@_todayButtonText"
+    PlusOthersText="@_plusOthersText">
     <Appointments>
         @foreach (var app in _appointments)
         {
-            <Appointment Start="@app.Start" End="@app.End" Color="@app.Color">
+            <Appointment Start="@app.Start" End="@app.End" Color="@app.Color" OnReschedule="(start, end) => HandleReschedule(app, start, end)">
                 @app.Title
             </Appointment>
         }
@@ -51,11 +61,27 @@
 
 @code {
     private List<AppointmentDto> _appointments = new();
-    private Config _config = new();
+
+    private bool _alwaysShowYear = true;
+    private int _maxVisibleAppointmentsPerDay = 5;
+    private bool _enableDragging = true;
+    private bool _enableRescheduling = false;
+    private string _themeColor = "aqua";
+    private DayOfWeek _startDayOfWeek = DayOfWeek.Sunday;
+    private string _todayButtonText = "Today";
+    private string _plusOthersText = "+ {n} others";
 
     Task OnAddingNewAppointment(DateTime start, DateTime end)
     {
         _appointments.Add(new AppointmentDto { Start = start, End = end, Title = "A newly added appointment!", Color = "aqua" });
+        return Task.CompletedTask;
+    }
+
+    Task HandleReschedule(AppointmentDto appointment, DateTime newStart, DateTime newEnd)
+    {
+        appointment.Start = newStart;
+        appointment.End = newEnd;
+
         return Task.CompletedTask;
     }
 }

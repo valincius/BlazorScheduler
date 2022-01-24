@@ -8,15 +8,16 @@ namespace BlazorScheduler.Internal.Components
 {
 	public partial class SchedulerWeek
     {
-        [CascadingParameter] public Scheduler Scheduler { get; set; }
-        
+        [CascadingParameter] public Scheduler Scheduler { get; set; } = null!;
+
         [Parameter] public DateTime Start { get; set; }
         [Parameter] public DateTime End { get; set; }
-        [Parameter] public IEnumerable<Appointment> Appointments { get; set; }
+        [Parameter] public IEnumerable<Appointment> Appointments { get; set; } = null!;
 
-		private readonly Dictionary<Appointment, int> _orderings = new();
+		private int MaxNumOfAppointmentsPerDay => Scheduler.MaxVisibleAppointmentsPerDay;
+
+        private readonly Dictionary<Appointment, int> _orderings = new();
         private readonly Dictionary<Appointment, (int, int)> _startsAndEnds = new();
-		private int _maxNumOfAppointmentsPerDay => Scheduler.Config.MaxVisibleAppointmentsPerDay;
 
         protected override void OnInitialized()
         {
@@ -40,8 +41,11 @@ namespace BlazorScheduler.Internal.Components
 
         private (int, int) GetStartAndEndDayForAppointment(Appointment appointment)
         {
-            DayOfWeek schedStart = Scheduler.Config.StartDayOfWeek;
+            DayOfWeek schedStart = Scheduler.StartDayOfWeek;
             DayOfWeek start = schedStart, end = schedStart + 6;
+
+            if (!(appointment.Start.Date, appointment.End.Date).Overlaps((Start, End)))
+                return ((int)appointment.Start.DayOfWeek, (int)appointment.End.DayOfWeek);
 
             if (appointment.Start.Between(Start, End))
             {
@@ -60,7 +64,7 @@ namespace BlazorScheduler.Internal.Components
         private int GetBestOrderingForAppointment(Appointment appointment)
         {
             return _orderings
-                .Where(x => x.Key != Scheduler.NewAppointment)
+                .Where(x => x.Key != Scheduler.DraggingAppointment)
                 .Where(x => _startsAndEnds[appointment].Overlaps(_startsAndEnds[x.Key]))
                 .OrderBy(x => x.Value)
                 .TakeWhile((x, i) => x.Value == ++i)

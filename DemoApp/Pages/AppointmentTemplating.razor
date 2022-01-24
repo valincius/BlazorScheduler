@@ -1,6 +1,6 @@
 ﻿@page "/appointments"
 
-<Scheduler Config="_config">
+<Scheduler EnableDragging="false">
     <Appointments>
         @foreach (var appGroup in _appointments.GroupBy(x => new { x.Start, x.End }))
         {
@@ -15,7 +15,6 @@
 </Scheduler>
 
 @code {
-    private BlazorScheduler.Configuration.Config _config = new() { DisableDragging = true };
     private List<BoardingReservation> _appointments = new();
 
     protected override void OnInitialized()

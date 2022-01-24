@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using BlazorScheduler.Internal.Extensions;
-using BlazorScheduler.Configuration;
 using BlazorScheduler.Internal.Components;
 using System.Collections.ObjectModel;
 
@@ -13,25 +12,34 @@ namespace BlazorScheduler
 {
     public partial class Scheduler : IAsyncDisposable
     {
-        [Parameter] public RenderFragment Appointments { get; set; }
-        [Parameter] public RenderFragment<Scheduler> HeaderTemplate { get; set; }
-        [Parameter] public RenderFragment<DateTime> DayTemplate { get; set; }
+        [Parameter] public RenderFragment Appointments { get; set; } = null!;
+        [Parameter] public RenderFragment<Scheduler>? HeaderTemplate { get; set; }
+        [Parameter] public RenderFragment<DateTime>? DayTemplate { get; set; }
 
-        [Parameter] public Func<DateTime, DateTime, Task> OnRequestNewData { get; set; }
-        [Parameter] public Func<DateTime, DateTime, Task> OnAddingNewAppointment { get; set; }
-        [Parameter] public Func<DateTime, Task> OnOverflowAppointmentClick { get; set; }
-        
-        [Parameter] public Config Config { get; set; } = new();
+        [Parameter] public Func<DateTime, DateTime, Task>? OnRequestNewData { get; set; }
+        [Parameter] public Func<DateTime, DateTime, Task>? OnAddingNewAppointment { get; set; }
+        [Parameter] public Func<DateTime, Task>? OnOverflowAppointmentClick { get; set; }
+
+        #region Config
+        [Parameter] public bool AlwaysShowYear { get; set; } = true;
+        [Parameter] public int MaxVisibleAppointmentsPerDay { get; set; } = 5;
+        [Parameter] public bool EnableDragging { get; set; } = true;
+        [Parameter] public bool EnableRescheduling { get; set; }
+        [Parameter] public string ThemeColor { get; set; } = "aqua";
+        [Parameter] public DayOfWeek StartDayOfWeek { get; set; } = DayOfWeek.Sunday;
+        [Parameter] public string TodayButtonText { get; set; } = "Today";
+        [Parameter] public string PlusOthersText { get; set; } = "+ {n} others";
+        #endregion
 
         public DateTime CurrentDate { get; private set; }
-        public Appointment NewAppointment { get; private set; }
+        public Appointment? DraggingAppointment { get; private set; }
 
         private string MonthDisplay
         {
             get
             {
                 var res = CurrentDate.ToString("MMMM");
-                if (Config.AlwaysShowYear || CurrentDate.Year != DateTime.Today.Year)
+                if (AlwaysShowYear || CurrentDate.Year != DateTime.Today.Year)
                 {
                     return res += CurrentDate.ToString(" yyyy");
                 }
@@ -40,12 +48,12 @@ namespace BlazorScheduler
         }
 
         private readonly ObservableCollection<Appointment> _appointments = new();
-        private DotNetObjectReference<Scheduler> _objReference;
+        private DotNetObjectReference<Scheduler> _objReference = null!;
         private bool _loading = false;
 
         public bool _showNewAppointment;
-        private DateTime _draggingAppointmentAnchor;
-        private DateTime _newAppointmentStart, _newAppointmentEnd;
+        private DateTime? _draggingAppointmentAnchor;
+        private DateTime? _draggingStart, _draggingEnd;
 
         protected override async Task OnInitializedAsync()
         {
@@ -110,9 +118,9 @@ namespace BlazorScheduler
 
         private (DateTime, DateTime) GetDateRangeForCurrentMonth()
         {
-            var startDate = new DateTime(CurrentDate.Year, CurrentDate.Month, 1).GetPrevious(Config.StartDayOfWeek);
+            var startDate = new DateTime(CurrentDate.Year, CurrentDate.Month, 1).GetPrevious(StartDayOfWeek);
             var endDate = new DateTime(CurrentDate.Year, CurrentDate.Month, DateTime.DaysInMonth(CurrentDate.Year, CurrentDate.Month))
-                .GetNext((DayOfWeek)((int)(Config.StartDayOfWeek - 1 + 7) % 7));
+                .GetNext((DayOfWeek)((int)(StartDayOfWeek - 1 + 7) % 7));
 
             return (startDate, endDate);
         }
@@ -127,30 +135,69 @@ namespace BlazorScheduler
 
         private IEnumerable<Appointment> GetAppointmentsInRange(DateTime start, DateTime end)
         {
-            var appointmentsInTimeframe = _appointments.Where(x => (start, end).Overlaps((x.Start, x.End)));
+            var appointmentsInTimeframe = _appointments
+                .Where(x => x.IsVisible)
+                .Where(x => (start, end).Overlaps((x.Start.Date, x.End.Date)));
+
             return appointmentsInTimeframe
                 .OrderBy(x => x.Start)
                 .ThenByDescending(x => (x.End - x.Start).Days);
         }
 
-        public void BeginDrag(SchedulerDay day)
+        private Appointment? _reschedulingAppointment;
+        public void BeginDrag(Appointment appointment)
         {
-            _newAppointmentStart = _newAppointmentEnd = day.Day;
-            _showNewAppointment = true;
+            if (!EnableRescheduling || appointment.OnReschedule is null || _reschedulingAppointment is not null || _showNewAppointment)
+                return;
 
-            _draggingAppointmentAnchor = _newAppointmentStart;
+            appointment.IsVisible = false;
+
+            _reschedulingAppointment = appointment;
+            _draggingStart = appointment.Start;
+            _draggingEnd = appointment.End;
+            _draggingAppointmentAnchor = null;
+
             StateHasChanged();
         }
+
+        public void BeginDrag(SchedulerDay day)
+        {
+            if (!EnableDragging)
+                return;
+
+            _draggingStart = _draggingEnd = day.Day;
+            _showNewAppointment = true;
+
+            _draggingAppointmentAnchor = _draggingStart;
+            StateHasChanged();
+        }
+
+        public bool IsDayBeingScheduled(Appointment appointment)
+            => ReferenceEquals(appointment, DraggingAppointment) && _reschedulingAppointment is not null;
 
         [JSInvokable]
         public async Task OnMouseUp(int button)
         {
-            if (button == 0)
+            if (button == 0 && _draggingStart is not null && _draggingEnd is not null)
             {
                 if (_showNewAppointment)
                 {
                     _showNewAppointment = false;
-                    await OnAddingNewAppointment?.Invoke(_newAppointmentStart, _newAppointmentEnd);
+                    if (OnAddingNewAppointment is not null)
+                        await OnAddingNewAppointment.Invoke(_draggingStart.Value, _draggingEnd.Value);
+
+                    StateHasChanged();
+                }
+
+                if (_reschedulingAppointment is not null)
+                {
+                    var tempApp = _reschedulingAppointment;
+                    _reschedulingAppointment = null;
+
+                    if (tempApp.OnReschedule is not null)
+                        await tempApp.OnReschedule.Invoke(_draggingStart.Value, _draggingEnd.Value);
+                    tempApp.IsVisible = true;
+
                     StateHasChanged();
                 }
             }
@@ -159,10 +206,23 @@ namespace BlazorScheduler
         [JSInvokable]
         public void OnMouseMove(string date)
         {
-            if (_showNewAppointment)
+            if (_showNewAppointment && _draggingAppointmentAnchor is not null)
             {
                 var day = DateTime.ParseExact(date, "yyyyMMdd", null);
-                (_newAppointmentStart, _newAppointmentEnd) = day < _draggingAppointmentAnchor ? (day, _draggingAppointmentAnchor) : (_draggingAppointmentAnchor, day);
+                (_draggingStart, _draggingEnd) = day < _draggingAppointmentAnchor ? (day, _draggingAppointmentAnchor.Value) : (_draggingAppointmentAnchor.Value, day);
+                StateHasChanged();
+            }
+
+            if (_reschedulingAppointment is not null)
+            {
+                var day = DateTime.ParseExact(date, "yyyyMMdd", null);
+                _draggingAppointmentAnchor ??= day;
+
+                var diff = (day - _draggingAppointmentAnchor.Value).Days;
+
+                _draggingStart = _reschedulingAppointment.Start.AddDays(diff);
+                _draggingEnd = _reschedulingAppointment.End.AddDays(diff);
+
                 StateHasChanged();
             }
         }

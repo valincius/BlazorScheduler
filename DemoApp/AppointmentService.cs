@@ -15,7 +15,10 @@ namespace DemoApp
 
         private readonly List<AppointmentDto> AllAppointments = new()
         {
-            new AppointmentDto { Title = "Hello", Start = DateTime.Now, End = DateTime.Now.AddHours(1), Color = "yellow" },
+            new AppointmentDto { Title = "Hello 1", Start = DateTime.Now, End = DateTime.Now.AddHours(1), Color = "yellow" },
+            new AppointmentDto { Title = "Hello 2", Start = DateTime.Now.AddDays(3), End = DateTime.Now.AddDays(3).AddHours(1), Color = "red" },
+
+            new AppointmentDto { Title = "Hello 3", Start = DateTime.Today, End = DateTime.Today.AddDays(1), Color = "yellow" },
 
             new AppointmentDto { Title = "Open Sourced Date", Start = new DateTime(2021, 7, 9), End = new DateTime(2021, 7, 9), Color = "green" },
             new AppointmentDto { Title = "Vacation", Start = DateTime.Today.AddDays(4), End = DateTime.Today.AddDays(14), Color = "pink" },
