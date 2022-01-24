@@ -11,7 +11,7 @@
         @foreach (var (appointment, order) in _orderings)
         {
             int maxOrderOfSpan = _orderings
-                .Where(x => (x.Key.Start.Date, x.Key.End.Date).Overlaps((appointment.Start.Date, appointment.End.Date)) && !Scheduler.IsDayBeingScheduled(appointment))
+                .Where(x => (x.Key.Start.Date, x.Key.End.Date).Overlaps((appointment.Start.Date, appointment.End.Date)) && !Scheduler.IsDayBeingScheduled(x.Key))
                 .Max(x => (int?)x.Value) ?? 0;
             if (order < MaxNumOfAppointmentsPerDay || (order == MaxNumOfAppointmentsPerDay && maxOrderOfSpan <= MaxNumOfAppointmentsPerDay) || Scheduler.IsDayBeingScheduled(appointment))
             {
