@@ -147,7 +147,7 @@ namespace BlazorScheduler
         private Appointment? _reschedulingAppointment;
         public void BeginDrag(Appointment appointment)
         {
-            if (!EnableRescheduling || appointment.OnReschedule is null)
+            if (!EnableRescheduling || appointment.OnReschedule is null || _reschedulingAppointment is not null || _showNewAppointment)
                 return;
 
             appointment.IsVisible = false;

@@ -25,12 +25,28 @@ namespace BlazorScheduler.Internal.Components
             }
         }
 
+        private bool _drag;
+
         private void OnMouseDown(MouseEventArgs e)
         {
             if (e.Button == 0)
-            {
+                _drag = false;
+        }
+
+        private void OnMouseUp(MouseEventArgs e)
+        {
+            if (_drag)
+                return;
+
+            Appointment.OnClick?.Invoke();
+        }
+
+        private void OnMouseMove(MouseEventArgs e)
+        {
+            _drag = true;
+
+            if ((e.Buttons & 1) == 1)
                 Scheduler.BeginDrag(Appointment);
-            }
         }
     }
 }
