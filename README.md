@@ -8,7 +8,7 @@ A scheduler/calendar built with Blazor with zero dependancies.
 ## Overview
 BlazorScheduler is a component library that provides a single component, the scheduler.
 The scheduler supports "all-day" appointments, appointments spanning multiple days/weeks/months, and timed appointments.
-Also has support for dragging to create appointments.
+Also has support for dragging to create & reschedule appointments.
 
 ## Usage
 1. Run `Install-Package BlazorScheduler` in the package manager console to install the latest package in your frontend project.
