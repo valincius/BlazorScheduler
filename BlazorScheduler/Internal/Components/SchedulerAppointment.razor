@@ -2,5 +2,5 @@
 
 <div class="appointment appointment-timed @Classes.AsString()" style="--start: @Start; --order: @Order;" @onmousedown="OnMouseDown" @onmouseup="OnMouseUp" @onmousemove="OnMouseMove">
     <span class="dot" style="background-color: @Appointment.Color;"></span>
-    @Appointment.ChildContent
+    @Appointment.RenderChildContent()
 </div>
