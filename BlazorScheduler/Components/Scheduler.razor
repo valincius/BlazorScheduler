@@ -15,7 +15,7 @@
         else
         {
             <div class="actions">
-                <button class="btn today" @onclick="() => ChangeMonth()">@Config.TodayButtonText</button>
+                <button class="btn today" @onclick="() => ChangeMonth()">@TodayButtonText</button>
                 <div class="navigation">
                     <button class="btn icon-btn" @onclick="() => ChangeMonth(-1)">
                         <svg viewBox="0 0 24 24">
@@ -46,7 +46,7 @@
         <div class="week header">
             @for (int d=0;d<7;d++)
             {
-                int dayNumber = (int)(Config.StartDayOfWeek + d) % 7;
+                int dayNumber = (int)(StartDayOfWeek + d) % 7;
                 string dayName = CultureInfo.CurrentCulture.DateTimeFormat.DayNames[dayNumber];
                 <div class="day-of-month">
                     <span class="full-dayname">@dayName</span>
@@ -56,11 +56,21 @@
         </div>
         <CascadingValue IsFixed="true" Value="this">
             @Appointments
-            @if (_showNewAppointment)
+            @if (_draggingStart is not null && _draggingEnd is not null)
             {
-                <Appointment @ref="NewAppointment" Start="_newAppointmentStart" End="_newAppointmentEnd" Color="@Config.ThemeColor">
-                    New Appointment
-                </Appointment>
+                @if (_showNewAppointment)
+                {
+                    <Appointment @ref="DraggingAppointment" Start="_draggingStart.Value" End="_draggingEnd.Value" Color="@ThemeColor">
+                        New Appointment
+                    </Appointment>
+                }
+
+                @if (_reschedulingAppointment is not null)
+                {
+                    <Appointment @ref="DraggingAppointment" Start="_draggingStart.Value" End="_draggingEnd.Value" Color="@_reschedulingAppointment.Color">
+                        @_reschedulingAppointment?.ChildContent
+                    </Appointment>
+                }
             }
 
             @foreach (var week in GetDaysInRange().Chunk(7))
