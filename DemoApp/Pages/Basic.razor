@@ -1,11 +1,16 @@
 ﻿@page "/"
+@inject AppointmentService AppointmentService
 
-<Scheduler OnAddingNewAppointment="OnAddingNewAppointment" EnableRescheduling="true">
+<Scheduler OnAddingNewAppointment="OnAddingNewAppointment" OnRequestNewData="OnRequestNewData" EnableRescheduling="true">
     <Appointments>
         @foreach (var app in _appointments)
         {
             <Appointment Start="@app.Start" End="@app.End" Color="@app.Color" OnReschedule="(start, end) => HandleReschedule(app, start, end)">
                 @app.Title
+                @if (context.IsTimed)
+                {
+                    <span>- @app.Start.ToString("htt") to @app.End.ToString("htt")</span>
+                }
             </Appointment>
         }
     </Appointments>
@@ -13,6 +18,12 @@
 
 @code {
     private List<AppointmentDto> _appointments = new();
+
+    Task OnRequestNewData(DateTime start, DateTime end)
+    {
+        _appointments = AppointmentService.GetAppointments(start, end).ToList();
+        return Task.CompletedTask;
+    }
 
     Task OnAddingNewAppointment(DateTime start, DateTime end)
     {

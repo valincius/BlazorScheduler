@@ -9,7 +9,7 @@ namespace BlazorScheduler
     {
         [CascadingParameter] public Scheduler Scheduler { get; set; } = null!;
 
-        [Parameter] public RenderFragment? ChildContent { get; set; }
+        [Parameter] public RenderFragment<AppointmentContext>? ChildContent { get; set; }
 
         [Parameter] public Func<Task>? OnClick { get; set; }
         [Parameter] public Func<DateTime, DateTime, Task>? OnReschedule { get; set; }
@@ -39,6 +39,8 @@ namespace BlazorScheduler
 
             base.OnInitialized();
         }
+
+        public RenderFragment? RenderChildContent() => ChildContent?.Invoke(new AppointmentContext(this));
 
         public void Click(MouseEventArgs _)
         {

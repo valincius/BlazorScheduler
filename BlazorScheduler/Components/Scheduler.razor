@@ -68,7 +68,7 @@
                 @if (_reschedulingAppointment is not null)
                 {
                     <Appointment @ref="DraggingAppointment" Start="_draggingStart.Value" End="_draggingEnd.Value" Color="@_reschedulingAppointment.Color">
-                        @_reschedulingAppointment?.ChildContent
+                        @_reschedulingAppointment?.RenderChildContent()
                     </Appointment>
                 }
             }
