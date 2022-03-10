@@ -47,12 +47,12 @@ namespace BlazorScheduler.Internal.Components
             if (!(appointment.Start.Date, appointment.End.Date).Overlaps((Start, End)))
                 return ((int)appointment.Start.DayOfWeek, (int)appointment.End.DayOfWeek);
 
-            if (appointment.Start.Between(Start, End))
+            if (appointment.Start.Date.Between(Start, End))
             {
                 start = appointment.Start.DayOfWeek;
-                end = appointment.End.Between(Start, End) ? appointment.End.DayOfWeek : schedStart - 1;
+                end = appointment.End.Date.Between(Start, End) ? appointment.End.DayOfWeek : schedStart - 1;
             }
-            else if (appointment.End.Between(Start, End))
+            else if (appointment.End.Date.Between(Start, End))
             {
                 start = schedStart;
                 end = appointment.End.DayOfWeek;
