@@ -32,6 +32,18 @@ namespace BlazorScheduler
         #endregion
 
         public DateTime CurrentDate { get; private set; }
+        public (DateTime Start, DateTime End) CurrentRange
+        {
+            get
+            {
+                var startDate = new DateTime(CurrentDate.Year, CurrentDate.Month, 1).GetPrevious(StartDayOfWeek);
+                var endDate = new DateTime(CurrentDate.Year, CurrentDate.Month, DateTime.DaysInMonth(CurrentDate.Year, CurrentDate.Month))
+                    .GetNext((DayOfWeek)((int)(StartDayOfWeek - 1 + 7) % 7));
+
+                return (startDate, endDate);
+            }
+        }
+
         public Appointment? DraggingAppointment { get; private set; }
 
         private string MonthDisplay
@@ -91,7 +103,8 @@ namespace BlazorScheduler
             {
                 await AttachMouseHandler();
             }
-            var (start, end) = GetDateRangeForCurrentMonth();
+
+            var (start, end) = CurrentRange;
             if (OnRequestNewData != null)
             {
                 _loading = true;
@@ -116,18 +129,9 @@ namespace BlazorScheduler
             await SetCurrentMonth(months == 0 ? DateTime.Today : CurrentDate.AddMonths(months));
         }
 
-        private (DateTime, DateTime) GetDateRangeForCurrentMonth()
-        {
-            var startDate = new DateTime(CurrentDate.Year, CurrentDate.Month, 1).GetPrevious(StartDayOfWeek);
-            var endDate = new DateTime(CurrentDate.Year, CurrentDate.Month, DateTime.DaysInMonth(CurrentDate.Year, CurrentDate.Month))
-                .GetNext((DayOfWeek)((int)(StartDayOfWeek - 1 + 7) % 7));
-
-            return (startDate, endDate);
-        }
-
         private IEnumerable<DateTime> GetDaysInRange()
         {
-            var (start, end) = GetDateRangeForCurrentMonth();
+            var (start, end) = CurrentRange;
             return Enumerable
                 .Range(0, 1 + end.Subtract(start).Days)
                 .Select(offset => start.AddDays(offset));
