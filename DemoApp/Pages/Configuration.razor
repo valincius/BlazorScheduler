@@ -1,5 +1,7 @@
 ﻿@page "/configuration"
 
+@inject AppointmentService AppointmentService
+
 <MudCard Class="mb-3">
     <MudCardHeader>
         <MudText Typo="Typo.h6">Config</MudText>
@@ -35,11 +37,16 @@
             <MudItem xs="12" md="6">
                 <MudTextField @bind-Value="_todayButtonText" Label="Today Button Text" />
             </MudItem>
+            <MudItem xs="12" md="6">
+                <MudButton OnClick="AddAppointments" Variant="Variant.Filled" Color="Color.Primary">Add appointments</MudButton>
+                <MudButton OnClick="ClearAppointments" Variant="Variant.Filled" Color="Color.Error">Clear appointments</MudButton>
+            </MudItem>
         </MudGrid>
     </MudCardContent>
 </MudCard>
 
 <Scheduler
+    @ref="_scheduler"
     OnAddingNewAppointment="OnAddingNewAppointment"
     AlwaysShowYear="_alwaysShowYear"
     MaxVisibleAppointmentsPerDay="_maxVisibleAppointmentsPerDay"
@@ -62,6 +69,8 @@
 @code {
     private List<AppointmentDto> _appointments = new();
 
+    private Scheduler _scheduler;
+
     private bool _alwaysShowYear = true;
     private int _maxVisibleAppointmentsPerDay = 5;
     private bool _enableDragging = true;
@@ -83,5 +92,16 @@
         appointment.End = newEnd;
 
         return Task.CompletedTask;
+    }
+
+    void AddAppointments()
+    {
+        var newAppointments = AppointmentService.GetAppointments(_scheduler.CurrentRange.Start, _scheduler.CurrentRange.End);
+        _appointments.AddRange(newAppointments);
+    }
+
+    void ClearAppointments()
+    {
+        _appointments.Clear();
     }
 }
