@@ -29,6 +29,7 @@ namespace BlazorScheduler
         [Parameter] public DayOfWeek StartDayOfWeek { get; set; } = DayOfWeek.Sunday;
         [Parameter] public string TodayButtonText { get; set; } = "Today";
         [Parameter] public string PlusOthersText { get; set; } = "+ {n} others";
+        [Parameter] public string NewAppointmentText { get; set; } = "New Appointment";
         #endregion
 
         public DateTime CurrentDate { get; private set; }

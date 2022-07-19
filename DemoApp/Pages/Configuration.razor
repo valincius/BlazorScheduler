@@ -18,7 +18,7 @@
                 <MudCheckBox @bind-Checked="_alwaysShowYear" Label="Always show year in header" />
             </MudItem>
             <MudItem xs="12" md="6">
-                <MudNumericField @bind-Value="_maxVisibleAppointmentsPerDay" Label="Max Visible Appointments Per Day" Step="1" Min="1" Max="5" />
+                <MudNumericField @bind-Value="_maxVisibleAppointmentsPerDay" Label="Max Visible Appointments Per Day" Step="1" Min="1" />
             </MudItem>
             <MudItem xs="12" md="6">
                 <MudColorPicker Label="Theme Color" @bind-Text="_themeColor" Style="@($"color: {_themeColor};")" />
@@ -38,6 +38,9 @@
                 <MudTextField @bind-Value="_todayButtonText" Label="Today Button Text" />
             </MudItem>
             <MudItem xs="12" md="6">
+                <MudTextField @bind-Value="_newAppointmentText" Label="New Appointment Text" />
+            </MudItem>
+            <MudItem xs="12" md="6">
                 <MudButton OnClick="AddAppointments" Variant="Variant.Filled" Color="Color.Primary">Add appointments</MudButton>
                 <MudButton OnClick="ClearAppointments" Variant="Variant.Filled" Color="Color.Error">Clear appointments</MudButton>
             </MudItem>
@@ -55,7 +58,8 @@
     ThemeColor="@_themeColor"
     StartDayOfWeek="_startDayOfWeek"
     TodayButtonText="@_todayButtonText"
-    PlusOthersText="@_plusOthersText">
+    PlusOthersText="@_plusOthersText"
+    NewAppointmentText="@_newAppointmentText">
     <Appointments>
         @foreach (var app in _appointments)
         {
@@ -79,6 +83,7 @@
     private DayOfWeek _startDayOfWeek = DayOfWeek.Sunday;
     private string _todayButtonText = "Today";
     private string _plusOthersText = "+ {n} others";
+    private string _newAppointmentText = "New Appointment";
 
     Task OnAddingNewAppointment(DateTime start, DateTime end)
     {

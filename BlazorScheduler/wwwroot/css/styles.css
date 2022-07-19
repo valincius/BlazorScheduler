@@ -65,7 +65,7 @@
 .scheduler > .month > .week > .days {
     display: flex;
     justify-content: space-around;
-    height: 8.2rem;
+    height: max(8.2rem, calc(1.5rem + 5px + 8px + var(--maxAppointments) * 1.2rem));
 }
 
 .scheduler > .month > .week.header {
