@@ -1,12 +1,13 @@
 ﻿@namespace BlazorScheduler.Internal.Components
 
 <div class="week">
-    <div class="days">
+    <div class="days" style="--maxAppointments: @MaxVisibleAppointmentsThisWeek">
         @for (var dt = Start; dt <= End; dt = dt.AddDays(1))
         {
             <SchedulerDay Day="dt" @key="dt" />
         }
     </div>
+
     <div class="appointments">
         @foreach (var (appointment, order) in _orderings)
         {
@@ -33,8 +34,7 @@
             int maxOrder = todaysAppointments.Max(x => (int?)x.Value) ?? 0;
             if (maxOrder > MaxNumOfAppointmentsPerDay)
             {
-                var numOverFlowAppointments = todaysAppointments
-                .Count(x => x.Value > MaxNumOfAppointmentsPerDay - 1);
+                var numOverFlowAppointments = todaysAppointments.Count(x => x.Value > MaxNumOfAppointmentsPerDay - 1);
                 <SchedulerAppointmentOverflow Day="dt"
                     AppointmentCount="numOverFlowAppointments"
                     Start="(dt.DayOfWeek - Scheduler.StartDayOfWeek + 7) % 7"

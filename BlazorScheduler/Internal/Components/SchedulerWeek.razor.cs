@@ -15,6 +15,19 @@ namespace BlazorScheduler.Internal.Components
         [Parameter] public IEnumerable<Appointment> Appointments { get; set; } = null!;
 
 		private int MaxNumOfAppointmentsPerDay => Scheduler.MaxVisibleAppointmentsPerDay;
+        private int MaxVisibleAppointmentsThisWeek
+        {
+            get
+            {
+                int max = 0;
+                for(var dt = Start; dt <= End; dt = dt.AddDays(1))
+                {
+                    var appCount = Appointments.Where(x => dt.Between(x.Start.Date, x.End.Date)).Count();
+                    max = Math.Max(max, appCount);
+                }
+                return Math.Min(max, MaxNumOfAppointmentsPerDay);
+            }
+        }
 
         private readonly Dictionary<Appointment, int> _orderings = new();
         private readonly Dictionary<Appointment, (int, int)> _startsAndEnds = new();
