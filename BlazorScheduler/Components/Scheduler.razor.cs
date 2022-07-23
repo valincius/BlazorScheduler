@@ -152,7 +152,7 @@ namespace BlazorScheduler
         private Appointment? _reschedulingAppointment;
         public void BeginDrag(Appointment appointment)
         {
-            if (!EnableRescheduling || appointment.OnReschedule is null || _reschedulingAppointment is not null || _showNewAppointment)
+            if (!EnableRescheduling || _reschedulingAppointment is not null || _showNewAppointment)
                 return;
 
             appointment.IsVisible = false;
@@ -201,6 +201,9 @@ namespace BlazorScheduler
 
                     if (tempApp.OnReschedule is not null)
                         await tempApp.OnReschedule.Invoke(_draggingStart.Value, _draggingEnd.Value);
+                    else
+                        throw new ArgumentNullException(nameof(Appointment.OnReschedule), $"{nameof(Appointment.OnReschedule)} must be defined on your Appointment component");
+
                     tempApp.IsVisible = true;
 
                     StateHasChanged();
