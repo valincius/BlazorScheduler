@@ -174,7 +174,7 @@ namespace BlazorScheduler
             _draggingStart = _draggingEnd = day.Day;
             _showNewAppointment = true;
 
-            _draggingAppointmentAnchor = EnableDragging ? _draggingStart : null;
+            _draggingAppointmentAnchor = _draggingStart;
             StateHasChanged();
         }
 
@@ -212,7 +212,7 @@ namespace BlazorScheduler
         [JSInvokable]
         public void OnMouseMove(string date)
         {
-            if (_showNewAppointment && _draggingAppointmentAnchor is not null)
+            if (_showNewAppointment && EnableDragging)
             {
                 var day = DateTime.ParseExact(date, "yyyyMMdd", null);
                 (_draggingStart, _draggingEnd) = day < _draggingAppointmentAnchor ? (day, _draggingAppointmentAnchor.Value) : (_draggingAppointmentAnchor.Value, day);
