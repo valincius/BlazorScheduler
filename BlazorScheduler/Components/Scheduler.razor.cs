@@ -1,12 +1,12 @@
-﻿using Microsoft.AspNetCore.Components;
+﻿using BlazorScheduler.Internal.Components;
+using BlazorScheduler.Internal.Extensions;
+using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
-using BlazorScheduler.Internal.Extensions;
-using BlazorScheduler.Internal.Components;
-using System.Collections.ObjectModel;
 
 namespace BlazorScheduler
 {
@@ -24,6 +24,7 @@ namespace BlazorScheduler
         [Parameter] public bool AlwaysShowYear { get; set; } = true;
         [Parameter] public int MaxVisibleAppointmentsPerDay { get; set; } = 5;
         [Parameter] public bool EnableDragging { get; set; } = true;
+        [Parameter] public bool EnableAppointmentsCreationFromScheduler { get; set; } = true;
         [Parameter] public bool EnableRescheduling { get; set; }
         [Parameter] public string ThemeColor { get; set; } = "aqua";
         [Parameter] public DayOfWeek StartDayOfWeek { get; set; } = DayOfWeek.Sunday;
@@ -167,13 +168,13 @@ namespace BlazorScheduler
 
         public void BeginDrag(SchedulerDay day)
         {
-            if (!EnableDragging)
+            if (!EnableAppointmentsCreationFromScheduler)
                 return;
 
             _draggingStart = _draggingEnd = day.Day;
             _showNewAppointment = true;
 
-            _draggingAppointmentAnchor = _draggingStart;
+            _draggingAppointmentAnchor = EnableDragging ? _draggingStart : null;
             StateHasChanged();
         }
 
