@@ -215,7 +215,8 @@ namespace BlazorScheduler
             if (_showNewAppointment && EnableDragging)
             {
                 var day = DateTime.ParseExact(date, "yyyyMMdd", null);
-                (_draggingStart, _draggingEnd) = day < _draggingAppointmentAnchor ? (day, _draggingAppointmentAnchor.Value) : (_draggingAppointmentAnchor.Value, day);
+                var anchor = _draggingAppointmentAnchor!.Value;
+                (_draggingStart, _draggingEnd) = day < anchor ? (day, anchor) : (anchor, day);
                 StateHasChanged();
             }
 
