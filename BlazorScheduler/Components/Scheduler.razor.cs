@@ -1,12 +1,12 @@
-﻿using Microsoft.AspNetCore.Components;
+﻿using BlazorScheduler.Internal.Components;
+using BlazorScheduler.Internal.Extensions;
+using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
-using BlazorScheduler.Internal.Extensions;
-using BlazorScheduler.Internal.Components;
-using System.Collections.ObjectModel;
 
 namespace BlazorScheduler
 {
@@ -24,6 +24,7 @@ namespace BlazorScheduler
         [Parameter] public bool AlwaysShowYear { get; set; } = true;
         [Parameter] public int MaxVisibleAppointmentsPerDay { get; set; } = 5;
         [Parameter] public bool EnableDragging { get; set; } = true;
+        [Parameter] public bool EnableAppointmentsCreationFromScheduler { get; set; } = true;
         [Parameter] public bool EnableRescheduling { get; set; }
         [Parameter] public string ThemeColor { get; set; } = "aqua";
         [Parameter] public DayOfWeek StartDayOfWeek { get; set; } = DayOfWeek.Sunday;
@@ -167,7 +168,7 @@ namespace BlazorScheduler
 
         public void BeginDrag(SchedulerDay day)
         {
-            if (!EnableDragging)
+            if (!EnableAppointmentsCreationFromScheduler)
                 return;
 
             _draggingStart = _draggingEnd = day.Day;
@@ -214,10 +215,11 @@ namespace BlazorScheduler
         [JSInvokable]
         public void OnMouseMove(string date)
         {
-            if (_showNewAppointment && _draggingAppointmentAnchor is not null)
+            if (_showNewAppointment && EnableDragging)
             {
                 var day = DateTime.ParseExact(date, "yyyyMMdd", null);
-                (_draggingStart, _draggingEnd) = day < _draggingAppointmentAnchor ? (day, _draggingAppointmentAnchor.Value) : (_draggingAppointmentAnchor.Value, day);
+                var anchor = _draggingAppointmentAnchor!.Value;
+                (_draggingStart, _draggingEnd) = day < anchor ? (day, anchor) : (anchor, day);
                 StateHasChanged();
             }
 
