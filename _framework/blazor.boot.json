@@ -7,8 +7,8 @@
   "linkerEnabled": true,
   "resources": {
     "assembly": {
-      "BlazorScheduler.dll": "sha256-CO7nMlPCH\/rsKGGDZMellflsWWOw94YdnhxqhUlN4e8=",
-      "DemoApp.dll": "sha256-EbFirSBB7bmfWKLeq6o2acpQug5Z5\/SuzQyT+r391lM=",
+      "BlazorScheduler.dll": "sha256-OAh03YYfRDAma6IDmKeJ4fvY2Bz3gX+gYNeGzsC9atU=",
+      "DemoApp.dll": "sha256-0vWRS+Ei2i92q1BiOxDZKNY3aw9+dASJDtQl4th4\/2c=",
       "Microsoft.AspNetCore.Components.dll": "sha256-73XVTyMvcZt6MCrPXyKsra97Lw59VpsfHk7nZEXV+E0=",
       "Microsoft.AspNetCore.Components.Forms.dll": "sha256-rTSLQ7F\/eWAfcmvz9V1hsH+8FlM8M+iX9ZdLYsg4iyA=",
       "Microsoft.AspNetCore.Components.Web.dll": "sha256-C1CZyfr6rlj1nnUHqSLX8N59uq1iYMeovWE\/8hIK4yY=",
