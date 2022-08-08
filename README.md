@@ -4,7 +4,7 @@
 
 A scheduler/calendar built with Blazor with zero dependancies.
 ![preview](https://user-images.githubusercontent.com/15176357/125132100-b1693b00-e0b8-11eb-9873-88a18973626b.png)
-[Demo here](https://valincius.dev/BlazorScheduler/)
+[Demo here](https://valincius.github.io/BlazorScheduler/)
 
 ## Overview
 BlazorScheduler is a component library that provides a single component, the scheduler.
