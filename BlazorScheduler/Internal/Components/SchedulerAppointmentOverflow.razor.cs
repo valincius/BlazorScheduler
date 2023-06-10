@@ -11,5 +11,6 @@ namespace BlazorScheduler.Internal.Components
 		[Parameter] public int AppointmentCount { get; set;}
 		[Parameter] public int Start { get; set; }
 		[Parameter] public int Order { get; set; }
+		[Parameter] public string? Style { get; set; }
 	}
 }

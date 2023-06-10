@@ -1,10 +1,10 @@
 ﻿@namespace BlazorScheduler.Internal.Components
 
 <div class="week">
-    <div class="days" style="--maxAppointments: @MaxVisibleAppointmentsThisWeek">
+    <div class="days" style="--maxAppointments: @MaxVisibleAppointmentsThisWeek; @Scheduler.RootDaysStyle">
         @for (var dt = Start; dt <= End; dt = dt.AddDays(1))
         {
-            <SchedulerDay Day="dt" @key="dt" />
+            <SchedulerDay Day="dt" @key="dt"/>
         }
     </div>
 
@@ -39,7 +39,7 @@
                     AppointmentCount="numOverFlowAppointments"
                     Start="(dt.DayOfWeek - Scheduler.StartDayOfWeek + 7) % 7"
                     Order="MaxNumOfAppointmentsPerDay"
-                    @key="dt" />
+                    @key="dt" Style="@Scheduler.RootAppointmentOverflowStyle" />
             }
         }
     </div>

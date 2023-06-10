@@ -50,6 +50,18 @@
                 <MudTextField @bind-Value="_styles" Label="Custom style (set to every appointment)" />
             </MudItem>
             <MudItem xs="12" md="6">
+                <MudTextField @bind-Value="_rootDaysStyles" Label="Custom style (add to global days style)" />
+            </MudItem>
+            <MudItem xs="12" md="6">
+                <MudTextField @bind-Value="_rootAppointmentOverflowStyle" Label="Custom style for overflow appointment (+{n} ...)" />
+            </MudItem>
+            <MudItem xs="12" md="6">
+                <MudTextField @bind-Value="_rootDayClass" Label="Bootstrap classes for root every day in week" />
+            </MudItem>
+            <MudItem xs="12" md="6">
+                <MudTextField @bind-Value="_rootDayStyle" Label="Custom style for every day in week" />
+            </MudItem>
+            <MudItem xs="12" md="6">
                 <MudButton OnClick="AddAppointments" Variant="Variant.Filled" Color="Color.Primary">Add appointments</MudButton>
                 <MudButton OnClick="ClearAppointments" Variant="Variant.Filled" Color="Color.Error">Clear appointments</MudButton>
             </MudItem>
@@ -69,7 +81,10 @@
     TodayButtonText="@_todayButtonText"
     PlusOthersText="@_plusOthersText"
     NewAppointmentText="@_newAppointmentText"
-    EnableAppointmentsCreationFromScheduler="@_enableAppCreationFromScheduler">
+    EnableAppointmentsCreationFromScheduler="@_enableAppCreationFromScheduler" 
+    RootDaysStyle="@_rootDaysStyles" 
+    RootAppointmentOverflowStyle="@_rootAppointmentOverflowStyle" 
+    RootDayClass="@_rootDayClass" RootDayStyle="@_rootDayStyle">
     <Appointments>
         @foreach (var app in _appointments)
         {
@@ -96,8 +111,12 @@
     private string _plusOthersText = "+ {n} others";
     private string _newAppointmentText = "New Appointment";
     
-    private string? _classes = "";
-    private string? _styles = "";
+    private string _classes = "";
+    private string _styles = "";
+    private string _rootDaysStyles = "";
+    private string _rootAppointmentOverflowStyle = "";
+    private string _rootDayClass = "";
+    private string _rootDayStyle = "";
     
     Task OnAddingNewAppointment(DateTime start, DateTime end)
     {
