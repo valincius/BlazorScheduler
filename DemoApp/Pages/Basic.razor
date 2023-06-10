@@ -5,7 +5,7 @@
     <Appointments>
         @foreach (var app in _appointments)
         {
-            <Appointment Start="@app.Start" End="@app.End" Color="@app.Color" OnReschedule="(start, end) => HandleReschedule(app, start, end)">
+            <Appointment Start="@app.Start" End="@app.End" Color="@app.Color" OnReschedule="(start, end) => HandleReschedule(app, start, end)" Class="@app.Class">
                 @app.Title
                 @if (context.IsTimed)
                 {

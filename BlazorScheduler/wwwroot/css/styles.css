@@ -65,7 +65,7 @@
 .scheduler > .month > .week > .days {
     display: flex;
     justify-content: space-around;
-    height: max(8.313rem, calc(1.5rem + 5px + 8px + var(--maxAppointments) * 1.2rem));
+    height: max(8.313rem, calc(1.5rem + 5px + 8px + var(--maxAppointments) * 1.5rem));
 }
 
 .scheduler > .month > .week.header {
@@ -120,12 +120,12 @@
 .scheduler > .month > .week > .appointments > .appointment {
     position: absolute;
     left: calc(var(--start) / 7 * 100%);
-    top: max(10px, calc(15px + (var(--order) * 1.2rem)));
+    top: max(10px, calc(15px + (var(--order) * 1.5rem)));
     border-radius: 2px;
     margin-left: 2px;
     width: calc((var(--end) - var(--start) + 1) / 7 * 100% - 4px);
     padding-left: 4px;
-    font-size: .75rem;
+    font-size: .95rem;
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;

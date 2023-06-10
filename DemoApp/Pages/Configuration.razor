@@ -44,6 +44,12 @@
                 <MudTextField @bind-Value="_newAppointmentText" Label="New Appointment Text" />
             </MudItem>
             <MudItem xs="12" md="6">
+                <MudTextField @bind-Value="_classes" Label="Bootstrap classes (set to every appointment)" />
+            </MudItem>
+            <MudItem xs="12" md="6">
+                <MudTextField @bind-Value="_styles" Label="Custom style (set to every appointment)" />
+            </MudItem>
+            <MudItem xs="12" md="6">
                 <MudButton OnClick="AddAppointments" Variant="Variant.Filled" Color="Color.Primary">Add appointments</MudButton>
                 <MudButton OnClick="ClearAppointments" Variant="Variant.Filled" Color="Color.Error">Clear appointments</MudButton>
             </MudItem>
@@ -67,7 +73,7 @@
     <Appointments>
         @foreach (var app in _appointments)
         {
-            <Appointment Start="@app.Start" End="@app.End" Color="@app.Color" OnReschedule="(start, end) => HandleReschedule(app, start, end)">
+            <Appointment Start="@app.Start" End="@app.End" Color="@app.Color" OnReschedule="(start, end) => HandleReschedule(app, start, end)" Class="@_classes" Style="@_styles">
                 @app.Title
             </Appointment>
         }
@@ -89,7 +95,10 @@
     private string _todayButtonText = "Today";
     private string _plusOthersText = "+ {n} others";
     private string _newAppointmentText = "New Appointment";
-
+    
+    private string? _classes = "";
+    private string? _styles = "";
+    
     Task OnAddingNewAppointment(DateTime start, DateTime end)
     {
         _appointments.Add(new AppointmentDto { Start = start, End = end, Title = "A newly added appointment!", Color = "aqua" });
@@ -113,5 +122,10 @@
     void ClearAppointments()
     {
         _appointments.Clear();
+    }
+
+    void RefreshPage()
+    {
+        StateHasChanged();
     }
 }
