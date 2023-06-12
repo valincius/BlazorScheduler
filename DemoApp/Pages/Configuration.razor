@@ -44,19 +44,19 @@
                 <MudTextField @bind-Value="_newAppointmentText" Label="New Appointment Text" />
             </MudItem>
             <MudItem xs="12" md="6">
-                <MudTextField @bind-Value="_classes" Label="Bootstrap classes (set to every appointment)" />
+                <MudTextField @bind-Value="_classes" Label="Classes (set to every appointment) (eg. could be bootstrap if installed)" />
             </MudItem>
             <MudItem xs="12" md="6">
                 <MudTextField @bind-Value="_styles" Label="Custom style (set to every appointment)" />
             </MudItem>
             <MudItem xs="12" md="6">
-                <MudTextField @bind-Value="_rootDaysStyles" Label="Custom style (add to global days style)" />
+                <MudTextField @bind-Value="_rootDaysGroupInWeekStyles" Label="Custom style (add to global days group style)" />
             </MudItem>
             <MudItem xs="12" md="6">
                 <MudTextField @bind-Value="_rootAppointmentOverflowStyle" Label="Custom style for overflow appointment (+{n} ...)" />
             </MudItem>
             <MudItem xs="12" md="6">
-                <MudTextField @bind-Value="_rootDayClass" Label="Bootstrap classes for root every day in week" />
+                <MudTextField @bind-Value="_rootDayClass" Label="Classes for root every day in weeks (eg. could be bootstrap if installed)" />
             </MudItem>
             <MudItem xs="12" md="6">
                 <MudTextField @bind-Value="_rootDayStyle" Label="Custom style for every day in week" />
@@ -82,7 +82,7 @@
     PlusOthersText="@_plusOthersText"
     NewAppointmentText="@_newAppointmentText"
     EnableAppointmentsCreationFromScheduler="@_enableAppCreationFromScheduler" 
-    RootDaysStyle="@_rootDaysStyles" 
+    RootDaysGroupInWeekStyle="@_rootDaysGroupInWeekStyles" 
     RootAppointmentOverflowStyle="@_rootAppointmentOverflowStyle" 
     RootDayClass="@_rootDayClass" RootDayStyle="@_rootDayStyle">
     <Appointments>
@@ -113,7 +113,7 @@
     
     private string _classes = "";
     private string _styles = "";
-    private string _rootDaysStyles = "";
+    private string _rootDaysGroupInWeekStyles = "";
     private string _rootAppointmentOverflowStyle = "";
     private string _rootDayClass = "";
     private string _rootDayStyle = "";

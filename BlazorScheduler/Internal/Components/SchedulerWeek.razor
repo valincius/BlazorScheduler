@@ -1,7 +1,7 @@
 ﻿@namespace BlazorScheduler.Internal.Components
 
 <div class="week">
-    <div class="days" style="--maxAppointments: @MaxVisibleAppointmentsThisWeek; @Scheduler.RootDaysStyle">
+    <div class="days" style="--maxAppointments: @MaxVisibleAppointmentsThisWeek; @Scheduler.RootDaysGroupInWeekStyle">
         @for (var dt = Start; dt <= End; dt = dt.AddDays(1))
         {
             <SchedulerDay Day="dt" @key="dt"/>
