@@ -17,6 +17,8 @@ namespace BlazorScheduler
         [Parameter] public DateTime Start { get; set; }
         [Parameter] public DateTime End { get; set; }
         [Parameter] public string? Color { get; set; }
+        [Parameter] public string? Class { get; set; }
+        [Parameter] public string? Style { get; set; }
 
         private bool _isVisible = true;
         public bool IsVisible

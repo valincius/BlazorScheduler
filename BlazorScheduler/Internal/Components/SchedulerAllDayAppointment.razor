@@ -1,7 +1,7 @@
 ﻿@namespace BlazorScheduler.Internal.Components
 
-<div class="appointment @Classes.AsString()"
-    style="--start: @Start; --end: @End; --order: @Order; background-color: @Appointment.Color;"
+<div class="appointment @Classes.AsString() @Appointment.Class"
+    style="--start: @Start; --end: @End; --order: @Order; background-color: @Appointment.Color; @Appointment.Style"
     @onmousedown="OnMouseDown" @onmouseup="OnMouseUp" @onmousemove="OnMouseMove">
     @Appointment.RenderChildContent()
 </div>

@@ -15,7 +15,10 @@ namespace BlazorScheduler
         [Parameter] public RenderFragment Appointments { get; set; } = null!;
         [Parameter] public RenderFragment<Scheduler>? HeaderTemplate { get; set; }
         [Parameter] public RenderFragment<DateTime>? DayTemplate { get; set; }
-
+        [Parameter] public string? RootDaysGroupInWeekStyle { get; set; }
+        [Parameter] public string? RootAppointmentOverflowStyle { get; set; }
+        [Parameter] public string? RootDayClass { get; set; }
+        [Parameter] public string? RootDayStyle { get; set; }
         [Parameter] public Func<DateTime, DateTime, Task>? OnRequestNewData { get; set; }
         [Parameter] public Func<DateTime, DateTime, Task>? OnAddingNewAppointment { get; set; }
         [Parameter] public Func<DateTime, Task>? OnOverflowAppointmentClick { get; set; }

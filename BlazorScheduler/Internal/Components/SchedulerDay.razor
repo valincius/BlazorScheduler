@@ -1,6 +1,6 @@
 ﻿@namespace BlazorScheduler.Internal.Components
 
-<div class="day @Classes.AsString()" @onmousedown="OnMouseDown" data-date="@Day.Date.ToString("yyyyMMdd")">
+<div class="day @Classes.AsString() @Scheduler.RootDayClass" style="@Scheduler.RootDayStyle" @onmousedown="OnMouseDown" data-date="@Day.Date.ToString("yyyyMMdd")">
     @if (Scheduler.DayTemplate != null)
     {
         @Scheduler.DayTemplate(Day)
