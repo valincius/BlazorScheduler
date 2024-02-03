@@ -1,0 +1,14 @@
+﻿@using BlazorScheduler
+
+@typeparam T
+
+<div class="my-component">
+    <h1>@View</h1>
+
+    @switch (View)
+    {
+        case SchedulerView.Month:
+            @RenderMonthView()
+            break;
+    }
+</div>

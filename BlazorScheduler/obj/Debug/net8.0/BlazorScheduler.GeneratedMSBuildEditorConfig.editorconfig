@@ -1,0 +1,27 @@
+is_global = true
+build_property.TargetFramework = net8.0
+build_property.TargetPlatformMinVersion = 
+build_property.UsingMicrosoftNETSdkWeb = 
+build_property.ProjectTypeGuids = 
+build_property.InvariantGlobalization = 
+build_property.PlatformNeutralAssembly = 
+build_property.EnforceExtendedAnalyzerRules = 
+build_property._SupportedPlatformList = Linux,macOS,Windows,browser
+build_property.RootNamespace = BlazorScheduler
+build_property.RootNamespace = BlazorScheduler
+build_property.ProjectDir = /home/john/git/BlazorScheduler/BlazorScheduler/
+build_property.EnableComHosting = 
+build_property.EnableGeneratedComInterfaceComImportInterop = 
+build_property.RazorLangVersion = 8.0
+build_property.SupportLocalizedComponentNames = 
+build_property.GenerateRazorMetadataSourceChecksumAttributes = 
+build_property.MSBuildProjectDirectory = /home/john/git/BlazorScheduler/BlazorScheduler
+build_property._RazorSourceGeneratorDebug = 
+
+[/home/john/git/BlazorScheduler/BlazorScheduler/_Imports.razor]
+build_metadata.AdditionalFiles.TargetPath = X0ltcG9ydHMucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/john/git/BlazorScheduler/BlazorScheduler/Scheduler.razor]
+build_metadata.AdditionalFiles.TargetPath = U2NoZWR1bGVyLnJhem9y
+build_metadata.AdditionalFiles.CssScope = b-c98yk8jv1e

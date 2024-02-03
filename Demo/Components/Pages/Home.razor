@@ -1,0 +1,63 @@
+﻿@page "/"
+@rendermode InteractiveServer
+
+@using BlazorScheduler
+
+<PageTitle>Home</PageTitle>
+
+<button @onclick="() => _view = SchedulerView.Day">Day</button>
+<button @onclick="() => _view = SchedulerView.Week">Week</button>
+<button @onclick="() => _view = SchedulerView.Month">Month</button>
+
+<Scheduler View="_view" Appointments="_appointments.AsQueryable()">
+    <AppointmentTemplate>
+        <div class="title">@context.Title</div>
+        <div class="time">@context.Start.ToShortTimeString() - @context.End.ToShortTimeString()</div>
+    </AppointmentTemplate>
+</Scheduler>
+
+<button @onclick="AddAppointment">Add Appointment</button>
+<button @onclick="ChangeAppointment">Change Appointment</button>
+
+@code {
+    private SchedulerView _view = SchedulerView.Month;
+    private List<Appointment> _appointments = new();
+
+    protected override void OnInitialized()
+    {
+        _appointments.Add(new Appointment
+            {
+                Title = "Meeting",
+                Start = DateTime.Now,
+                End = DateTime.Now.AddDays(12)
+            });
+    }
+
+    private void AddAppointment()
+    {
+        var random = new Random();
+
+        _appointments.Add(new Appointment
+            {
+                Title = "Meeting",
+                Start = DateTime.Now.AddHours(random.Next(1, 24)),
+                End = DateTime.Now.AddHours(random.Next(1, 24))
+            });
+    }
+
+    private void ChangeAppointment()
+    {
+        var random = new Random();
+
+        var appointment = _appointments[random.Next(0, _appointments.Count)];
+
+        appointment.Title = "Changed " + "".PadLeft(random.Next(1, 10), 'x');
+    }
+
+    public class Appointment : IAppointment
+    {
+        public required string Title { get; set; }
+        public DateTime Start { get; set; }
+        public DateTime End { get; set; }
+    }
+}
