@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 
 namespace BlazorScheduler
 {
+    [Obsolete("Use Scheduler<TItem> and ItemTemplate. See https://github.com/valincius/BlazorScheduler#v5-migration.", DiagnosticId = "BZS001")]
     public partial class Appointment : ComponentBase, IDisposable
     {
         [CascadingParameter] public Scheduler Scheduler { get; set; } = null!;
@@ -44,9 +45,10 @@ namespace BlazorScheduler
 
         public RenderFragment? RenderChildContent() => ChildContent?.Invoke(new AppointmentContext(this));
 
-        public void Click(MouseEventArgs _)
+        public async Task Click(MouseEventArgs _)
         {
-            OnClick?.Invoke();
+            if (OnClick is not null)
+                await OnClick.Invoke();
         }
 
         public void Dispose()

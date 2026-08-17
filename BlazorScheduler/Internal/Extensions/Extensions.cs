@@ -18,7 +18,7 @@ namespace BlazorScheduler.Internal.Extensions
                 {
                     return dt;
                 }
-                dt.AddDays(1);
+                dt = dt.AddDays(-1);
             }
             int diff = (7 + (dt.DayOfWeek - dayOfWeek)) % 7;
             return dt.AddDays(-diff).Date;
@@ -32,7 +32,7 @@ namespace BlazorScheduler.Internal.Extensions
                 {
                     return dt;
                 }
-                dt.AddDays(-1);
+                dt = dt.AddDays(1);
             }
             int diff = (7 + (dayOfWeek - dt.DayOfWeek)) % 7;
             return dt.AddDays(diff).Date;

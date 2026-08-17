@@ -1,0 +1,79 @@
+@page "/"
+@rendermode InteractiveAuto
+
+<PageTitle>BlazorScheduler v5</PageTitle>
+
+<main class="demo-shell">
+    <header class="demo-heading">
+        <div>
+            <h1>BlazorScheduler</h1>
+            <p>A fast, data-driven calendar for Blazor. Drag across empty days to create an appointment or drag an appointment to reschedule it.</p>
+        </div>
+        <span class="mode-pill">.NET 10 · Interactive Auto</span>
+    </header>
+
+    <section class="demo-card">
+        <DataScheduler TItem="CalendarItem"
+                   Items="_items"
+                   ItemKey="item => item.Id"
+                   ItemStart="item => item.Start"
+                   ItemEnd="item => item.End"
+                   ItemColor="item => item.Color"
+                   EnableRescheduling="true"
+                   OnCreate="CreateAsync"
+                   OnItemClick="ItemClickedAsync"
+                   OnItemReschedule="RescheduleAsync"
+                   OnOverflowClick="OverflowClickedAsync">
+            <ItemTemplate Context="context">
+                <strong>@context.Item.Title</strong>
+            </ItemTemplate>
+        </DataScheduler>
+        <p class="demo-status" aria-live="polite">@_status</p>
+    </section>
+</main>
+
+@code {
+    private IReadOnlyList<CalendarItem> _items = CreateSampleItems();
+    private string _status = "Ready.";
+
+    private Task CreateAsync(SchedulerRange range)
+    {
+        var next = new CalendarItem(Guid.NewGuid(), "New appointment", range.Start, range.End, "#6d5dfc");
+        _items = _items.Append(next).ToArray();
+        _status = $"Created {range.Start:d}–{range.End:d}.";
+        return Task.CompletedTask;
+    }
+
+    private Task RescheduleAsync(SchedulerItemRescheduleEventArgs<CalendarItem> args)
+    {
+        _items = _items.Select(item => item.Id == args.Item.Id ? item with { Start = args.Start, End = args.End } : item).ToArray();
+        _status = $"Moved {args.Item.Title} to {args.Start:d}.";
+        return Task.CompletedTask;
+    }
+
+    private Task ItemClickedAsync(CalendarItem item)
+    {
+        _status = $"Selected {item.Title}.";
+        return Task.CompletedTask;
+    }
+
+    private Task OverflowClickedAsync(SchedulerOverflowEventArgs<CalendarItem> args)
+    {
+        _status = $"{args.Items.Count} more appointment(s) on {args.Day:d}.";
+        return Task.CompletedTask;
+    }
+
+    private static IReadOnlyList<CalendarItem> CreateSampleItems()
+    {
+        var today = DateTime.Today;
+        return new[]
+        {
+            new CalendarItem(Guid.NewGuid(), "Planning", today.AddHours(9), today.AddHours(10), "#2563eb"),
+            new CalendarItem(Guid.NewGuid(), "Product launch", today.AddDays(2), today.AddDays(4), "#0f9d78"),
+            new CalendarItem(Guid.NewGuid(), "Design review", today.AddDays(7).AddHours(13), today.AddDays(7).AddHours(14), "#e87924"),
+            new CalendarItem(Guid.NewGuid(), "Vacation", today.AddDays(10), today.AddDays(15), "#9c5de8")
+        };
+    }
+
+    public sealed record CalendarItem(Guid Id, string Title, DateTime Start, DateTime End, string Color);
+}

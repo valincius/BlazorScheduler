@@ -1,44 +1,87 @@
 # BlazorScheduler
-[![Nuget](https://img.shields.io/nuget/v/BlazorScheduler)](https://www.nuget.org/packages/BlazorScheduler/)
-[![Nuget](https://img.shields.io/nuget/dt/BlazorScheduler)](https://www.nuget.org/packages/BlazorScheduler/)
 
-A scheduler/calendar built with Blazor with zero dependancies.
-![preview](https://user-images.githubusercontent.com/15176357/125132100-b1693b00-e0b8-11eb-9873-88a18973626b.png)
-[Demo here](https://valincius.github.io/BlazorScheduler/)
+A lightweight month scheduler for Blazor with all-day and timed items, overflow handling, templates, appointment creation, and drag-to-reschedule support.
 
-## Overview
-BlazorScheduler is a component library that provides a single component, the scheduler.
-The scheduler supports "all-day" appointments, appointments spanning multiple days/weeks/months, and timed appointments.
-Also has support for dragging to create & reschedule appointments.
+Version 5 targets .NET 8 and .NET 10. The included demo is a .NET 10 Blazor Web App using Interactive Auto.
 
-## Usage
-1. Run `Install-Package BlazorScheduler` in the package manager console to install the latest package in your frontend project.
-2. Add references to necessary js & css files in your `index.html`
-    - Add `<link href="_content/BlazorScheduler/css/styles.css" rel="stylesheet" />` to the head
-    - Add `<script src="_content/BlazorScheduler/js/scripts.js"></script>` to the body
-3. Add `@using BlazorScheduler` to your page
-4. Create a `List` of your appointments
-    ```c#
-    List<AppointmentDto> _appointments = new();
-    ```
-5. Add the component to your view and build the appointments like so:
-    ```c#
-    <Scheduler>
-        <Appointments>
-            @foreach (var app in _appointments)
-            {
-                <Appointment Start="@app.Start" End="@app.End" Color="@app.Color">
-                    @app.Title
-                </Appointment>
-            }
-        </Appointments>
-    </Scheduler>
-    ```
+## Install
 
-## Interactions
-There are 3 callbacks that the scheduler provides.
-- `Task OnAddingNewAppointment(DateTime start, DateTime end)` - invoked when the user is done dragging to create a new appointment, the range is returned in the parameters
-- `Task OnOverflowAppointmentClick(DateTime day)` - invoked when the user clicks on an "overflowing" appointment, the date of the overflow is returned in the parameters
-- `Task OnRequestNewData(DateTime start, DateTime end)` - invoked on first render and when the month is changed, the range is returned in the parameters
+```powershell
+dotnet add package BlazorScheduler
+```
 
-See the demo [here](https://valincius.dev/BlazorScheduler/) for more information on usage
+Reference the component stylesheet in the host page or `App.razor`:
+
+```razor
+<link rel="stylesheet" href="_content/BlazorScheduler/css/styles.css" />
+```
+
+The scheduler loads its isolated JavaScript module automatically. No script tag is required for the v5 data API.
+
+## Data-driven API
+
+```razor
+<DataScheduler TItem="CalendarItem"
+               Items="_items"
+               ItemKey="item => item.Id"
+               ItemStart="item => item.Start"
+               ItemEnd="item => item.End"
+               ItemColor="item => item.Color"
+               EnableRescheduling="true"
+               OnCreate="CreateAsync"
+               OnItemReschedule="RescheduleAsync">
+    <ItemTemplate Context="context">
+        @context.Item.Title
+    </ItemTemplate>
+</DataScheduler>
+```
+
+`ItemKey`, `ItemStart`, and `ItemEnd` are required. Keys must be non-null and unique, and an item's end must not precede its start. Optional selectors provide color, CSS class, and inline style without requiring a scheduler-specific model type.
+
+The primary callbacks use `EventCallback<T>`:
+
+- `OnRangeChanged` receives the displayed `SchedulerRange` after initial interactive rendering and month navigation.
+- `OnCreate` receives the dragged date range.
+- `OnItemClick` receives the selected item.
+- `OnItemReschedule` receives the item and proposed start/end values.
+- `OnOverflowClick` receives the day and hidden items.
+
+## v5 migration
+
+The v4 child-component API remains functional throughout v5 but is marked obsolete with diagnostic `BZS001`:
+
+```razor
+<Scheduler>
+    <Appointments>
+        @foreach (var item in _items)
+        {
+            <Appointment Start="item.Start" End="item.End">@item.Title</Appointment>
+        }
+    </Appointments>
+</Scheduler>
+```
+
+Migrate by replacing the child loop with `Items` and selector parameters, moving appointment markup into `ItemTemplate`, and changing `Func<Task>` handlers to the typed callbacks shown above. The legacy API may be removed in v6.
+
+Legacy markup still requires `_content/BlazorScheduler/js/scripts.js`. New code should not reference that script.
+
+## Develop and run
+
+```powershell
+dotnet build BlazorScheduler.sln -c Release
+dotnet test BlazorScheduler.Tests/BlazorScheduler.Tests.csproj -c Release
+dotnet run --project BlazorScheduler.Demo/BlazorScheduler.Demo.csproj
+```
+
+The demo exposes `/healthz`. To publish an OCI image with the .NET SDK:
+
+```powershell
+dotnet publish BlazorScheduler.Demo/BlazorScheduler.Demo.csproj -c Release /t:PublishContainer
+```
+
+See [docs/performance.md](docs/performance.md) for the layout profiling method and results.
+
+## License
+
+MIT
+

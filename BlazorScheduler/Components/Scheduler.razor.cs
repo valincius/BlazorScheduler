@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 
 namespace BlazorScheduler
 {
+    [Obsolete("Use Scheduler<TItem> with the Items API. See https://github.com/valincius/BlazorScheduler#v5-migration.", DiagnosticId = "BZS001")]
     public partial class Scheduler : IAsyncDisposable
     {
         [Parameter] public RenderFragment Appointments { get; set; } = null!;
@@ -64,9 +65,10 @@ namespace BlazorScheduler
             }
         }
 
-        private readonly ObservableCollection<Appointment> _appointments = new();
+        private readonly List<Appointment> _appointments = new();
         private DotNetObjectReference<Scheduler> _objReference = null!;
         private bool _loading = false;
+        private bool _refreshQueued;
 
         public bool _showNewAppointment;
         private DateTime? _draggingAppointmentAnchor;
@@ -86,19 +88,32 @@ namespace BlazorScheduler
             {
                 await AttachMouseHandler();
             }
-            base.OnAfterRender(firstRender);
+            await base.OnAfterRenderAsync(firstRender);
         }
 
         internal void AddAppointment(Appointment appointment)
         {
             _appointments.Add(appointment);
-            StateHasChanged();
+            QueueRefresh();
         }
 
         internal void RemoveAppointment(Appointment appointment)
         {
             _appointments.Remove(appointment);
-            StateHasChanged();
+            QueueRefresh();
+        }
+
+        private void QueueRefresh()
+        {
+            if (_refreshQueued)
+                return;
+
+            _refreshQueued = true;
+            _ = InvokeAsync(() =>
+            {
+                _refreshQueued = false;
+                StateHasChanged();
+            });
         }
 
         public async Task SetCurrentMonth(DateTime date, bool skipJsInvoke = false)
@@ -242,8 +257,13 @@ namespace BlazorScheduler
 
         public async ValueTask DisposeAsync()
         {
-            await DestroyMouseHandler();
-            _objReference.Dispose();
+            try
+            {
+                await DestroyMouseHandler();
+            }
+            catch (JSDisconnectedException) { }
+            catch (InvalidOperationException) { }
+            _objReference?.Dispose();
             GC.SuppressFinalize(this);
         }
     }

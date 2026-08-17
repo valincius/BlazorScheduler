@@ -1,0 +1,12 @@
+:root { color-scheme: light; font-family: Inter, ui-sans-serif, system-ui, sans-serif; color: #172033; background: #f5f7fb; }
+* { box-sizing: border-box; }
+body { margin: 0; }
+.demo-shell { width: min(1180px, calc(100% - 2rem)); margin: 0 auto; padding: 2.5rem 0 4rem; }
+.demo-heading { display: flex; gap: 1rem; justify-content: space-between; align-items: end; margin-bottom: 1.5rem; }
+.demo-heading h1 { margin: 0; font-size: clamp(2rem, 5vw, 3.5rem); letter-spacing: -.05em; }
+.demo-heading p { max-width: 42rem; margin: .5rem 0 0; color: #5d6678; }
+.mode-pill { background: #e7efff; color: #194aa6; border-radius: 999px; padding: .5rem .8rem; white-space: nowrap; }
+.demo-card { background: white; border: 1px solid #e1e5ec; border-radius: 14px; padding: 1rem; box-shadow: 0 12px 35px rgb(31 48 82 / 8%); }
+.demo-status { min-height: 1.5rem; margin: 1rem 0 0; color: #5d6678; }
+@media (max-width: 650px) { .demo-heading { display: block; } .mode-pill { display: inline-block; margin-top: 1rem; } }
+
