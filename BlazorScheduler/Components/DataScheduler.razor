@@ -1,10 +1,9 @@
 @namespace BlazorScheduler
 @typeparam TItem
-@using BlazorScheduler.Internal.Layout
 @using System.Globalization
 @using Microsoft.AspNetCore.Components.Web
 
-<div class="scheduler" @ref="_root" data-scheduler-root>
+<div class="scheduler">
     <div class="header">
         @if (HeaderTemplate is not null)
         {
@@ -34,7 +33,7 @@
             </div>
         }
     </div>
-    <div class="month">
+    <div class="month" @ref="_root">
         <div class="week header">
             @for (var offset = 0; offset < 7; offset++)
             {
@@ -66,9 +65,20 @@
                     }
                 </div>
                 <div class="appointments">
+                    @if (_draggedIndex is null && _dragStart is DateTime ds && _dragEnd is DateTime de && (ds, de).Overlaps((week.Start.Date, week.End.Date))) {
+                        var isThisWeek = (DateTime d) => d >= week.Start && d <= week.End;
+                        var start = isThisWeek(ds) ? (int)ds.DayOfWeek : 0;
+                        var end = isThisWeek(de) ? (int)de.DayOfWeek : 6;
+                        <div
+                            class="appointment"
+                            style="--start:@start;--end:@end;--order:0; background-color: @(NewAppointmentColor)">
+                                @NewAppointmentText
+                        </div>
+                    }
+
                     @foreach (var placed in week.Items)
                     {
-                        if (placed.Order <= MaxVisibleAppointmentsPerDay)
+                        if (placed.Order <= (week.Overflows.Any(x => x.Day.Date >= placed.Input.Start  && x.Day.Date <= placed.Input.End) ? MaxVisibleAppointmentsPerDay - 1 : MaxVisibleAppointmentsPerDay))
                         {
                             var input = placed.Input;
                             <div @key="input.Key"

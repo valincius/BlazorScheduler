@@ -39,6 +39,7 @@ public partial class DataScheduler<TItem> : IAsyncDisposable
     [Parameter] public string TodayButtonText { get; set; } = "Today";
     [Parameter] public string PlusOthersText { get; set; } = "+ {n} others";
     [Parameter] public string NewAppointmentText { get; set; } = "New Appointment";
+    [Parameter] public string NewAppointmentColor { get; set; } = "#bce";
     [Parameter] public string? RootDaysGroupInWeekStyle { get; set; }
     [Parameter] public string? RootAppointmentOverflowStyle { get; set; }
     [Parameter] public string? RootDayClass { get; set; }

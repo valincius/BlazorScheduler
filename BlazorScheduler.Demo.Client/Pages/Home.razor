@@ -13,6 +13,8 @@
     </header>
 
     <section class="demo-card">
+        <p class="demo-status" aria-live="polite">@_status</p>
+        
         <DataScheduler TItem="CalendarItem"
                    Items="_items"
                    ItemKey="item => item.Id"
@@ -28,7 +30,6 @@
                 <strong>@context.Item.Title</strong>
             </ItemTemplate>
         </DataScheduler>
-        <p class="demo-status" aria-live="polite">@_status</p>
     </section>
 </main>
 
@@ -38,9 +39,11 @@
 
     private Task CreateAsync(SchedulerRange range)
     {
-        var next = new CalendarItem(Guid.NewGuid(), "New appointment", range.Start, range.End, "#6d5dfc");
+        var rnd = new Random();
+        var newColor = $"#{rnd.Next(255):X2}{rnd.Next(255):X2}{rnd.Next(255):X2}";
+        var next = new CalendarItem(Guid.NewGuid(), "New appointment", range.Start, range.End, newColor);
         _items = _items.Append(next).ToArray();
-        _status = $"Created {range.Start:d}–{range.End:d}.";
+        _status = $"Created {range.Start:d} - {range.End:d}.";
         return Task.CompletedTask;
     }
 
