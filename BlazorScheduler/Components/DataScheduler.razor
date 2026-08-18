@@ -78,7 +78,7 @@
 
                     @foreach (var placed in week.Items)
                     {
-                        if (placed.Order <= (week.Overflows.Any(x => x.Day.Date >= placed.Input.Start  && x.Day.Date <= placed.Input.End) ? MaxVisibleAppointmentsPerDay - 1 : MaxVisibleAppointmentsPerDay))
+                        if (placed.Order <= (week.Overflows.Any(x => x.Day.Date >= placed.Input.Start && (x.Day.Date <= placed.Input.End || placed.IsTimed)) ? MaxVisibleAppointmentsPerDay - 1 : MaxVisibleAppointmentsPerDay))
                         {
                             var input = placed.Input;
                             <div @key="input.Key"

@@ -70,7 +70,7 @@ Legacy markup still requires `_content/BlazorScheduler/js/scripts.js`. New code 
 ```powershell
 dotnet build BlazorScheduler.sln -c Release
 dotnet test BlazorScheduler.Tests/BlazorScheduler.Tests.csproj -c Release
-dotnet run --project BlazorScheduler.Demo.Client/BlazorScheduler.Demo.Client.csproj
+dotnet run --project BlazorScheduler.Demo/BlazorScheduler.Demo.csproj
 ```
 
 The demo is deployed to GitHub Pages at [https://valincius.github.io/BlazorScheduler/](https://valincius.github.io/BlazorScheduler/) by the `GitHub Pages` workflow on every push to `main`. The workflow publishes the WebAssembly app and uploads its `wwwroot` output; the Pages source must be set to **GitHub Actions** in the repository settings.

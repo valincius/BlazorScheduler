@@ -26,7 +26,7 @@ jobs:
         with:
           dotnet-version: 10.0.x
       - name: Publish WebAssembly app
-        run: dotnet publish BlazorScheduler.Demo.Client/BlazorScheduler.Demo.Client.csproj -c Release -o release
+        run: dotnet publish BlazorScheduler.Demo/BlazorScheduler.Demo.csproj -c Release -o release
       - name: Rewrite base href for GitHub Pages
         run: sed -i 's#<base href="/" />#<base href="/BlazorScheduler/" />#' release/wwwroot/index.html
       - uses: actions/upload-pages-artifact@v4

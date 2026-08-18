@@ -1,4 +1,4 @@
-using BlazorScheduler.Demo.Client;
+using BlazorScheduler.Demo;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 
