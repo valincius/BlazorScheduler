@@ -1,0 +1,10 @@
+{
+  "name": "blazorscheduler",
+  "version": "5.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Repository tooling for BlazorScheduler (JS unit tests for the scheduler pointer module).",
+  "scripts": {
+    "test": "node --test tests/js/scheduler.test.js"
+  }
+}

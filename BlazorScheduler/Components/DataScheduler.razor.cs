@@ -52,8 +52,12 @@ public partial class DataScheduler<TItem> : IAsyncDisposable
     [Parameter] public int WeekViewEndHour { get; set; } = 24;
     [Parameter] public int WeekViewHourHeight { get; set; } = 60;
     [Parameter] public RenderFragment<DateTime>? WeekDayHeaderTemplate { get; set; }
+    [Parameter] public bool Use24HourClock { get; set; } = true;
+    [Parameter] public int? MonthViewWeeks { get; set; }
 
     public DateTime CurrentDate { get; private set; } = DateTime.Today;
+
+    private const int MinutesPerDay = 24 * 60;
 
     public SchedulerRange CurrentRange
     {
@@ -67,6 +71,10 @@ public partial class DataScheduler<TItem> : IAsyncDisposable
 
             var first = new DateTime(CurrentDate.Year, CurrentDate.Month, 1);
             var monthStart = first.GetPrevious(StartDayOfWeek);
+            if (MonthViewWeeks is int weeks)
+            {
+                return new SchedulerRange(monthStart, monthStart.AddDays(weeks * 7 - 1));
+            }
             var last = new DateTime(CurrentDate.Year, CurrentDate.Month, DateTime.DaysInMonth(CurrentDate.Year, CurrentDate.Month));
             var endDay = (DayOfWeek)(((int)StartDayOfWeek + 6) % 7);
             return new SchedulerRange(monthStart, last.GetNext(endDay));
@@ -163,6 +171,9 @@ public partial class DataScheduler<TItem> : IAsyncDisposable
         await RequestRangeAsync();
     }
 
+    private Task OnViewSelectChanged(ChangeEventArgs args)
+        => SetViewAsync(Enum.Parse<SchedulerView>((string?)args.Value ?? nameof(SchedulerView.Month), ignoreCase: true));
+
     private async Task RequestRangeAsync()
     {
         var request = ++_requestVersion;
@@ -197,6 +208,10 @@ public partial class DataScheduler<TItem> : IAsyncDisposable
             throw new ArgumentOutOfRangeException(nameof(WeekViewStartHour), "WeekViewStartHour must be less than WeekViewEndHour.");
         }
         ArgumentOutOfRangeException.ThrowIfLessThan(WeekViewHourHeight, 1);
+        if (MonthViewWeeks is not null)
+        {
+            ArgumentOutOfRangeException.ThrowIfLessThan(MonthViewWeeks.Value, 1);
+        }
         if (!Enum.IsDefined(View))
         {
             throw new ArgumentOutOfRangeException(nameof(View), View, "View must be a defined SchedulerView value.");
@@ -292,6 +307,55 @@ public partial class DataScheduler<TItem> : IAsyncDisposable
         StateHasChanged();
     }
 
+    /// <summary>
+    /// Starts a create drag on the week-view time grid. <paramref name="value"/> is
+    /// "yyyyMMdd|minutes" where minutes is the snapped time-of-day within the day.
+    /// </summary>
+    [JSInvokable]
+    public void BeginWeekDrag(string value)
+    {
+        if (!EnableDragging || !EnableAppointmentsCreationFromScheduler)
+        {
+            return;
+        }
+        var parts = value.Split('|', 2);
+        if (parts.Length != 2)
+        {
+            return;
+        }
+        var day = ParseDay(parts[0]);
+        var minutes = Math.Clamp(int.Parse(parts[1], CultureInfo.InvariantCulture), 0, MinutesPerDay - 1);
+        _draggedIndex = null;
+        _dragAnchor = _dragStart = _dragEnd = day.Date.AddMinutes(minutes);
+        _didDrag = false;
+    }
+
+    /// <summary>
+    /// Extends a week-view create drag to the given snapped minute of the anchor day.
+    /// The appointment stays within the pressed day column, so horizontal drift is ignored.
+    /// </summary>
+    [JSInvokable]
+    public void DragWeekTo(string value)
+    {
+        if (!_dragAnchor.HasValue)
+        {
+            return;
+        }
+        var minutes = Math.Clamp(int.Parse(value, CultureInfo.InvariantCulture), 0, MinutesPerDay - 1);
+        var anchorMinutes = (int)_dragAnchor.Value.TimeOfDay.TotalMinutes;
+        if (minutes == anchorMinutes)
+        {
+            // Dragging back to the anchor would collapse the selection to zero
+            // length (which the planners classify as all-day). Keep the last span.
+            return;
+        }
+        _didDrag = true;
+        var day = _dragAnchor.Value.Date;
+        _dragStart = day.AddMinutes(Math.Min(anchorMinutes, minutes));
+        _dragEnd = day.AddMinutes(Math.Max(anchorMinutes, minutes));
+        StateHasChanged();
+    }
+
     [JSInvokable]
     public async Task CompleteDrag()
     {
@@ -300,8 +364,11 @@ public partial class DataScheduler<TItem> : IAsyncDisposable
             ClearDrag();
             return;
         }
-        if (_draggedIndex.HasValue && !_didDrag)
+        if (!_didDrag)
         {
+            // The press never moved across days, so it was a click, not a drag:
+            // clear the preview and let the browser's click event reach the
+            // item handler (selection) or do nothing for an empty day.
             ClearDrag();
             return;
         }

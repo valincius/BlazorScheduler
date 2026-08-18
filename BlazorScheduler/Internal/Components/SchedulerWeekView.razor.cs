@@ -19,6 +19,11 @@ public partial class SchedulerWeekView<TItem>
     [Parameter] public int WeekViewStartHour { get; set; }
     [Parameter] public int WeekViewEndHour { get; set; } = 24;
     [Parameter] public int WeekViewHourHeight { get; set; } = 60;
+    [Parameter] public bool Use24HourClock { get; set; } = true;
+    [Parameter] public int? DraggedIndex { get; set; }
+    [Parameter] public DateTime? DragStart { get; set; }
+    [Parameter] public DateTime? DragEnd { get; set; }
+    [Parameter] public string NewAppointmentText { get; set; } = "New Appointment";
     [Parameter] public string PlusOthersText { get; set; } = "+ {n} others";
     [Parameter] public RenderFragment<SchedulerItemContext<TItem>>? ItemTemplate { get; set; }
     [Parameter] public RenderFragment<DateTime>? WeekDayHeaderTemplate { get; set; }
@@ -36,8 +41,39 @@ public partial class SchedulerWeekView<TItem>
             TimeSpan.FromHours(WeekViewStartHour), TimeSpan.FromHours(WeekViewEndHour));
     }
 
-    private IEnumerable<SchedulerPlacedItem<TItem>> VisibleAllDayItems =>
-        _layout is null ? Enumerable.Empty<SchedulerPlacedItem<TItem>>() : _layout.AllDayItems.Where(item => item.Order <= MaxVisibleAppointmentsPerDay);
+    private IEnumerable<SchedulerPlacedItem<TItem>> AllDayItems =>
+        _layout is null ? Enumerable.Empty<SchedulerPlacedItem<TItem>>() : _layout.AllDayItems;
+
+    private bool IsAllDayItemVisible(SchedulerPlacedItem<TItem> placed)
+    {
+        // Mirrors the month view: when any day spanned by the item shows an
+        // overflow chip, the item yields its last row so the chip has a slot.
+        var hasOverflowInSpan = _layout!.AllDayOverflows.Any(overflow =>
+            overflow.Day.Date >= placed.Input.Start.Date && overflow.Day.Date <= placed.Input.End.Date);
+        return placed.Order <= (hasOverflowInSpan ? MaxVisibleAppointmentsPerDay - 1 : MaxVisibleAppointmentsPerDay);
+    }
+
+    private string FormatHour(int hour) => Use24HourClock
+        ? hour.ToString("00", CultureInfo.InvariantCulture) + ":00"
+        : new DateTime(2000, 1, 1, hour, 0, 0).ToString("h tt", CultureInfo.InvariantCulture);
+
+    /// <summary>
+    /// Computes the CSS variables for the create-drag preview bar on the given day,
+    /// or null when no create drag is over that day column.
+    /// </summary>
+    private string? CreatePreviewStyle(DateTime day)
+    {
+        if (DraggedIndex is not null || DragStart is not DateTime start || DragEnd is not DateTime end || start.Date != day.Date)
+        {
+            return null;
+        }
+        var totalMinutes = (WeekViewEndHour - WeekViewStartHour) * 60.0;
+        var top = ((start.TimeOfDay.TotalMinutes - WeekViewStartHour * 60) / totalMinutes * 100.0)
+            .ToString("0.####", CultureInfo.InvariantCulture);
+        var height = ((end - start).TotalMinutes / totalMinutes * 100.0)
+            .ToString("0.####", CultureInfo.InvariantCulture);
+        return $"--top:{top}%;--height:{height}%;";
+    }
 
     private SchedulerLayoutInput<TItem>[] BuildInputs()
     {

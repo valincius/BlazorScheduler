@@ -9,6 +9,8 @@
     border-radius: 3px;
 
     --background-color: white;
+    --theme-color: aqua;
+    --new-appointment-color: #bce;
     background-color: var(--background-color);
     touch-action: none;
 }
@@ -23,41 +25,59 @@
 .scheduler > .header > .actions {
     padding: 10px;
     display: flex;
+    align-items: center;
     justify-content: space-between;
+    gap: 8px;
     background-color: white;
 }
-.scheduler > .header > .actions > .navigation > .selected-month {
-    width: 160px;
+.scheduler > .header > .actions > .actions-left,
+.scheduler > .header > .actions > .actions-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.scheduler > .header > .actions > .actions-left > .navigation {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+.scheduler > .header > .actions > .actions-left > .navigation > .selected-month {
+    min-width: 160px;
     display: inline-block;
     text-align: center;
     font-size: 1.25rem;
+    font-weight: 600;
     vertical-align: middle;
 }
 .scheduler > .header > .actions .btn {
-    background-color: #ddd;
-    border: none;
-    color: black;
-    text-align: center;
-    text-decoration: none;
-    display: inline-block;
+    background-color: #f4f6f8;
+    border: 1px solid #d8dde3;
+    border-radius: 6px;
+    color: #1f2937;
+    padding: .4rem .8rem;
+    font: inherit;
+    line-height: 1.2;
+    cursor: pointer;
+    transition: background-color .15s ease, border-color .15s ease;
 }
-.scheduler > .header > .actions .btn:focus {
-    outline: none;
+.scheduler > .header > .actions .btn:hover {
+    background-color: #e8ecf0;
+    border-color: #c6cdd6;
 }
-
+.scheduler > .header > .actions .btn:focus-visible {
+    outline: 2px solid var(--theme-color, #4f8ef7);
+    outline-offset: 1px;
+}
 .scheduler > .header > .actions .icon-btn {
-    background: initial;
-    border-radius: 50%;
-}
-.scheduler > .header > .actions .icon-btn:hover {
-    background-color: #ddd;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: .45rem;
 }
 .scheduler > .header > .actions .icon-btn > svg {
-    width: 1em;
-    height: 1em;
+    width: 1.25rem;
+    height: 1.25rem;
     fill: currentColor;
-    font-size: 1.5rem;
-    margin: -6px;
 }
 
 .scheduler > .month {
@@ -120,6 +140,10 @@
     line-height: var(--size);
 }
 
+.scheduler > .month > .week > .days > .day > span.today {
+    background-color: var(--theme-color);
+}
+
 .scheduler > .month > .week > .days > .day.diff-month {
     background-color: #f7f7f7;
     color: #ababab;
@@ -142,6 +166,7 @@
     top: 30px;
     z-index: 1;
     box-shadow: 3px 6px 6px rgb(0 0 0 / 50%);
+    background-color: var(--new-appointment-color);
 }
 .scheduler > .month > .week > .appointments > .appointment-timed {
     background-color: var(--background-color);
@@ -157,6 +182,7 @@
     height: var(--size);
     line-height: 1rem;
     vertical-align: middle;
+    margin-right: 6px;
     border-radius: 50%;
     background-color: red;
 }
@@ -169,6 +195,9 @@
 }
 
 .scheduler-loader {
+    --size: 25px;
+    --color1: #666;
+    --color2: #ccc;
     border-top: calc(var(--size)/10) solid var(--color1);
     border-right: calc(var(--size)/10) solid var(--color2);
     border-bottom: calc(var(--size)/10) solid var(--color2);
@@ -214,24 +243,38 @@
     }
 }
 
-/* View switcher (default header) */
-.scheduler > .header > .view-switcher {
+/* View switcher (default header, right of the actions row) */
+.scheduler > .header > .actions > .actions-right > .view-switcher {
     display: flex;
-    justify-content: center;
-    gap: 4px;
-    padding: 0 10px 8px;
+    align-items: center;
+    gap: 6px;
 }
-.scheduler > .header > .view-switcher > .btn {
-    background-color: #ddd;
-    border: none;
-    color: black;
-    padding: 4px 12px;
-    border-radius: 3px;
+.scheduler > .header > .view-switcher > .view-switcher-label {
+    color: #5d6678;
+    font-size: .85rem;
+}
+.scheduler > .header > .view-switcher > .view-select {
+    appearance: none;
+    font: inherit;
+    font-size: .9rem;
+    line-height: 1.2;
+    padding: .4rem 2.1rem .4rem .6rem;
+    border: 1px solid #d8dde3;
+    border-radius: 6px;
+    background-color: white;
+    color: #1f2937;
     cursor: pointer;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235d6678' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right .55rem center;
+    background-size: 1em;
 }
-.scheduler > .header > .view-switcher > .btn.active {
-    background-color: #666;
-    color: white;
+.scheduler > .header > .view-switcher > .view-select:hover {
+    border-color: #c6cdd6;
+}
+.scheduler > .header > .view-switcher > .view-select:focus-visible {
+    outline: 2px solid var(--theme-color, #4f8ef7);
+    outline-offset: 1px;
 }
 
 /* Week view */
@@ -266,6 +309,9 @@
     line-height: 1.5rem;
     font-size: .9rem;
 }
+.scheduler > .week-view > .week-day-header > .day-header > .day-number.today {
+    background-color: var(--theme-color);
+}
 
 .scheduler > .week-view > .all-day-strip {
     position: relative;
@@ -275,7 +321,7 @@
 .scheduler > .week-view > .all-day-strip > .appointment {
     position: absolute;
     left: calc(var(--start) / 7 * 100%);
-    top: calc(6px + var(--order) * 1.5rem);
+    top: calc(6px + (var(--order) - 1) * 1.5rem);
     border-radius: 2px;
     margin-left: 2px;
     width: calc((var(--end) - var(--start) + 1) / 7 * 100% - 4px);
@@ -332,10 +378,22 @@
     white-space: nowrap;
     text-overflow: ellipsis;
 }
+.scheduler > .week-view > .time-grid > .day-column > .appointment.timed.new-appointment {
+    z-index: 2;
+}
 .scheduler > .week-view > .time-grid > .day-column > .scheduler-overflow {
     position: absolute;
     bottom: 4px;
     left: 2px;
     z-index: 1;
+}
+
+/* Week-view overflow chips get a visible chip treatment (the base .scheduler-overflow is transparent). */
+.scheduler > .week-view .scheduler-overflow {
+    background-color: #f4f6f8;
+    border: 1px solid #d8dde3;
+    border-radius: 2px;
+    font-size: .85rem;
+    padding: 0 4px;
 }
 

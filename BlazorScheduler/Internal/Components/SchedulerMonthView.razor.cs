@@ -20,7 +20,6 @@ public partial class SchedulerMonthView<TItem>
     [Parameter] public int? DraggedIndex { get; set; }
     [Parameter] public DateTime? DragStart { get; set; }
     [Parameter] public DateTime? DragEnd { get; set; }
-    [Parameter] public string NewAppointmentColor { get; set; } = "#bce";
     [Parameter] public string NewAppointmentText { get; set; } = "New Appointment";
     [Parameter] public string PlusOthersText { get; set; } = "+ {n} others";
     [Parameter] public string? RootDaysGroupInWeekStyle { get; set; }

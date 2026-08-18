@@ -17,30 +17,33 @@
                 else
                 {
                     <span class="day-name">@day.ToString("ddd", CultureInfo.CurrentCulture)</span>
-                    <span class="day-number" style="background-color:@(day.Date == DateTime.Today ? ThemeColor : null)">@day.Day</span>
+                    <span class="day-number @(day.Date == DateTime.Today ? "today" : null)">@day.Day</span>
                 }
             </div>
         }
     </div>
 
     <div class="all-day-strip" data-scheduler-all-day-strip style="--rows:@_layout!.AllDayVisibleRows">
-        @foreach (var placed in VisibleAllDayItems)
+        @foreach (var placed in AllDayItems)
         {
-            var input = placed.Input;
-            <div @key="input.Key"
-                 class="appointment @input.Class"
-                 style="--start:@placed.StartDay;--end:@placed.EndDay;--order:@placed.Order;background-color:@input.Color;@input.Style"
-                 data-scheduler-item="@input.SourceIndex"
-                 @onclick="() => ItemClickedAsync(input.Item)">
-                @if (ItemTemplate is not null)
-                {
-                    @ItemTemplate(new SchedulerItemContext<TItem>(input.Item, false))
-                }
-                else
-                {
-                    @input.Item
-                }
-            </div>
+            if (IsAllDayItemVisible(placed))
+            {
+                var input = placed.Input;
+                <div @key="input.Key"
+                     class="appointment @input.Class"
+                     style="--start:@placed.StartDay;--end:@placed.EndDay;--order:@placed.Order;background-color:@input.Color;@input.Style"
+                     data-scheduler-item="@input.SourceIndex"
+                     @onclick="() => ItemClickedAsync(input.Item)">
+                    @if (ItemTemplate is not null)
+                    {
+                        @ItemTemplate(new SchedulerItemContext<TItem>(input.Item, false))
+                    }
+                    else
+                    {
+                        @input.Item
+                    }
+                </div>
+            }
         }
         @foreach (var overflow in _layout!.AllDayOverflows)
         {
@@ -52,15 +55,17 @@
         }
     </div>
 
-    <div class="time-grid" style="--hour-count:@(WeekViewEndHour - WeekViewStartHour);--hour-height:@(WeekViewHourHeight)px">
+    <div class="time-grid" data-scheduler-time-grid data-scheduler-view-start="@WeekViewStartHour" data-scheduler-view-end="@WeekViewEndHour"
+         style="--hour-count:@(WeekViewEndHour - WeekViewStartHour);--hour-height:@(WeekViewHourHeight)px">
         @for (var hour = WeekViewStartHour; hour < WeekViewEndHour; hour++)
         {
-            <div class="hour-label" data-scheduler-hour="@hour" style="grid-row:@(hour - WeekViewStartHour + 1);grid-column:1">@hour.ToString("00"):00</div>
+            <div class="hour-label" data-scheduler-hour="@hour" style="grid-row:@(hour - WeekViewStartHour + 1)">@FormatHour(hour)</div>
         }
         @for (var dayOffset = 0; dayOffset < 7; dayOffset++)
         {
             var day = _layout!.Start.AddDays(dayOffset);
             var dayLayout = _layout!.Days[dayOffset];
+            var previewStyle = CreatePreviewStyle(day);
             <div class="day-column @(day.Date == DateTime.Today ? "today" : null)"
                  data-scheduler-day="@day.ToString("yyyyMMdd", CultureInfo.InvariantCulture)"
                  style="grid-column:@(dayOffset + 2)">
@@ -81,6 +86,12 @@
                         {
                             @input.Item
                         }
+                    </div>
+                }
+                @if (previewStyle is not null)
+                {
+                    <div class="appointment timed new-appointment" style="@previewStyle --slot:0;--maxSlots:1;background-color:var(--new-appointment-color);">
+                        @NewAppointmentText
                     </div>
                 }
                 @foreach (var overflow in dayLayout.Overflows)

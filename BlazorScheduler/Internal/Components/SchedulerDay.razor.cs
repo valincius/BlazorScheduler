@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components;
 using System;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Components.Web;
@@ -23,8 +23,6 @@ namespace BlazorScheduler.Internal.Components
                     yield return "diff-month";
             }
         }
-
-        private string Color => Day.Date == DateTime.Today ? Scheduler.ThemeColor : "";
 
         private void OnMouseDown(MouseEventArgs e)
         {

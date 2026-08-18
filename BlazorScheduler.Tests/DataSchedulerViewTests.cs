@@ -1,5 +1,6 @@
 using System.Globalization;
 using Bunit;
+using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 
 namespace BlazorScheduler.Tests;
@@ -149,6 +150,93 @@ public sealed class DataSchedulerViewTests : IDisposable
     }
 
     [Fact]
+    public async Task WeekView_HourLabels_DefaultTo24HourFormat()
+    {
+        var cut = Render(_context, configure: parameters => parameters
+            .Add(component => component.View, SchedulerView.Week));
+
+        var labels = cut.FindAll(".hour-label");
+        Assert.Equal(24, labels.Count);
+        Assert.Equal("00:00", labels[0].TextContent);
+        Assert.Equal("13:00", labels[13].TextContent);
+        Assert.Equal("23:00", labels[^1].TextContent);
+    }
+
+    [Fact]
+    public async Task WeekView_HourLabels_Use12HourFormat()
+    {
+        var cut = Render(_context, configure: parameters => parameters
+            .Add(component => component.View, SchedulerView.Week)
+            .Add(component => component.Use24HourClock, false));
+
+        var labels = cut.FindAll(".hour-label");
+        Assert.Equal(24, labels.Count);
+        Assert.Equal("12 AM", labels[0].TextContent);
+        Assert.Equal("9 AM", labels[9].TextContent);
+        Assert.Equal("12 PM", labels[12].TextContent);
+        Assert.Equal("1 PM", labels[13].TextContent);
+        Assert.Equal("11 PM", labels[^1].TextContent);
+    }
+
+    [Fact]
+    public async Task WeekView_CreateDrag_ShowsPreviewInAnchorColumn()
+    {
+        var day = new DateTime(2026, 8, 10);
+        var cut = Render(_context, configure: parameters => parameters
+            .Add(component => component.View, SchedulerView.Week));
+        await AnchorToAsync(cut, day);
+
+        await cut.InvokeAsync(() => cut.Instance.BeginWeekDrag("20260810|540"));
+        await cut.InvokeAsync(() => cut.Instance.DragWeekTo("600"));
+
+        var preview = cut.Find(".time-grid .new-appointment");
+        var style = preview.GetAttribute("style");
+        Assert.Contains("--top:", style);
+        Assert.Contains("--height:", style);
+        Assert.Equal(
+            day.ToString("yyyyMMdd", CultureInfo.InvariantCulture),
+            preview.ParentElement!.GetAttribute("data-scheduler-day"));
+    }
+
+    [Fact]
+    public async Task MonthView_FixedSixWeeks_RendersExactly42Cells()
+    {
+        var cut = Render(_context, configure: parameters => parameters
+            .Add(component => component.MonthViewWeeks, 6));
+        await AnchorToAsync(cut, new DateTime(2026, 6, 10));
+
+        var range = cut.Instance.CurrentRange;
+        Assert.Equal(42, (range.End - range.Start).Days + 1);
+
+        var cells = cut.FindAll("[data-scheduler-day]");
+        Assert.Equal(42, cells.Count);
+        Assert.Equal(
+            range.Start.ToString("yyyyMMdd", CultureInfo.InvariantCulture),
+            cells[0].GetAttribute("data-scheduler-day"));
+    }
+
+    [Fact]
+    public void MonthView_AutoWeeks_IsDefaultBehavior()
+    {
+        // The auto (null) setting keeps the existing range logic: the grid covers
+        // the month plus the surrounding partial weeks. The length varies by month.
+        var cut = Render(_context, configure: parameters => parameters
+            .Add(component => component.StartDayOfWeek, DayOfWeek.Monday));
+
+        var range = cut.Instance.CurrentRange;
+        var first = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
+        var last = new DateTime(DateTime.Today.Year, DateTime.Today.Month, DateTime.DaysInMonth(DateTime.Today.Year, DateTime.Today.Month));
+
+        var expectedStart = first.AddDays(-((7 + (first.DayOfWeek - DayOfWeek.Monday)) % 7));
+        var expectedEnd = last.AddDays((7 + (DayOfWeek.Sunday - last.DayOfWeek)) % 7);
+
+        Assert.Equal(expectedStart, range.Start);
+        Assert.Equal(expectedEnd, range.End);
+        Assert.Equal(DayOfWeek.Monday, range.Start.DayOfWeek);
+        Assert.Equal((range.End - range.Start).Days + 1, cut.FindAll("[data-scheduler-day]").Count);
+    }
+
+    [Fact]
     public async Task WeekView_AllDayItem_InAllDayStrip()
     {
         var start = new DateTime(2026, 8, 9);
@@ -288,23 +376,52 @@ public sealed class DataSchedulerViewTests : IDisposable
             .Add(component => component.ItemEnd, item => item.End)
             .Add(component => component.ViewChanged, (SchedulerView view) => changed = view));
 
-        // Default: month view with the built-in switcher.
+        // Default: month view with the built-in dropdown switcher.
         Assert.Equal(SchedulerView.Month, cut.Instance.View);
         Assert.Equal(42, cut.FindAll("[data-scheduler-day]").Count);
 
-        var weekButton = cut.FindAll(".view-switcher button").Single(button => button.TextContent.Trim() == "Week");
-        await weekButton.ClickAsync(new MouseEventArgs());
+        var select = cut.Find("select.view-select");
+        Assert.Equal(SchedulerView.Month.ToString(), select.GetAttribute("value"));
+
+        await select.TriggerEventAsync("onchange", new ChangeEventArgs { Value = SchedulerView.Week.ToString() });
 
         Assert.Equal(SchedulerView.Week, changed);
         Assert.Equal(SchedulerView.Week, cut.Instance.View);
         Assert.Equal(7, cut.FindAll("[data-scheduler-day]").Count);
 
-        var monthButton = cut.FindAll(".view-switcher button").Single(button => button.TextContent.Trim() == "Month");
-        await monthButton.ClickAsync(new MouseEventArgs());
+        await cut.Find("select.view-select").TriggerEventAsync("onchange", new ChangeEventArgs { Value = SchedulerView.Month.ToString() });
 
         Assert.Equal(SchedulerView.Month, changed);
         Assert.Equal(SchedulerView.Month, cut.Instance.View);
         Assert.Equal(42, cut.FindAll("[data-scheduler-day]").Count);
+    }
+
+    [Fact]
+    public void ViewSwitcher_Select_ReflectsCurrentView()
+    {
+        var cut = Render(_context, configure: parameters => parameters
+            .Add(component => component.View, SchedulerView.Week));
+
+        var select = cut.Find("select.view-select");
+        Assert.Equal(SchedulerView.Week.ToString(), select.GetAttribute("value"));
+    }
+
+    [Fact]
+    public void Header_Controls_LiveOutsideTheMonthGrid()
+    {
+        // The pointer drag handler only engages inside the day grid, so the
+        // header controls must live outside `.month`. This is the structural
+        // invariant the JS regression tests rely on.
+        var cut = Render(_context);
+
+        var header = cut.Find(".header");
+        Assert.Empty(header.QuerySelectorAll(".month"));
+        Assert.NotNull(header.QuerySelector("button.today"));
+        Assert.NotNull(header.QuerySelector("select.view-select"));
+
+        var month = cut.Find(".month");
+        Assert.Empty(month.QuerySelectorAll("button"));
+        Assert.Equal(42, month.QuerySelectorAll("[data-scheduler-day]").Length);
     }
 
     [Fact]

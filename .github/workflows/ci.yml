@@ -18,6 +18,10 @@ jobs:
           dotnet-version: |
             8.0.x
             10.0.x
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node --test tests/js/scheduler.test.js
       - run: dotnet restore BlazorScheduler.sln
       - run: dotnet build BlazorScheduler.sln -c Release --no-restore
       - run: dotnet test BlazorScheduler.Tests/BlazorScheduler.Tests.csproj -c Release --no-build

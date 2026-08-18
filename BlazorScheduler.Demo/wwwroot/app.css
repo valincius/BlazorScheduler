@@ -13,7 +13,47 @@ body { margin: 0; }
 .demo-controls .demo-control-label:first-child { margin-left: 0; }
 .demo-btn { background: #eef1f6; border: 1px solid #dfe4ec; color: #172033; border-radius: 6px; padding: .3rem .7rem; cursor: pointer; font: inherit; }
 .demo-btn.active { background: #194aa6; border-color: #194aa6; color: white; }
+.demo-btn.primary { background: #194aa6; border-color: #194aa6; color: white; }
+.demo-btn.primary:hover { background: #123f8c; }
 @media (max-width: 650px) { .demo-heading { display: block; } .mode-pill { display: inline-block; margin-top: 1rem; } }
+
+.modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgb(15 23 42 / 45%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    z-index: 100;
+}
+.modal {
+    background: white;
+    border: 1px solid #e1e5ec;
+    border-radius: 14px;
+    box-shadow: 0 20px 50px rgb(31 48 82 / 25%);
+    width: min(480px, 100%);
+    padding: 1.25rem 1.5rem 1.5rem;
+}
+.modal h2 { margin: 0 0 .25rem; font-size: 1.35rem; }
+.modal-range { margin: 0 0 1rem; color: #5d6678; font-size: .9rem; }
+.modal-field { display: flex; flex-direction: column; gap: .3rem; margin-bottom: .8rem; font-size: .85rem; color: #5d6678; }
+.modal-field input,
+.modal-field textarea {
+    font: inherit;
+    font-size: .95rem;
+    color: #172033;
+    border: 1px solid #d8dde3;
+    border-radius: 6px;
+    padding: .45rem .6rem;
+    width: 100%;
+}
+.modal-field textarea { min-height: 4.5rem; resize: vertical; }
+.modal-field input:focus,
+.modal-field textarea:focus { outline: 2px solid #194aa6; outline-offset: 1px; border-color: #194aa6; }
+.modal-row { display: flex; gap: .8rem; }
+.modal-row .modal-field { flex: 1; }
+.modal-actions { display: flex; justify-content: flex-end; gap: .5rem; margin-top: 1rem; }
 
 #blazor-error-ui {
     display: none;

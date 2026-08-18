@@ -28,7 +28,7 @@
                         }
                         else
                         {
-                            <span style="background-color:@(day.Date == DateTime.Today ? ThemeColor : null)">@(differentMonth && day.Day == 1 ? day.ToString("MMM d") : day.Day)</span>
+                            <span class="@(day.Date == DateTime.Today ? "today" : null)">@(differentMonth && day.Day == 1 ? day.ToString("MMM d") : day.Day)</span>
                         }
                     </div>
                 }
@@ -40,8 +40,8 @@
                     var start = isThisWeek(ds) ? (int)(ds.DayOfWeek - week.Start.DayOfWeek + 7) % 7 : 0;
                     var end = isThisWeek(de) ? (int)(de.DayOfWeek - week.Start.DayOfWeek + 7) % 7 : 6;
                     <div
-                        class="appointment"
-                        style="--start:@start;--end:@end;--order:0; background-color: @(NewAppointmentColor)">
+                        class="appointment new-appointment"
+                        style="--start:@start;--end:@end;--order:0;">
                             @NewAppointmentText
                     </div>
                 }

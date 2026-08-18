@@ -1,4 +1,4 @@
-﻿@namespace BlazorScheduler
+@namespace BlazorScheduler
 
 @using Microsoft.JSInterop
 @using BlazorScheduler.Internal
@@ -6,7 +6,7 @@
 
 @inject IJSRuntime jsRuntime
 
-<div class="scheduler">
+<div class="scheduler" style="--theme-color:@ThemeColor;">
     <div class="header">
         @if (HeaderTemplate != null)
         {
@@ -33,7 +33,7 @@
                 </div>
                 @if (_loading)
                 {
-                    <div class="scheduler-loader" style="--size: 25px; --color1: #666; --color2: #ccc;"></div>
+                    <div class="scheduler-loader"></div>
                 }
                 else
                 {

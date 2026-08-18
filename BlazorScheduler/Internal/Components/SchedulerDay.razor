@@ -1,4 +1,4 @@
-﻿@namespace BlazorScheduler.Internal.Components
+@namespace BlazorScheduler.Internal.Components
 
 <div class="day @Classes.AsString() @Scheduler.RootDayClass" style="@Scheduler.RootDayStyle" @onmousedown="OnMouseDown" data-date="@Day.Date.ToString("yyyyMMdd")">
     @if (Scheduler.DayTemplate != null)
@@ -7,6 +7,6 @@
     }
     else
     {
-        <span style="background-color: @Color;">@DateText</span>
+        <span class="@(Day.Date == DateTime.Today ? "today" : null)">@DateText</span>
     }
 </div>

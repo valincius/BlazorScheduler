@@ -3,7 +3,7 @@
 @using System.Globalization
 @using Microsoft.AspNetCore.Components.Web
 
-<div class="scheduler" @ref="_root">
+<div class="scheduler" @ref="_root" style="--theme-color:@ThemeColor;--new-appointment-color:@NewAppointmentColor;">
     <div class="header">
         @if (HeaderTemplate is not null)
         {
@@ -12,32 +12,35 @@
         else
         {
             <div class="actions">
-                <button type="button" class="btn today" @onclick="GoToTodayAsync">@TodayButtonText</button>
-                <div class="navigation">
-                    <button type="button" class="btn icon-btn" aria-label="@PreviousLabel" @onclick="PreviousAsync">
-                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M24 0v24H0V0h24z" fill="none"/><path d="M14 7l-5 5 5 5V7z"/></svg>
-                    </button>
-                    <span class="selected-month" aria-live="polite">@DisplayText</span>
-                    <button type="button" class="btn icon-btn" aria-label="@NextLabel" @onclick="NextAsync">
-                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M10 17l5-5-5-5v10z"/></svg>
-                    </button>
+                <div class="actions-left">
+                    <button type="button" class="btn today" @onclick="GoToTodayAsync">@TodayButtonText</button>
+                    <div class="navigation">
+                        <button type="button" class="btn icon-btn" aria-label="@PreviousLabel" @onclick="PreviousAsync">
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M24 0v24H0V0h24z" fill="none"/><path d="M14 7l-5 5 5 5V7z"/></svg>
+                        </button>
+                        <span class="selected-month" aria-live="polite">@DisplayText</span>
+                        <button type="button" class="btn icon-btn" aria-label="@NextLabel" @onclick="NextAsync">
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M10 17l5-5-5-5v10z"/></svg>
+                        </button>
+                    </div>
                 </div>
-                @if (_loading)
-                {
-                    <div class="scheduler-loader" role="status" aria-label="Loading" style="--size:25px;--color1:#666;--color2:#ccc"></div>
-                }
-                else
-                {
-                    <span></span>
-                }
+                <div class="actions-right">
+                    @if (_loading)
+                    {
+                        <div class="scheduler-loader" role="status" aria-label="Loading"></div>
+                    }
+                    @if (ShowViewSwitcher)
+                    {
+                        <label class="view-switcher">
+                            <span class="view-switcher-label">View</span>
+                            <select class="view-select" aria-label="Calendar view" value="@View" @onchange="OnViewSelectChanged">
+                                <option value="@SchedulerView.Month">Month</option>
+                                <option value="@SchedulerView.Week">Week</option>
+                            </select>
+                        </label>
+                    }
+                </div>
             </div>
-            @if (ShowViewSwitcher)
-            {
-                <div class="view-switcher" role="group" aria-label="Calendar view">
-                    <button type="button" class="btn @(View == SchedulerView.Month ? "active" : null)" aria-pressed="@(View == SchedulerView.Month)" @onclick="() => SetViewAsync(SchedulerView.Month)">Month</button>
-                    <button type="button" class="btn @(View == SchedulerView.Week ? "active" : null)" aria-pressed="@(View == SchedulerView.Week)" @onclick="() => SetViewAsync(SchedulerView.Week)">Week</button>
-                </div>
-            }
         }
     </div>
     @if (View == SchedulerView.Week)
@@ -55,6 +58,11 @@
             WeekViewStartHour="WeekViewStartHour"
             WeekViewEndHour="WeekViewEndHour"
             WeekViewHourHeight="WeekViewHourHeight"
+            Use24HourClock="Use24HourClock"
+            DraggedIndex="_draggedIndex"
+            DragStart="_dragStart"
+            DragEnd="_dragEnd"
+            NewAppointmentText="@NewAppointmentText"
             PlusOthersText="@PlusOthersText"
             ItemTemplate="ItemTemplate"
             WeekDayHeaderTemplate="WeekDayHeaderTemplate"
@@ -79,7 +87,6 @@
             DraggedIndex="_draggedIndex"
             DragStart="_dragStart"
             DragEnd="_dragEnd"
-            NewAppointmentColor="@NewAppointmentColor"
             NewAppointmentText="@NewAppointmentText"
             PlusOthersText="@PlusOthersText"
             RootDaysGroupInWeekStyle="@RootDaysGroupInWeekStyle"

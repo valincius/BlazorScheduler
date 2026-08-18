@@ -41,7 +41,7 @@ The scheduler loads its isolated JavaScript module automatically. No script tag 
 The primary callbacks use `EventCallback<T>`:
 
 - `OnRangeChanged` receives the displayed `SchedulerRange` after initial interactive rendering, navigation, and view changes.
-- `OnCreate` receives the dragged date range (month view only).
+- `OnCreate` receives the dragged date range (a day span in the month view, a timed span in the week view).
 - `OnItemClick` receives the selected item.
 - `OnItemReschedule` receives the item and proposed start/end values.
 - `OnOverflowClick` receives the day and hidden items.
@@ -66,14 +66,15 @@ The scheduler ships with a month view and a week view. Switch with the `View` pa
 ```
 
 - `StartDayOfWeek` (default `DayOfWeek.Sunday`) controls the first day of the week in both views. The displayed range always starts on it.
-- The month view shows the full month with the day-number grid, timed items as dots, and multi-day items as bars. Drag across empty days to create an appointment, or drag an appointment to reschedule it.
-- The week view shows one week with an all-day strip on top (multi-day and zero-duration items) and a time grid below, where timed items are positioned by their start and end times. Week-view drag interactions are not yet supported; item clicks work in both views.
-- `ShowViewSwitcher` (default `true`) shows the Month/Week toggle in the default header. Supplying a custom `HeaderTemplate` replaces the header entirely, including the switcher; drive view changes through the `View` parameter then.
+- The month view shows the full month with the day-number grid, timed items as dots, and multi-day items as bars. Drag across empty days to create an appointment, or drag an appointment to reschedule it. `MonthViewWeeks` (default `null`) optionally pins the grid to a fixed number of weeks (for example `6` for a classic six-week grid); when unset the grid auto-fits the month.
+- The week view shows one week with an all-day strip on top (multi-day and zero-duration items) and a time grid below, where timed items are positioned by their start and end times. Drag vertically across an empty day column to create a timed appointment (positions snap to 15 minutes); item clicks work in both views.
+- `ShowViewSwitcher` (default `true`) shows a Month/Week dropdown on the right of the default header. Supplying a custom `HeaderTemplate` replaces the header entirely, including the switcher; drive view changes through the `View` parameter then.
 
 Week-view configuration:
 
 - `WeekViewStartHour` / `WeekViewEndHour` (defaults `0` and `24`) define the visible hour window. Items are clipped at the edges; items entirely outside the window are hidden.
 - `WeekViewHourHeight` (default `60`) sets the pixel height of one hour row.
+- `Use24HourClock` (default `true`) renders the hour labels in 24-hour format (`00:00`); set to `false` for 12-hour labels (`12 AM`, `1 PM`).
 - `WeekDayHeaderTemplate` customizes each week day header cell (it receives the `DateTime`).
 - `MaxVisibleAppointmentsPerDay` (default `5`) caps the all-day strip rows and the per-day timed overlap columns; the hidden items are reported through `OnOverflowClick` and shown as a "+ {n} others" chip.
 
@@ -103,6 +104,7 @@ Legacy markup still requires `_content/BlazorScheduler/js/scripts.js`. New code 
 ```powershell
 dotnet build BlazorScheduler.sln -c Release
 dotnet test BlazorScheduler.Tests/BlazorScheduler.Tests.csproj -c Release
+node --test tests/js/scheduler.test.js
 dotnet run --project BlazorScheduler.Demo/BlazorScheduler.Demo.csproj
 ```
 

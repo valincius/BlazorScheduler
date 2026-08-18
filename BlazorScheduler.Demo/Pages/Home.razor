@@ -22,6 +22,12 @@
             <button class="demo-btn @(_startDay == DayOfWeek.Sunday ? "active" : null)" @onclick="() => _startDay = DayOfWeek.Sunday">Sun</button>
             <button class="demo-btn @(_startDay == DayOfWeek.Monday ? "active" : null)" @onclick="() => _startDay = DayOfWeek.Monday">Mon</button>
             <button class="demo-btn @(_startDay == DayOfWeek.Saturday ? "active" : null)" @onclick="() => _startDay = DayOfWeek.Saturday">Sat</button>
+            <span class="demo-control-label">Month weeks</span>
+            <button class="demo-btn @(_monthWeeks is null ? "active" : null)" @onclick="() => _monthWeeks = null">auto</button>
+            <button class="demo-btn @(_monthWeeks == 6 ? "active" : null)" @onclick="() => _monthWeeks = 6">6</button>
+            <span class="demo-control-label">Time</span>
+            <button class="demo-btn @(_use24Hour ? "active" : null)" @onclick="() => _use24Hour = true">24h</button>
+            <button class="demo-btn @(!_use24Hour ? "active" : null)" @onclick="() => _use24Hour = false">12h</button>
         </div>
 
         <DataScheduler TItem="CalendarItem"
@@ -32,6 +38,8 @@
                    ItemColor="item => item.Color"
                    @bind-View="_view"
                    StartDayOfWeek="_startDay"
+                   MonthViewWeeks="_monthWeeks"
+                   Use24HourClock="_use24Hour"
                    EnableRescheduling="true"
                    OnCreate="CreateAsync"
                    OnItemClick="ItemClickedAsync"
@@ -44,20 +52,117 @@
     </section>
 </main>
 
+@if (_pendingRange is SchedulerRange pending)
+{
+    <div class="modal-backdrop" @onclick="CancelCreateAsync">
+        <div class="modal" role="dialog" aria-modal="true" aria-label="New appointment" @onclick:stopPropagation>
+            <h2>New appointment</h2>
+            <p class="modal-range">@FormatRange(pending.Start, pending.End)</p>
+
+            <label class="modal-field">
+                <span>Title</span>
+                <input type="text" @bind="_modalTitle" />
+            </label>
+            <label class="modal-field">
+                <span>Location</span>
+                <input type="text" @bind="_modalLocation" placeholder="Optional" />
+            </label>
+            <div class="modal-row">
+                <label class="modal-field">
+                    <span>Starts</span>
+                    <input type="datetime-local" value="@_modalStartLocal" @onchange="OnModalStartChanged" />
+                </label>
+                <label class="modal-field">
+                    <span>Ends</span>
+                    <input type="datetime-local" value="@_modalEndLocal" @onchange="OnModalEndChanged" />
+                </label>
+            </div>
+            <label class="modal-field">
+                <span>Description</span>
+                <textarea @bind="_modalDescription" placeholder="Optional"></textarea>
+            </label>
+
+            <div class="modal-actions">
+                <button type="button" class="demo-btn" @onclick="CancelCreateAsync">Cancel</button>
+                <button type="button" class="demo-btn primary" @onclick="SaveCreateAsync">Save</button>
+            </div>
+        </div>
+    </div>
+}
+
 @code {
     private IReadOnlyList<CalendarItem> _items = CreateSampleItems();
     private string _status = "Ready.";
     private SchedulerView _view = SchedulerView.Month;
     private DayOfWeek _startDay = DayOfWeek.Sunday;
+    private int? _monthWeeks;
+    private bool _use24Hour = true;
+
+    private SchedulerRange? _pendingRange;
+    private string _modalTitle = string.Empty;
+    private string _modalLocation = string.Empty;
+    private string _modalDescription = string.Empty;
+    private string _modalStartLocal = string.Empty;
+    private string _modalEndLocal = string.Empty;
 
     private Task CreateAsync(SchedulerRange range)
     {
+        _pendingRange = range;
+        _modalTitle = "New appointment";
+        _modalLocation = string.Empty;
+        _modalDescription = string.Empty;
+        _modalStartLocal = range.Start.ToString("yyyy-MM-ddTHH:mm", System.Globalization.CultureInfo.InvariantCulture);
+        _modalEndLocal = range.End.ToString("yyyy-MM-ddTHH:mm", System.Globalization.CultureInfo.InvariantCulture);
+        _status = "Fill in the details and save to add the appointment.";
+        return Task.CompletedTask;
+    }
+
+    private void OnModalStartChanged(ChangeEventArgs args) => _modalStartLocal = args.Value?.ToString() ?? string.Empty;
+
+    private void OnModalEndChanged(ChangeEventArgs args) => _modalEndLocal = args.Value?.ToString() ?? string.Empty;
+
+    private Task SaveCreateAsync()
+    {
+        if (_pendingRange is not SchedulerRange range)
+        {
+            return Task.CompletedTask;
+        }
+
+        var title = string.IsNullOrWhiteSpace(_modalTitle) ? "New appointment" : _modalTitle.Trim();
+        var start = TryParseLocal(_modalStartLocal) ?? range.Start;
+        var end = TryParseLocal(_modalEndLocal) ?? range.End;
+        if (end <= start)
+        {
+            end = start.AddHours(1);
+        }
+
         var rnd = new Random();
         var newColor = $"#{rnd.Next(255):X2}{rnd.Next(255):X2}{rnd.Next(255):X2}";
-        var next = new CalendarItem(Guid.NewGuid(), "New appointment", range.Start, range.End, newColor);
+        var next = new CalendarItem(Guid.NewGuid(), title, start, end, newColor,
+            string.IsNullOrWhiteSpace(_modalLocation) ? null : _modalLocation.Trim(),
+            string.IsNullOrWhiteSpace(_modalDescription) ? null : _modalDescription.Trim());
         _items = _items.Append(next).ToArray();
-        _status = $"Created {range.Start:d} - {range.End:d}.";
+        _pendingRange = null;
+        _status = $"Created {title} ({FormatRange(start, end)}).";
         return Task.CompletedTask;
+    }
+
+    private Task CancelCreateAsync()
+    {
+        _pendingRange = null;
+        _status = "Appointment creation cancelled.";
+        return Task.CompletedTask;
+    }
+
+    private static DateTime? TryParseLocal(string value) =>
+        DateTime.TryParse(value, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out var parsed)
+            ? parsed
+            : null;
+
+    private string FormatRange(DateTime start, DateTime end)
+    {
+        var format = _use24Hour ? "MMM d, yyyy HH:mm" : "MMM d, yyyy h:mm tt";
+        return $"{start.ToString(format, System.Globalization.CultureInfo.CurrentCulture)} – {end.ToString(format, System.Globalization.CultureInfo.CurrentCulture)}";
     }
 
     private Task RescheduleAsync(SchedulerItemRescheduleEventArgs<CalendarItem> args)
@@ -1057,5 +1162,6 @@
         };
     }
 
-    public sealed record CalendarItem(Guid Id, string Title, DateTime Start, DateTime End, string Color);
+    public sealed record CalendarItem(Guid Id, string Title, DateTime Start, DateTime End, string Color,
+        string? Location = null, string? Description = null);
 }
