@@ -10,3 +10,17 @@ body { margin: 0; }
 .demo-status { min-height: 1.5rem; margin: 1rem 0 0; color: #5d6678; }
 @media (max-width: 650px) { .demo-heading { display: block; } .mode-pill { display: inline-block; margin-top: 1rem; } }
 
+#blazor-error-ui {
+    display: none;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    padding: .6rem 3rem .7rem 1.25rem;
+    background: #fff7d6;
+    border-top: 1px solid #e5d9a0;
+    box-shadow: 0 -1px 2px rgb(0 0 0 / 15%);
+    z-index: 1000;
+}
+#blazor-error-ui.show { display: block; }
+#blazor-error-ui .dismiss { cursor: pointer; position: absolute; right: .75rem; top: .5rem; }

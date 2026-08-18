@@ -1,4 +1,4 @@
-<Router AppAssembly="typeof(Program).Assembly" AdditionalAssemblies="new[] { typeof(BlazorScheduler.Demo.Client.Pages.Home).Assembly }">
+<Router AppAssembly="typeof(Program).Assembly">
     <Found Context="routeData">
         <RouteView RouteData="routeData" />
         <FocusOnNavigate RouteData="routeData" Selector="h1" />
@@ -8,4 +8,3 @@
         <main class="demo-shell"><h1>Not found</h1><p>The requested page does not exist.</p></main>
     </NotFound>
 </Router>
-

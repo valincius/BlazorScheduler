@@ -2,7 +2,7 @@
 
 A lightweight month scheduler for Blazor with all-day and timed items, overflow handling, templates, appointment creation, and drag-to-reschedule support.
 
-Version 5 targets .NET 8 and .NET 10. The included demo is a .NET 10 Blazor Web App using Interactive Auto.
+Version 5 targets .NET 8 and .NET 10. The included demo is a standalone .NET 10 Blazor WebAssembly app, deployed as static files to GitHub Pages.
 
 ## Install
 
@@ -70,18 +70,13 @@ Legacy markup still requires `_content/BlazorScheduler/js/scripts.js`. New code 
 ```powershell
 dotnet build BlazorScheduler.sln -c Release
 dotnet test BlazorScheduler.Tests/BlazorScheduler.Tests.csproj -c Release
-dotnet run --project BlazorScheduler.Demo/BlazorScheduler.Demo.csproj
+dotnet run --project BlazorScheduler.Demo.Client/BlazorScheduler.Demo.Client.csproj
 ```
 
-The demo exposes `/healthz`. To publish an OCI image with the .NET SDK:
-
-```powershell
-dotnet publish BlazorScheduler.Demo/BlazorScheduler.Demo.csproj -c Release /t:PublishContainer
-```
+The demo is deployed to GitHub Pages at [https://valincius.github.io/BlazorScheduler/](https://valincius.github.io/BlazorScheduler/) by the `GitHub Pages` workflow on every push to `main`. The workflow publishes the WebAssembly app and uploads its `wwwroot` output; the Pages source must be set to **GitHub Actions** in the repository settings.
 
 See [docs/performance.md](docs/performance.md) for the layout profiling method and results.
 
 ## License
 
 MIT
-

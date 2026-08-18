@@ -5,8 +5,6 @@ VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazorScheduler", "BlazorScheduler\BlazorScheduler.csproj", "{7B925AA6-DC1F-4E9F-8E1E-B57E344AA43D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazorScheduler.Demo", "BlazorScheduler.Demo\BlazorScheduler.Demo.csproj", "{071A9DF7-BE38-4C18-9B38-6571063A95C8}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazorScheduler.Demo.Client", "BlazorScheduler.Demo.Client\BlazorScheduler.Demo.Client.csproj", "{A61BC2F9-71E2-450D-932A-949E11EE49DE}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazorScheduler.Tests", "BlazorScheduler.Tests\BlazorScheduler.Tests.csproj", "{DBDF1A3E-9A6B-4EBA-B52A-7ECF5C88DCCB}"
@@ -37,18 +35,6 @@ Global
 		{7B925AA6-DC1F-4E9F-8E1E-B57E344AA43D}.Release|x64.Build.0 = Release|Any CPU
 		{7B925AA6-DC1F-4E9F-8E1E-B57E344AA43D}.Release|x86.ActiveCfg = Release|Any CPU
 		{7B925AA6-DC1F-4E9F-8E1E-B57E344AA43D}.Release|x86.Build.0 = Release|Any CPU
-		{071A9DF7-BE38-4C18-9B38-6571063A95C8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{071A9DF7-BE38-4C18-9B38-6571063A95C8}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{071A9DF7-BE38-4C18-9B38-6571063A95C8}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{071A9DF7-BE38-4C18-9B38-6571063A95C8}.Debug|x64.Build.0 = Debug|Any CPU
-		{071A9DF7-BE38-4C18-9B38-6571063A95C8}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{071A9DF7-BE38-4C18-9B38-6571063A95C8}.Debug|x86.Build.0 = Debug|Any CPU
-		{071A9DF7-BE38-4C18-9B38-6571063A95C8}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{071A9DF7-BE38-4C18-9B38-6571063A95C8}.Release|Any CPU.Build.0 = Release|Any CPU
-		{071A9DF7-BE38-4C18-9B38-6571063A95C8}.Release|x64.ActiveCfg = Release|Any CPU
-		{071A9DF7-BE38-4C18-9B38-6571063A95C8}.Release|x64.Build.0 = Release|Any CPU
-		{071A9DF7-BE38-4C18-9B38-6571063A95C8}.Release|x86.ActiveCfg = Release|Any CPU
-		{071A9DF7-BE38-4C18-9B38-6571063A95C8}.Release|x86.Build.0 = Release|Any CPU
 		{A61BC2F9-71E2-450D-932A-949E11EE49DE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{A61BC2F9-71E2-450D-932A-949E11EE49DE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A61BC2F9-71E2-450D-932A-949E11EE49DE}.Debug|x64.ActiveCfg = Debug|Any CPU
