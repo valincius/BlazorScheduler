@@ -29,8 +29,8 @@ jobs:
         run: dotnet publish BlazorScheduler.Demo/BlazorScheduler.Demo.csproj -c Release -o release
       - name: Rewrite base href for GitHub Pages
         run: sed -i 's#<base href="/" />#<base href="/BlazorScheduler/" />#' release/wwwroot/index.html
-      - uses: actions/upload-pages-artifact@v4
+      - uses: actions/upload-pages-artifact@v5
         with:
           path: release/wwwroot
       - id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
