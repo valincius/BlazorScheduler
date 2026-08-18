@@ -3,6 +3,7 @@ name: Release NuGet
 on:
   push:
     tags: ['v*']
+  workflow_call: 
 
 permissions:
   id-token: write
