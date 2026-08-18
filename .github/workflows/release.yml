@@ -5,6 +5,7 @@ on:
     tags: ['v*']
 
 permissions:
+  id-token: write
   contents: read
 
 jobs:
@@ -12,11 +13,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
+      - name: NuGet login (OIDC → temp API key)
+        uses: NuGet/login@v1
+        id: login
+        with:
+          user: valincius # Recommended: use a secret like ${{ secrets.NUGET_USER }} for your nuget.org username (profile name), NOT your email address
       - uses: actions/setup-dotnet@v6
         with:
           dotnet-version: 10.0.x
       - run: dotnet test BlazorScheduler.Tests/BlazorScheduler.Tests.csproj -c Release
       - run: dotnet pack BlazorScheduler/BlazorScheduler.csproj -c Release -o artifacts -p:PackageVersion=${GITHUB_REF_NAME#v}
-      - run: dotnet nuget push "artifacts/*.nupkg" --api-key "$NUGET_KEY" --source https://api.nuget.org/v3/index.json --skip-duplicate
-        env:
-          NUGET_KEY: ${{ secrets.NUGET_KEY }}
+      - run: dotnet nuget push "artifacts/*.nupkg" --api-key ${{steps.login.outputs.NUGET_API_KEY}} --source https://api.nuget.org/v3/index.json --skip-duplicate
