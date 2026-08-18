@@ -93,6 +93,22 @@ export function weekViewAt(root, clientX, clientY) {
 }
 
 /**
+ * Resolves the day a double-click should create a same-day appointment on, or
+ * null when the double-click landed on an interactive control, an appointment,
+ * or outside the day grid entirely. Month view resolves by grid coordinates;
+ * week view resolves the pressed time-grid column.
+ */
+export function doubleClickDayAt(root, target, clientX, clientY) {
+    if (isInteractiveTarget(target)) return null;
+    if (target.closest(ITEM_SELECTOR)) return null;
+    if (target.closest(WEEK_GRID_SELECTOR)) {
+        const position = weekViewAt(root, clientX, clientY);
+        return position ? position.day : null;
+    }
+    return dayAt(root, clientX, clientY);
+}
+
+/**
  * Decides whether a pointer press should begin a drag, and what it targets.
  * Returns { day, item, week? } when the press lands on a drag surface,
  * otherwise null. item is the data-scheduler-item source index, or null for a
@@ -129,10 +145,12 @@ export class SchedulerPointerHandler {
         this.pointerDown = this.pointerDown.bind(this);
         this.pointerMove = this.pointerMove.bind(this);
         this.pointerUp = this.pointerUp.bind(this);
+        this.dblClick = this.dblClick.bind(this);
         root.addEventListener('pointerdown', this.pointerDown);
         window.addEventListener('pointermove', this.pointerMove);
         window.addEventListener('pointerup', this.pointerUp);
         window.addEventListener('pointercancel', this.pointerUp);
+        root.addEventListener('dblclick', this.dblClick);
     }
 
     pointerDown(event) {
@@ -198,11 +216,23 @@ export class SchedulerPointerHandler {
         }
     }
 
+    /**
+     * A double-click on an empty day creates a same-day appointment. The
+     * pointer handlers above treat each press/release as a plain click, so the
+     * browser's dblclick event still reaches us here.
+     */
+    dblClick(event) {
+        const day = doubleClickDayAt(this.root, event.target, event.clientX, event.clientY);
+        if (!day) return;
+        this.dotnet.invokeMethodAsync('DayDoubleClicked', day);
+    }
+
     dispose() {
         this.root.removeEventListener('pointerdown', this.pointerDown);
         window.removeEventListener('pointermove', this.pointerMove);
         window.removeEventListener('pointerup', this.pointerUp);
         window.removeEventListener('pointercancel', this.pointerUp);
+        this.root.removeEventListener('dblclick', this.dblClick);
         this.root = null;
         this.dotnet = null;
     }

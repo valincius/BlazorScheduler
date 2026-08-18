@@ -13,6 +13,7 @@ import {
     isInteractiveTarget,
     dayAt,
     weekViewAt,
+    doubleClickDayAt,
     resolveDragStart,
     SchedulerPointerHandler,
 } from '../../BlazorScheduler/wwwroot/js/scheduler.js';
@@ -268,6 +269,76 @@ test('weekViewAt returns null outside the time grid', () => {
     assert.equal(weekViewAt(root, 200, 50), null);   // above the grid (all-day strip / header)
     assert.equal(weekViewAt(root, 200, 750), null);  // below the grid
     assert.equal(weekViewAt(root, 900, 250), null);  // right of the columns
+});
+
+test('doubleClickDayAt resolves the month day under a double-click', () => {
+    const { root, weeks } = buildScheduler();
+    const dayCell = weeks[0].querySelectorAll('[data-scheduler-day]')[0];
+    assert.equal(doubleClickDayAt(root, dayCell, 125, 230), '20260801');
+    assert.equal(doubleClickDayAt(root, dayCell, 300, 330), '20260812'); // second week
+
+    // Header controls are ignored.
+    const { todayBtn } = buildScheduler();
+    assert.equal(doubleClickDayAt(root, todayBtn, 140, 35), null);
+
+    // Double-clicks outside the grid resolve to nothing.
+    assert.equal(doubleClickDayAt(root, dayCell, 125, 30), null);
+
+    // Appointment presses are ignored: the click is for editing, not creating.
+    const appointments = weeks[0].querySelector('.appointments');
+    const item = makeElement({ dataset: { schedulerItem: '2' }, rect: { left: 120, top: 270, width: 150, height: 24 } });
+    appointments._children.push(item);
+    item.parentNode = appointments;
+    assert.equal(doubleClickDayAt(root, item, 150, 280), null);
+});
+
+test('doubleClickDayAt resolves the week column and ignores timed items', () => {
+    const { root, columns } = buildWeekView();
+    assert.equal(doubleClickDayAt(root, columns[0], 200, 250), '20260810');
+
+    // A timed item inside the column is ignored.
+    const item = makeElement({ dataset: { schedulerItem: '0' }, rect: { left: 160, top: 200, width: 80, height: 40 } });
+    columns[0]._children.push(item);
+    item.parentNode = columns[0];
+    assert.equal(doubleClickDayAt(root, item, 200, 220), null);
+
+    // Outside the grid: nothing.
+    assert.equal(doubleClickDayAt(root, columns[0], 200, 50), null);
+});
+
+test('a double-click on an empty day invokes DayDoubleClicked once', () => {
+    const { root, weeks } = buildScheduler();
+    const captures = [];
+    const calls = [];
+    globalThis.window = fakeWindow();
+    try {
+        const handler = new SchedulerPointerHandler(attachEvents(root, captures), fakeDotnet(calls));
+        const dayCell = weeks[0].querySelectorAll('[data-scheduler-day]')[0];
+        handler.dblClick({ target: dayCell, clientX: 125, clientY: 230 });
+        assert.deepEqual(calls, [['DayDoubleClicked', '20260801']]);
+        assert.deepEqual(captures, []); // never captures on a double-click
+    } finally {
+        delete globalThis.window;
+    }
+});
+
+test('a double-click on an item or control never invokes DayDoubleClicked', () => {
+    const { root, weeks, todayBtn } = buildScheduler();
+    const captures = [];
+    const calls = [];
+    globalThis.window = fakeWindow();
+    try {
+        const handler = new SchedulerPointerHandler(attachEvents(root, captures), fakeDotnet(calls));
+        const appointments = weeks[0].querySelector('.appointments');
+        const item = makeElement({ dataset: { schedulerItem: '2' }, rect: { left: 120, top: 270, width: 150, height: 24 } });
+        appointments._children.push(item);
+        item.parentNode = appointments;
+        handler.dblClick({ target: item, clientX: 150, clientY: 280 });
+        handler.dblClick({ target: todayBtn, clientX: 140, clientY: 35 });
+        assert.deepEqual(calls, []);
+    } finally {
+        delete globalThis.window;
+    }
 });
 
 test('resolveDragStart starts a week drag from an empty column', () => {

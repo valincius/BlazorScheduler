@@ -1,6 +1,6 @@
 # BlazorScheduler
 
-A lightweight month and week scheduler for Blazor with all-day and timed items, overflow handling, templates, appointment creation, and drag-to-reschedule support.
+A lightweight month and week scheduler for Blazor with all-day and timed items, overflow handling, templates, drag-to-create, double-click same-day creation, and drag-to-reschedule support.
 
 Version 5 targets .NET 8 and .NET 10. The included demo is a standalone .NET 10 Blazor WebAssembly app, deployed as static files to GitHub Pages.
 
@@ -42,6 +42,7 @@ The primary callbacks use `EventCallback<T>`:
 
 - `OnRangeChanged` receives the displayed `SchedulerRange` after initial interactive rendering, navigation, and view changes.
 - `OnCreate` receives the dragged date range (a day span in the month view, a timed span in the week view).
+- `OnDayDoubleClick` receives the full-day `SchedulerRange` of a day that was double-clicked in the month grid or the week-view time grid. It runs from midnight of that day to midnight of the next, so a same-day appointment can be created without dragging across days.
 - `OnItemClick` receives the selected item.
 - `OnItemReschedule` receives the item and proposed start/end values.
 - `OnOverflowClick` receives the day and hidden items.
@@ -66,8 +67,8 @@ The scheduler ships with a month view and a week view. Switch with the `View` pa
 ```
 
 - `StartDayOfWeek` (default `DayOfWeek.Sunday`) controls the first day of the week in both views. The displayed range always starts on it.
-- The month view shows the full month with the day-number grid, timed items as dots, and multi-day items as bars. Drag across empty days to create an appointment, or drag an appointment to reschedule it. `MonthViewWeeks` (default `null`) optionally pins the grid to a fixed number of weeks (for example `6` for a classic six-week grid); when unset the grid auto-fits the month.
-- The week view shows one week with an all-day strip on top (multi-day and zero-duration items) and a time grid below, where timed items are positioned by their start and end times. Drag vertically across an empty day column to create a timed appointment (positions snap to 15 minutes); item clicks work in both views.
+- The month view shows the full month with the day-number grid, timed items as dots, and multi-day items as bars. Drag across empty days to create an appointment, double-click a single day to create a same-day appointment, or drag an appointment to reschedule it. `MonthViewWeeks` (default `null`) optionally pins the grid to a fixed number of weeks (for example `6` for a classic six-week grid); when unset the grid auto-fits the month.
+- The week view shows one week with an all-day strip on top (multi-day and zero-duration items) and a time grid below, where timed items are positioned by their start and end times. Drag vertically across an empty day column to create a timed appointment (positions snap to 15 minutes), double-click an empty day column to create a same-day appointment, and click an item in either view to select or edit it.
 - `ShowViewSwitcher` (default `true`) shows a Month/Week dropdown on the right of the default header. Supplying a custom `HeaderTemplate` replaces the header entirely, including the switcher; drive view changes through the `View` parameter then.
 
 Week-view configuration:
@@ -108,7 +109,7 @@ node --test tests/js/scheduler.test.js
 dotnet run --project BlazorScheduler.Demo/BlazorScheduler.Demo.csproj
 ```
 
-The demo is deployed to GitHub Pages at [https://valincius.github.io/BlazorScheduler/](https://valincius.github.io/BlazorScheduler/) by the `GitHub Pages` workflow on every push to `main`. The workflow publishes the WebAssembly app and uploads its `wwwroot` output; the Pages source must be set to **GitHub Actions** in the repository settings.
+The demo is deployed to GitHub Pages at [https://valincius.github.io/BlazorScheduler/](https://valincius.github.io/BlazorScheduler/) by the `GitHub Pages` workflow on every push to `main`. The workflow publishes the WebAssembly app and uploads its `wwwroot` output; the Pages source must be set to **GitHub Actions** in the repository settings. The demo supports drag-to-create, double-click same-day creation, click-to-edit (including a color picker in the appointment modal), drag-to-reschedule, and overflow handling.
 
 See [docs/performance.md](docs/performance.md) for the layout profiling method and results.
 

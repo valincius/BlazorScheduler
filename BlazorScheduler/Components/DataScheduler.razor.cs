@@ -25,6 +25,7 @@ public partial class DataScheduler<TItem> : IAsyncDisposable
     [Parameter] public RenderFragment<DateTime>? DayTemplate { get; set; }
     [Parameter] public EventCallback<SchedulerRange> OnRangeChanged { get; set; }
     [Parameter] public EventCallback<SchedulerRange> OnCreate { get; set; }
+    [Parameter] public EventCallback<SchedulerRange> OnDayDoubleClick { get; set; }
     [Parameter] public EventCallback<TItem> OnItemClick { get; set; }
     [Parameter] public EventCallback<SchedulerItemRescheduleEventArgs<TItem>> OnItemReschedule { get; set; }
     [Parameter] public EventCallback<SchedulerOverflowEventArgs<TItem>> OnOverflowClick { get; set; }
@@ -259,6 +260,23 @@ public partial class DataScheduler<TItem> : IAsyncDisposable
         _draggedIndex = null;
         _dragAnchor = _dragStart = _dragEnd = day;
         _didDrag = false;
+    }
+
+    /// <summary>
+    /// Handles a double-click on an empty day (month grid or week-view time
+    /// grid). Unlike drag creation, this always produces a full-day range
+    /// spanning the single clicked day, so a same-day appointment can be added
+    /// without dragging across days.
+    /// </summary>
+    [JSInvokable]
+    public async Task DayDoubleClicked(string value)
+    {
+        if (!EnableAppointmentsCreationFromScheduler)
+        {
+            return;
+        }
+        var day = ParseDay(value);
+        await OnDayDoubleClick.InvokeAsync(new SchedulerRange(day.Date, day.Date.AddDays(1)));
     }
 
     [JSInvokable]

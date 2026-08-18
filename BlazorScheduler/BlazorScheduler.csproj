@@ -16,7 +16,7 @@
     <PackageProjectUrl></PackageProjectUrl>
     <RepositoryUrl>https://github.com/valincius/BlazorScheduler</RepositoryUrl>
     <VersionPrefix>5.0.0</VersionPrefix>
-    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageReadmeFile>NuGet.README.md</PackageReadmeFile>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
@@ -30,7 +30,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="..\README.md" Pack="true" PackagePath="\" Link="README.md" />
+    <None Include="..\docs\NuGet.README.md" Pack="true" PackagePath="\" Link="NuGet.README.md" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net8.0'">

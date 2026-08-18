@@ -55,6 +55,42 @@ body { margin: 0; }
 .modal-row .modal-field { flex: 1; }
 .modal-actions { display: flex; justify-content: flex-end; gap: .5rem; margin-top: 1rem; }
 
+.modal-color { border: 0; padding: 0; margin: 0 0 .8rem; }
+.modal-color legend { font-size: .85rem; color: #5d6678; margin-bottom: .35rem; padding: 0; }
+.color-swatches { display: flex; gap: .45rem; flex-wrap: wrap; align-items: center; }
+.color-swatch {
+    --swatch: #2563eb;
+    width: 1.6rem;
+    height: 1.6rem;
+    border-radius: 50%;
+    background: var(--swatch);
+    border: 2px solid white;
+    padding: 0;
+    cursor: pointer;
+    box-shadow: 0 0 0 1px rgb(16 24 40 / 15%);
+    transition: transform .1s ease, box-shadow .15s ease;
+}
+.color-swatch:hover { transform: scale(1.12); }
+.color-swatch.active {
+    border-color: white;
+    box-shadow: 0 0 0 2px #172033, 0 0 0 4px var(--swatch);
+}
+.color-custom { display: flex; align-items: center; gap: .5rem; margin-top: .65rem; font-size: .85rem; color: #5d6678; }
+.color-custom input[type="color"] {
+    width: 2.4rem;
+    height: 1.9rem;
+    padding: 2px;
+    border: 1px solid #d8dde3;
+    border-radius: 6px;
+    background: white;
+    cursor: pointer;
+}
+.color-hex {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: .8rem;
+    color: #172033;
+}
+
 #blazor-error-ui {
     display: none;
     position: fixed;

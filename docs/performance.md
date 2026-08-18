@@ -1,6 +1,6 @@
 # Performance profile
 
-The v5 layout engine replaces per-week, per-item LINQ overlap scans with one range sort, week partitioning, and compact seven-day occupancy masks. Pointer handling also moved from a global handler that measured and sorted every day element on each throttled move to a per-instance module that calculates the grid cell and invokes .NET only when the day changes.
+The v5 layout engine replaces per-week, per-item LINQ overlap scans with one range sort, week partitioning, and compact seven-day occupancy masks. Pointer handling also moved from a global handler that measured and sorted every day element on each throttled move to a per-instance module that calculates the grid cell and invokes .NET only when the day changes. Double-click day creation follows the same rule: the module resolves the day once and makes a single `DayDoubleClicked` interop call, and it never engages pointer capture, so drag handling is unaffected.
 
 ## Reproduce
 
@@ -24,4 +24,4 @@ Measured on Windows x64 with .NET SDK 10.0.302:
 | 500 | 14.51 ms | 0.26 ms | 54.8× | 183.1 KiB |
 | 5,000 | 283.97 ms | 2.09 ms | 136.1× | 1,776.0 KiB |
 
-Browser profiling should additionally verify that drag handling emits at most one interop call per newly entered day and that multiple scheduler instances maintain separate pointer handlers.
+Browser profiling should additionally verify that drag handling emits at most one interop call per newly entered day, that a double-click emits exactly one `DayDoubleClicked` call, and that multiple scheduler instances maintain separate pointer handlers.

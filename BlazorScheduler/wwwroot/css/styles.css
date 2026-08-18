@@ -247,34 +247,45 @@
 .scheduler > .header > .actions > .actions-right > .view-switcher {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
 }
-.scheduler > .header > .view-switcher > .view-switcher-label {
+.scheduler > .header > .actions > .actions-right > .view-switcher > .view-switcher-label {
     color: #5d6678;
     font-size: .85rem;
+    font-weight: 500;
+    white-space: nowrap;
 }
-.scheduler > .header > .view-switcher > .view-select {
+.scheduler > .header > .actions > .actions-right > .view-switcher > .view-select {
     appearance: none;
     font: inherit;
     font-size: .9rem;
+    font-weight: 500;
     line-height: 1.2;
-    padding: .4rem 2.1rem .4rem .6rem;
+    padding: .45rem 2.2rem .45rem .8rem;
     border: 1px solid #d8dde3;
-    border-radius: 6px;
+    border-radius: 8px;
     background-color: white;
     color: #1f2937;
     cursor: pointer;
+    box-shadow: 0 1px 2px rgb(16 24 40 / 5%);
+    transition: border-color .15s ease, box-shadow .15s ease, background-color .15s ease;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235d6678' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
-    background-position: right .55rem center;
+    background-position: right .6rem center;
     background-size: 1em;
 }
-.scheduler > .header > .view-switcher > .view-select:hover {
-    border-color: #c6cdd6;
+.scheduler > .header > .actions > .actions-right > .view-switcher > .view-select:hover {
+    border-color: #b8c0cc;
+    background-color: #f8fafc;
 }
-.scheduler > .header > .view-switcher > .view-select:focus-visible {
+.scheduler > .header > .actions > .actions-right > .view-switcher > .view-select:focus-visible {
     outline: 2px solid var(--theme-color, #4f8ef7);
     outline-offset: 1px;
+    border-color: var(--theme-color, #4f8ef7);
+}
+.scheduler > .header > .actions > .actions-right > .view-switcher > .view-select:disabled {
+    opacity: .6;
+    cursor: not-allowed;
 }
 
 /* Week view */
