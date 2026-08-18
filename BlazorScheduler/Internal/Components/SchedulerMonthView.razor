@@ -1,0 +1,85 @@
+@namespace BlazorScheduler.Internal.Components
+@typeparam TItem
+@using System.Globalization
+
+<div class="month">
+    <div class="week header">
+        @for (var offset = 0; offset < 7; offset++)
+        {
+            var dayNumber = ((int)StartDayOfWeek + offset) % 7;
+            var dayName = CultureInfo.CurrentCulture.DateTimeFormat.DayNames[dayNumber];
+            <div class="day-of-month"><span class="full-dayname">@dayName</span><span class="short-dayname">@dayName[..3]</span></div>
+        }
+    </div>
+
+    @foreach (var week in _weeks)
+    {
+        <div class="week" @key="week.Start">
+            <div class="days" style="--maxAppointments:@week.VisibleRows; @RootDaysGroupInWeekStyle">
+                @for (var dayOffset = 0; dayOffset < 7; dayOffset++)
+                {
+                    var day = week.Start.AddDays(dayOffset);
+                    var differentMonth = day.Month != CurrentDate.Month;
+                    <div class="day @(differentMonth ? "diff-month" : null) @RootDayClass"
+                         style="@RootDayStyle" data-scheduler-day="@day.ToString("yyyyMMdd", CultureInfo.InvariantCulture)">
+                        @if (DayTemplate is not null)
+                        {
+                            @DayTemplate(day)
+                        }
+                        else
+                        {
+                            <span style="background-color:@(day.Date == DateTime.Today ? ThemeColor : null)">@(differentMonth && day.Day == 1 ? day.ToString("MMM d") : day.Day)</span>
+                        }
+                    </div>
+                }
+            </div>
+            <div class="appointments">
+                @if (DraggedIndex is null && DragStart is DateTime ds && DragEnd is DateTime de && (ds, de).Overlaps((week.Start.Date, week.End.Date)))
+                {
+                    var isThisWeek = (DateTime d) => d >= week.Start && d <= week.End;
+                    var start = isThisWeek(ds) ? (int)(ds.DayOfWeek - week.Start.DayOfWeek + 7) % 7 : 0;
+                    var end = isThisWeek(de) ? (int)(de.DayOfWeek - week.Start.DayOfWeek + 7) % 7 : 6;
+                    <div
+                        class="appointment"
+                        style="--start:@start;--end:@end;--order:0; background-color: @(NewAppointmentColor)">
+                            @NewAppointmentText
+                    </div>
+                }
+
+                @foreach (var placed in week.Items)
+                {
+                    if (placed.Order <= (week.Overflows.Any(x => x.Day.Date >= placed.Input.Start && (x.Day.Date <= placed.Input.End || placed.IsTimed)) ? MaxVisibleAppointmentsPerDay - 1 : MaxVisibleAppointmentsPerDay))
+                    {
+                        var input = placed.Input;
+                        <div @key="input.Key"
+                             class="appointment @(placed.IsTimed ? "appointment-timed" : null) @input.Class"
+                             style="--start:@placed.StartDay;--end:@placed.EndDay;--order:@placed.Order;@(placed.IsTimed ? null : $"background-color:{input.Color};") @input.Style"
+                             data-scheduler-item="@input.SourceIndex"
+                             @onclick="() => ItemClickedAsync(input.Item)">
+                            @if (placed.IsTimed)
+                            {
+                                <span class="dot" style="background-color:@input.Color"></span>
+                            }
+                            @if (ItemTemplate is not null)
+                            {
+                                @ItemTemplate(new SchedulerItemContext<TItem>(input.Item, placed.IsTimed))
+                            }
+                            else
+                            {
+                                @input.Item
+                            }
+                        </div>
+                    }
+                }
+                @foreach (var overflow in week.Overflows)
+                {
+                    var start = (int)(overflow.Day - week.Start).TotalDays;
+                    <button type="button" class="appointment scheduler-overflow" style="--start:@start;--end:@start;--order:@MaxVisibleAppointmentsPerDay;@RootAppointmentOverflowStyle"
+                            @onclick="() => OverflowClickedAsync(overflow)">
+                        @PlusOthersText.Replace("{n}", overflow.Items.Count.ToString(CultureInfo.CurrentCulture))
+                    </button>
+                }
+            </div>
+        </div>
+    }
+</div>

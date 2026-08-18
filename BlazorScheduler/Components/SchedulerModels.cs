@@ -1,5 +1,15 @@
 namespace BlazorScheduler;
 
+/// <summary>The calendar view displayed by a scheduler.</summary>
+public enum SchedulerView
+{
+    /// <summary>A month grid of weeks starting on <c>StartDayOfWeek</c>.</summary>
+    Month,
+
+    /// <summary>A single week with an all-day strip and a time grid.</summary>
+    Week
+}
+
 /// <summary>A date range displayed or selected by a scheduler.</summary>
 public readonly record struct SchedulerRange(DateTime Start, DateTime End);
 

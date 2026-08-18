@@ -1,4 +1,4 @@
-﻿
+
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
@@ -8,8 +8,6 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazorScheduler.Demo", "BlazorScheduler.Demo\BlazorScheduler.Demo.csproj", "{A61BC2F9-71E2-450D-932A-949E11EE49DE}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazorScheduler.Tests", "BlazorScheduler.Tests\BlazorScheduler.Tests.csproj", "{DBDF1A3E-9A6B-4EBA-B52A-7ECF5C88DCCB}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tools", "tools", "{07C2787E-EAC7-C090-1BA3-A61EC2A24D84}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -57,23 +55,8 @@ Global
 		{DBDF1A3E-9A6B-4EBA-B52A-7ECF5C88DCCB}.Release|x64.Build.0 = Release|Any CPU
 		{DBDF1A3E-9A6B-4EBA-B52A-7ECF5C88DCCB}.Release|x86.ActiveCfg = Release|Any CPU
 		{DBDF1A3E-9A6B-4EBA-B52A-7ECF5C88DCCB}.Release|x86.Build.0 = Release|Any CPU
-		{29ECDC94-16C0-4402-8694-1ED9ADF4404F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{29ECDC94-16C0-4402-8694-1ED9ADF4404F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{29ECDC94-16C0-4402-8694-1ED9ADF4404F}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{29ECDC94-16C0-4402-8694-1ED9ADF4404F}.Debug|x64.Build.0 = Debug|Any CPU
-		{29ECDC94-16C0-4402-8694-1ED9ADF4404F}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{29ECDC94-16C0-4402-8694-1ED9ADF4404F}.Debug|x86.Build.0 = Debug|Any CPU
-		{29ECDC94-16C0-4402-8694-1ED9ADF4404F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{29ECDC94-16C0-4402-8694-1ED9ADF4404F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{29ECDC94-16C0-4402-8694-1ED9ADF4404F}.Release|x64.ActiveCfg = Release|Any CPU
-		{29ECDC94-16C0-4402-8694-1ED9ADF4404F}.Release|x64.Build.0 = Release|Any CPU
-		{29ECDC94-16C0-4402-8694-1ED9ADF4404F}.Release|x86.ActiveCfg = Release|Any CPU
-		{29ECDC94-16C0-4402-8694-1ED9ADF4404F}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
-	EndGlobalSection
-	GlobalSection(NestedProjects) = preSolution
-		{29ECDC94-16C0-4402-8694-1ED9ADF4404F} = {07C2787E-EAC7-C090-1BA3-A61EC2A24D84}
 	EndGlobalSection
 EndGlobal

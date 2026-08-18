@@ -1,6 +1,6 @@
 # BlazorScheduler
 
-A lightweight month scheduler for Blazor with all-day and timed items, overflow handling, templates, appointment creation, and drag-to-reschedule support.
+A lightweight month and week scheduler for Blazor with all-day and timed items, overflow handling, templates, appointment creation, and drag-to-reschedule support.
 
 Version 5 targets .NET 8 and .NET 10. The included demo is a standalone .NET 10 Blazor WebAssembly app, deployed as static files to GitHub Pages.
 
@@ -40,11 +40,44 @@ The scheduler loads its isolated JavaScript module automatically. No script tag 
 
 The primary callbacks use `EventCallback<T>`:
 
-- `OnRangeChanged` receives the displayed `SchedulerRange` after initial interactive rendering and month navigation.
-- `OnCreate` receives the dragged date range.
+- `OnRangeChanged` receives the displayed `SchedulerRange` after initial interactive rendering, navigation, and view changes.
+- `OnCreate` receives the dragged date range (month view only).
 - `OnItemClick` receives the selected item.
 - `OnItemReschedule` receives the item and proposed start/end values.
 - `OnOverflowClick` receives the day and hidden items.
+
+## Views
+
+The scheduler ships with a month view and a week view. Switch with the `View` parameter (default `SchedulerView.Month`), bind it for two-way updates, or use the built-in switcher in the default header:
+
+```razor
+<DataScheduler TItem="CalendarItem"
+               Items="_items"
+               ItemKey="item => item.Id"
+               ItemStart="item => item.Start"
+               ItemEnd="item => item.End"
+               @bind-View="_view"
+               StartDayOfWeek="DayOfWeek.Monday">
+</DataScheduler>
+
+@code {
+    private SchedulerView _view = SchedulerView.Month;
+}
+```
+
+- `StartDayOfWeek` (default `DayOfWeek.Sunday`) controls the first day of the week in both views. The displayed range always starts on it.
+- The month view shows the full month with the day-number grid, timed items as dots, and multi-day items as bars. Drag across empty days to create an appointment, or drag an appointment to reschedule it.
+- The week view shows one week with an all-day strip on top (multi-day and zero-duration items) and a time grid below, where timed items are positioned by their start and end times. Week-view drag interactions are not yet supported; item clicks work in both views.
+- `ShowViewSwitcher` (default `true`) shows the Month/Week toggle in the default header. Supplying a custom `HeaderTemplate` replaces the header entirely, including the switcher; drive view changes through the `View` parameter then.
+
+Week-view configuration:
+
+- `WeekViewStartHour` / `WeekViewEndHour` (defaults `0` and `24`) define the visible hour window. Items are clipped at the edges; items entirely outside the window are hidden.
+- `WeekViewHourHeight` (default `60`) sets the pixel height of one hour row.
+- `WeekDayHeaderTemplate` customizes each week day header cell (it receives the `DateTime`).
+- `MaxVisibleAppointmentsPerDay` (default `5`) caps the all-day strip rows and the per-day timed overlap columns; the hidden items are reported through `OnOverflowClick` and shown as a "+ {n} others" chip.
+
+`DayTemplate` customizes the month day cells and does not apply to the week view.
 
 ## v5 migration
 

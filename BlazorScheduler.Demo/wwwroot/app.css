@@ -8,6 +8,11 @@ body { margin: 0; }
 .mode-pill { background: #e7efff; color: #194aa6; border-radius: 999px; padding: .5rem .8rem; white-space: nowrap; }
 .demo-card { background: white; border: 1px solid #e1e5ec; border-radius: 14px; padding: 1rem; box-shadow: 0 12px 35px rgb(31 48 82 / 8%); }
 .demo-status { min-height: 1.5rem; margin: 1rem 0 0; color: #5d6678; }
+.demo-controls { display: flex; align-items: center; gap: .35rem; flex-wrap: wrap; margin: .75rem 0 1rem; }
+.demo-control-label { margin: 0 .25rem 0 .75rem; color: #5d6678; font-size: .85rem; }
+.demo-controls .demo-control-label:first-child { margin-left: 0; }
+.demo-btn { background: #eef1f6; border: 1px solid #dfe4ec; color: #172033; border-radius: 6px; padding: .3rem .7rem; cursor: pointer; font: inherit; }
+.demo-btn.active { background: #194aa6; border-color: #194aa6; color: white; }
 @media (max-width: 650px) { .demo-heading { display: block; } .mode-pill { display: inline-block; margin-top: 1rem; } }
 
 #blazor-error-ui {

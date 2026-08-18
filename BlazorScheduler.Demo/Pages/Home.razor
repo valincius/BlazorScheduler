@@ -13,13 +13,25 @@
 
     <section class="demo-card">
         <p class="demo-status" aria-live="polite">@_status</p>
-        
+
+        <div class="demo-controls">
+            <span class="demo-control-label">View</span>
+            <button class="demo-btn @(_view == SchedulerView.Month ? "active" : null)" @onclick="() => _view = SchedulerView.Month">Month</button>
+            <button class="demo-btn @(_view == SchedulerView.Week ? "active" : null)" @onclick="() => _view = SchedulerView.Week">Week</button>
+            <span class="demo-control-label">Week starts on</span>
+            <button class="demo-btn @(_startDay == DayOfWeek.Sunday ? "active" : null)" @onclick="() => _startDay = DayOfWeek.Sunday">Sun</button>
+            <button class="demo-btn @(_startDay == DayOfWeek.Monday ? "active" : null)" @onclick="() => _startDay = DayOfWeek.Monday">Mon</button>
+            <button class="demo-btn @(_startDay == DayOfWeek.Saturday ? "active" : null)" @onclick="() => _startDay = DayOfWeek.Saturday">Sat</button>
+        </div>
+
         <DataScheduler TItem="CalendarItem"
                    Items="_items"
                    ItemKey="item => item.Id"
                    ItemStart="item => item.Start"
                    ItemEnd="item => item.End"
                    ItemColor="item => item.Color"
+                   @bind-View="_view"
+                   StartDayOfWeek="_startDay"
                    EnableRescheduling="true"
                    OnCreate="CreateAsync"
                    OnItemClick="ItemClickedAsync"
@@ -35,6 +47,8 @@
 @code {
     private IReadOnlyList<CalendarItem> _items = CreateSampleItems();
     private string _status = "Ready.";
+    private SchedulerView _view = SchedulerView.Month;
+    private DayOfWeek _startDay = DayOfWeek.Sunday;
 
     private Task CreateAsync(SchedulerRange range)
     {

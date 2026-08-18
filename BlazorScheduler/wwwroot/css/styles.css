@@ -1,4 +1,4 @@
-﻿.scheduler {
+.scheduler {
     -webkit-touch-callout: none;
     -webkit-user-select: none;
     -moz-user-select: none;
@@ -213,3 +213,129 @@
         display: initial;
     }
 }
+
+/* View switcher (default header) */
+.scheduler > .header > .view-switcher {
+    display: flex;
+    justify-content: center;
+    gap: 4px;
+    padding: 0 10px 8px;
+}
+.scheduler > .header > .view-switcher > .btn {
+    background-color: #ddd;
+    border: none;
+    color: black;
+    padding: 4px 12px;
+    border-radius: 3px;
+    cursor: pointer;
+}
+.scheduler > .header > .view-switcher > .btn.active {
+    background-color: #666;
+    color: white;
+}
+
+/* Week view */
+.scheduler > .week-view {
+    display: flex;
+    flex-direction: column;
+    overflow: auto;
+    max-height: 100%;
+}
+
+.scheduler > .week-view > .week-day-header {
+    display: grid;
+    grid-template-columns: 3.5rem repeat(7, 1fr);
+    border-bottom: 1px solid #eee;
+    background-color: white;
+}
+.scheduler > .week-view > .week-day-header > .day-header {
+    text-align: center;
+    padding: 4px 0;
+    border-left: 1px solid #eee;
+}
+.scheduler > .week-view > .week-day-header > .day-header > .day-name {
+    display: block;
+    font-size: .75rem;
+    font-weight: bold;
+}
+.scheduler > .week-view > .week-day-header > .day-header > .day-number {
+    display: inline-block;
+    border-radius: 50%;
+    min-width: 1.5rem;
+    height: 1.5rem;
+    line-height: 1.5rem;
+    font-size: .9rem;
+}
+
+.scheduler > .week-view > .all-day-strip {
+    position: relative;
+    min-height: calc(var(--rows, 0) * 1.5rem + 12px);
+    border-bottom: 1px solid #eee;
+}
+.scheduler > .week-view > .all-day-strip > .appointment {
+    position: absolute;
+    left: calc(var(--start) / 7 * 100%);
+    top: calc(6px + var(--order) * 1.5rem);
+    border-radius: 2px;
+    margin-left: 2px;
+    width: calc((var(--end) - var(--start) + 1) / 7 * 100% - 4px);
+    padding-left: 4px;
+    font-size: .95rem;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+.scheduler > .week-view > .all-day-strip > .scheduler-overflow {
+    z-index: 1;
+}
+
+.scheduler > .week-view > .time-grid {
+    display: grid;
+    grid-template-columns: 3.5rem repeat(7, 1fr);
+    grid-template-rows: repeat(var(--hour-count), var(--hour-height));
+    background-image: repeating-linear-gradient(
+        to bottom,
+        transparent 0,
+        transparent calc(var(--hour-height) - 1px),
+        #eee calc(var(--hour-height) - 1px),
+        #eee var(--hour-height));
+}
+.scheduler > .week-view > .time-grid > .hour-label {
+    grid-column: 1;
+    background-color: white;
+    text-align: right;
+    padding-right: 6px;
+    font-size: .75rem;
+    color: #888;
+    line-height: var(--hour-height);
+}
+.scheduler > .week-view > .time-grid > .day-column {
+    grid-row: 1 / -1;
+    position: relative;
+    border-left: 1px solid #eee;
+}
+.scheduler > .week-view > .time-grid > .day-column.today {
+    background-color: #fafafa;
+}
+.scheduler > .week-view > .time-grid > .day-column > .appointment.timed {
+    position: absolute;
+    top: var(--top);
+    height: var(--height);
+    left: calc(var(--slot) / var(--maxSlots) * 100% + 2px);
+    width: calc(100% / var(--maxSlots) - 4px);
+    box-sizing: border-box;
+    border: 1px solid rgb(0 0 0 / 10%);
+    border-radius: 2px;
+    padding-left: 4px;
+    font-size: .95rem;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+.scheduler > .week-view > .time-grid > .day-column > .scheduler-overflow {
+    position: absolute;
+    bottom: 4px;
+    left: 2px;
+    z-index: 1;
+}
+

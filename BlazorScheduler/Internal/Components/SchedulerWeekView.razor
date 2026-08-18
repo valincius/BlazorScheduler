@@ -1,0 +1,96 @@
+@namespace BlazorScheduler.Internal.Components
+@typeparam TItem
+@using System.Globalization
+
+<div class="week-view">
+    <div class="week-day-header">
+        <div class="hour-label-spacer"></div>
+        @for (var dayOffset = 0; dayOffset < 7; dayOffset++)
+        {
+            var day = _layout!.Start.AddDays(dayOffset);
+            <div class="day-header @(day.Date == DateTime.Today ? "today" : null)"
+                 data-scheduler-day-header="@day.ToString("yyyyMMdd", CultureInfo.InvariantCulture)">
+                @if (WeekDayHeaderTemplate is not null)
+                {
+                    @WeekDayHeaderTemplate(day)
+                }
+                else
+                {
+                    <span class="day-name">@day.ToString("ddd", CultureInfo.CurrentCulture)</span>
+                    <span class="day-number" style="background-color:@(day.Date == DateTime.Today ? ThemeColor : null)">@day.Day</span>
+                }
+            </div>
+        }
+    </div>
+
+    <div class="all-day-strip" data-scheduler-all-day-strip style="--rows:@_layout!.AllDayVisibleRows">
+        @foreach (var placed in VisibleAllDayItems)
+        {
+            var input = placed.Input;
+            <div @key="input.Key"
+                 class="appointment @input.Class"
+                 style="--start:@placed.StartDay;--end:@placed.EndDay;--order:@placed.Order;background-color:@input.Color;@input.Style"
+                 data-scheduler-item="@input.SourceIndex"
+                 @onclick="() => ItemClickedAsync(input.Item)">
+                @if (ItemTemplate is not null)
+                {
+                    @ItemTemplate(new SchedulerItemContext<TItem>(input.Item, false))
+                }
+                else
+                {
+                    @input.Item
+                }
+            </div>
+        }
+        @foreach (var overflow in _layout!.AllDayOverflows)
+        {
+            var start = (int)(overflow.Day - _layout!.Start).TotalDays;
+            <button type="button" class="appointment scheduler-overflow" style="--start:@start;--end:@start;--order:@MaxVisibleAppointmentsPerDay"
+                    @onclick="() => OverflowClickedAsync(overflow)">
+                @PlusOthersText.Replace("{n}", overflow.Items.Count.ToString(CultureInfo.CurrentCulture))
+            </button>
+        }
+    </div>
+
+    <div class="time-grid" style="--hour-count:@(WeekViewEndHour - WeekViewStartHour);--hour-height:@(WeekViewHourHeight)px">
+        @for (var hour = WeekViewStartHour; hour < WeekViewEndHour; hour++)
+        {
+            <div class="hour-label" data-scheduler-hour="@hour" style="grid-row:@(hour - WeekViewStartHour + 1);grid-column:1">@hour.ToString("00"):00</div>
+        }
+        @for (var dayOffset = 0; dayOffset < 7; dayOffset++)
+        {
+            var day = _layout!.Start.AddDays(dayOffset);
+            var dayLayout = _layout!.Days[dayOffset];
+            <div class="day-column @(day.Date == DateTime.Today ? "today" : null)"
+                 data-scheduler-day="@day.ToString("yyyyMMdd", CultureInfo.InvariantCulture)"
+                 style="grid-column:@(dayOffset + 2)">
+                @foreach (var timed in dayLayout.Items)
+                {
+                    var input = timed.Input;
+                    <div @key="input.Key"
+                         class="appointment timed @input.Class"
+                         style="@(TimedStyle(timed) + input.Style)"
+                         data-scheduler-item="@input.SourceIndex"
+                         data-scheduler-timed="true"
+                         @onclick="() => ItemClickedAsync(input.Item)">
+                        @if (ItemTemplate is not null)
+                        {
+                            @ItemTemplate(new SchedulerItemContext<TItem>(input.Item, true))
+                        }
+                        else
+                        {
+                            @input.Item
+                        }
+                    </div>
+                }
+                @foreach (var overflow in dayLayout.Overflows)
+                {
+                    <button type="button" class="appointment scheduler-overflow"
+                            @onclick="() => OverflowClickedAsync(overflow)">
+                        @PlusOthersText.Replace("{n}", overflow.Items.Count.ToString(CultureInfo.CurrentCulture))
+                    </button>
+                }
+            </div>
+        }
+    </div>
+</div>

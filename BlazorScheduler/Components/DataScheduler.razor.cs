@@ -45,21 +45,35 @@ public partial class DataScheduler<TItem> : IAsyncDisposable
     [Parameter] public string? RootDayClass { get; set; }
     [Parameter] public string? RootDayStyle { get; set; }
 
+    [Parameter] public SchedulerView View { get; set; } = SchedulerView.Month;
+    [Parameter] public EventCallback<SchedulerView> ViewChanged { get; set; }
+    [Parameter] public bool ShowViewSwitcher { get; set; } = true;
+    [Parameter] public int WeekViewStartHour { get; set; }
+    [Parameter] public int WeekViewEndHour { get; set; } = 24;
+    [Parameter] public int WeekViewHourHeight { get; set; } = 60;
+    [Parameter] public RenderFragment<DateTime>? WeekDayHeaderTemplate { get; set; }
+
     public DateTime CurrentDate { get; private set; } = DateTime.Today;
+
     public SchedulerRange CurrentRange
     {
         get
         {
+            if (View == SchedulerView.Week)
+            {
+                var start = CurrentDate.Date.GetPrevious(StartDayOfWeek);
+                return new SchedulerRange(start, start.AddDays(6));
+            }
+
             var first = new DateTime(CurrentDate.Year, CurrentDate.Month, 1);
-            var start = first.GetPrevious(StartDayOfWeek);
+            var monthStart = first.GetPrevious(StartDayOfWeek);
             var last = new DateTime(CurrentDate.Year, CurrentDate.Month, DateTime.DaysInMonth(CurrentDate.Year, CurrentDate.Month));
             var endDay = (DayOfWeek)(((int)StartDayOfWeek + 6) % 7);
-            return new SchedulerRange(start, last.GetNext(endDay));
+            return new SchedulerRange(monthStart, last.GetNext(endDay));
         }
     }
 
     private ElementReference _root;
-    private IReadOnlyList<SchedulerWeekLayout<TItem>> _weeks = Array.Empty<SchedulerWeekLayout<TItem>>();
     private IJSObjectReference? _module;
     private IJSObjectReference? _jsInstance;
     private DotNetObjectReference<DataScheduler<TItem>>? _objectReference;
@@ -72,14 +86,36 @@ public partial class DataScheduler<TItem> : IAsyncDisposable
     private DateTime? _dragEnd;
     private bool _didDrag;
 
-    private string MonthDisplay => AlwaysShowYear || CurrentDate.Year != DateTime.Today.Year
-        ? CurrentDate.ToString("MMMM yyyy", CultureInfo.CurrentCulture)
-        : CurrentDate.ToString("MMMM", CultureInfo.CurrentCulture);
+    private string DisplayText
+    {
+        get
+        {
+            if (View == SchedulerView.Week)
+            {
+                var (start, end) = (CurrentRange.Start, CurrentRange.End);
+                if (start.Year != end.Year)
+                {
+                    return $"{start.ToString("MMM d, yyyy", CultureInfo.CurrentCulture)} – {end.ToString("MMM d, yyyy", CultureInfo.CurrentCulture)}";
+                }
+                if (start.Month != end.Month)
+                {
+                    return $"{start.ToString("MMM d", CultureInfo.CurrentCulture)} – {end.ToString("MMM d, yyyy", CultureInfo.CurrentCulture)}";
+                }
+                return $"{start.ToString("MMM d", CultureInfo.CurrentCulture)} – {end.ToString("MMM d, yyyy", CultureInfo.CurrentCulture)}";
+            }
+
+            return AlwaysShowYear || CurrentDate.Year != DateTime.Today.Year
+                ? CurrentDate.ToString("MMMM yyyy", CultureInfo.CurrentCulture)
+                : CurrentDate.ToString("MMMM", CultureInfo.CurrentCulture);
+        }
+    }
+
+    private string PreviousLabel => View == SchedulerView.Week ? "Previous week" : "Previous month";
+    private string NextLabel => View == SchedulerView.Week ? "Next week" : "Next month";
 
     protected override void OnParametersSet()
     {
         ValidateParameters();
-        BuildLayout();
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -103,15 +139,27 @@ public partial class DataScheduler<TItem> : IAsyncDisposable
         }
     }
 
-    public Task SetCurrentMonthAsync(DateTime date) => ChangeMonthAsync(date);
-    private Task GoToTodayAsync() => ChangeMonthAsync(DateTime.Today);
-    private Task PreviousMonthAsync() => ChangeMonthAsync(CurrentDate.AddMonths(-1));
-    private Task NextMonthAsync() => ChangeMonthAsync(CurrentDate.AddMonths(1));
+    /// <summary>Moves the scheduler to the given anchor date and refreshes the displayed range.</summary>
+    public Task SetCurrentMonthAsync(DateTime date) => ChangeRangeAsync(date);
 
-    private async Task ChangeMonthAsync(DateTime date)
+    private Task GoToTodayAsync() => ChangeRangeAsync(DateTime.Today);
+    private Task PreviousAsync() => ChangeRangeAsync(View == SchedulerView.Week ? CurrentDate.AddDays(-7) : CurrentDate.AddMonths(-1));
+    private Task NextAsync() => ChangeRangeAsync(View == SchedulerView.Week ? CurrentDate.AddDays(7) : CurrentDate.AddMonths(1));
+
+    private async Task ChangeRangeAsync(DateTime date)
     {
         CurrentDate = date;
-        BuildLayout();
+        await RequestRangeAsync();
+    }
+
+    private async Task SetViewAsync(SchedulerView view)
+    {
+        if (view == View)
+        {
+            return;
+        }
+        View = view;
+        await ViewChanged.InvokeAsync(view);
         await RequestRangeAsync();
     }
 
@@ -141,6 +189,18 @@ public partial class DataScheduler<TItem> : IAsyncDisposable
             throw new InvalidOperationException("ItemKey, ItemStart, and ItemEnd are required.");
         }
         ArgumentOutOfRangeException.ThrowIfLessThan(MaxVisibleAppointmentsPerDay, 1);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(WeekViewStartHour, 23);
+        ArgumentOutOfRangeException.ThrowIfLessThan(WeekViewEndHour, 1);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(WeekViewEndHour, 24);
+        if (WeekViewStartHour >= WeekViewEndHour)
+        {
+            throw new ArgumentOutOfRangeException(nameof(WeekViewStartHour), "WeekViewStartHour must be less than WeekViewEndHour.");
+        }
+        ArgumentOutOfRangeException.ThrowIfLessThan(WeekViewHourHeight, 1);
+        if (!Enum.IsDefined(View))
+        {
+            throw new ArgumentOutOfRangeException(nameof(View), View, "View must be a defined SchedulerView value.");
+        }
 
         var keys = new HashSet<object?>();
         foreach (var item in Items)
@@ -157,26 +217,6 @@ public partial class DataScheduler<TItem> : IAsyncDisposable
         }
     }
 
-    private void BuildLayout()
-    {
-        var inputs = new SchedulerLayoutInput<TItem>[Items.Count];
-        for (var index = 0; index < Items.Count; index++)
-        {
-            var item = Items[index];
-            var start = ItemStart(item);
-            var end = ItemEnd(item);
-            if (_draggedIndex == index && _dragStart.HasValue && _dragEnd.HasValue)
-            {
-                start = _dragStart.Value;
-                end = _dragEnd.Value;
-            }
-            inputs[index] = new SchedulerLayoutInput<TItem>(item, ItemKey(item), start, end,
-                ItemColor?.Invoke(item) ?? ThemeColor, ItemClass?.Invoke(item), ItemStyle?.Invoke(item), index);
-        }
-        var range = CurrentRange;
-        _weeks = SchedulerLayoutPlanner.Build(inputs, range.Start, range.End, MaxVisibleAppointmentsPerDay);
-    }
-
     private async Task ItemClickedAsync(TItem item)
     {
         if (_didDrag)
@@ -187,8 +227,11 @@ public partial class DataScheduler<TItem> : IAsyncDisposable
         await OnItemClick.InvokeAsync(item);
     }
 
-    private Task OverflowClickedAsync(SchedulerDayOverflow<TItem> overflow) =>
-        OnOverflowClick.InvokeAsync(new SchedulerOverflowEventArgs<TItem>(overflow.Day, overflow.Items));
+    private Task WeekItemClickedAsync(TItem item) => OnItemClick.InvokeAsync(item);
+
+    private Task MonthOverflowClickedAsync(SchedulerOverflowEventArgs<TItem> args) => OnOverflowClick.InvokeAsync(args);
+
+    private Task WeekOverflowClickedAsync(SchedulerOverflowEventArgs<TItem> args) => OnOverflowClick.InvokeAsync(args);
 
     [JSInvokable]
     public void BeginDayDrag(string value)
@@ -246,7 +289,6 @@ public partial class DataScheduler<TItem> : IAsyncDisposable
                 _dragEnd = day;
             }
         }
-        BuildLayout();
         StateHasChanged();
     }
 
@@ -273,7 +315,6 @@ public partial class DataScheduler<TItem> : IAsyncDisposable
             await OnCreate.InvokeAsync(new SchedulerRange(_dragStart.Value, _dragEnd.Value));
         }
         ClearDrag();
-        BuildLayout();
         StateHasChanged();
     }
 
